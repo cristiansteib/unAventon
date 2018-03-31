@@ -8,7 +8,7 @@ import time
 # Create your tests here.
 class ModelIntegrityTest(TestCase):
 
-    def creteEnviroment(self):
+    def setUp(self):
         ''' crea el entorno necesario para poder ejecutar las pruebas'''
         self.user = User.objects.create_user('usuario', 'mail@alg.xom', 'clavesecreta')
         self.banco = BankEntity.objects.create(nombre="Santander Rio SA")
@@ -25,12 +25,10 @@ class ModelIntegrityTest(TestCase):
 
     def test_borraPerfilySeBorranSusTarjeta(self):
         ''' Se borra un perfil, se tienen que borrar todas sus tarjetas '''
-        self.creteEnviroment()
         self.perfil.delete()
         self.assertEqual(Creditcard.objects.filter(profile=self.perfil).count(), 0)
 
     def test_borraPerfilySeBorranSusViajes(self):
-        self.creteEnviroment()
         self.perfil.delete()
         self.assertEqual(Trip.objects.filter(profile=self.perfil).count(), 0)
 
