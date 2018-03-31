@@ -5,5 +5,5 @@ name = 'unAventonApp'
 urlpatterns = [
     path('', index, name='index'),
     path('login', login, name='login'),
-    path('singin', signIn, name='singin'),
+    path('signin', signIn, name='signin'),
 ]
