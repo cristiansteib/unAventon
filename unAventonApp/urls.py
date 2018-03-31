@@ -1,7 +1,9 @@
 from django.urls import path
+from .views import index, login, signIn
 
-from . import views
 name = 'unAventonApp'
 urlpatterns = [
-    path('',views.index,name='index'),
+    path('', index, name='index'),
+    path('login', login, name='login'),
+    path('singin', signIn, name='singin'),
 ]

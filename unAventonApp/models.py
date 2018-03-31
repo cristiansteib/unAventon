@@ -21,11 +21,39 @@ class Driver(models.Model):
     calification = models.FloatField(default=0)
     calificationCount = models.IntegerField(default=0)
 
+    def calificatePositive(self):
+        self.__calificate(+1)
+
+    def calificateNeutral(self):
+        self.__calificate(0)
+
+    def calificateNegative(self):
+        self.__calificate(-1)
+
+    def __calificate(self, punctuation):
+        self.calification = self.calification + punctuation
+        self.calificationCount += 1
+        self.save()
+
 
 class Passenger(models.Model):
     profile = models.OneToOneField(Profile, unique=True, on_delete=models.CASCADE)
     calification = models.FloatField(default=0)
     calificationCount = models.IntegerField(default=0)
+
+    def calificatePositive(self):
+        self.__calificate(+1)
+
+    def calificateNeutral(self):
+        self.__calificate(0)
+
+    def calificateNegative(self):
+        self.__calificate(-1)
+
+    def __calificate(self, punctuation):
+        self.calification = self.calification + punctuation
+        self.calificationCount += 1
+        self.save()
 
 
 class Car(models.Model):
@@ -94,14 +122,13 @@ class Trip(models.Model):
 
 class ConversationPublicThread(models.Model):
     ''' las conversaciones publicas con pregunta respuesta'''
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE) # quien hizo la pregunta
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)  # quien hizo la pregunta
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     question = models.CharField(max_length=250)
     answer = models.CharField(max_length=250, default=None, null=True)
     answerDateTime = models.DateTimeField(blank=True, null=True, default=True)
     questionDateTime = models.DateTimeField(default=timezone.now())
     enable = models.BooleanField(default=True)
-
 
 
 class ConversationPrivateThread(models.Model):
