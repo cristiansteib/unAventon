@@ -2,13 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class BankEntity(models.Model):
-    '''
-    Sirve para mantener los nombres de las entidades
-    para las tarjetas de creditos
-    '''
-    nombre = models.CharField(max_length=30)
-
 
 
 
@@ -19,9 +12,31 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     fechaDeNacimiento = models.DateField()
     dni = models.CharField(max_length=10)
+    calificacionComoConductor = models.FloatField(default=0)
+    calificacionComoConductorCantidad = models.IntegerField(default=0)
+    calificacionComoPasajero = models.FloatField(default=0)
+    calificacionComoPasajeroCantidad = models.IntegerField(default=0)
 
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
+
+
+
+class Driver(models.Model):
+    pass
+
+class Passanger(models.Model):
+    pass
+
+
+
+class BankEntity(models.Model):
+    '''
+    Sirve para mantener los nombres de las entidades
+    para las tarjetas de creditos
+    '''
+    nombre = models.CharField(max_length=30)
+
 
 
 class Creditcard(models.Model):
@@ -63,3 +78,6 @@ class ConversationPrivateThread(models.Model):
     message = models.CharField(max_length=250)
     messageDateTime = models.DateTimeField()
     enable = models.BooleanField(default=True)
+
+
+# vehiculo...
