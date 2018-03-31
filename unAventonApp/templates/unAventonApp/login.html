@@ -1,0 +1,10 @@
+{% extends "unAventonApp/base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <form method="POST">{% csrf_token %}
+        <input type="email" name="email" placeholder="E-mail">
+        <input type="password" name="password" placeholder="Contrase&ntilde;a">
+        <button type="submit">LogIn</button>
+    </form>
+{% endblock %}
