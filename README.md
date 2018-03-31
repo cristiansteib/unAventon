@@ -15,7 +15,7 @@ $ virtualenv -p python3.5 venv
 $ source venv/bin/activate
 $ cd unAventon
 $ pip install -r requirements.txt
-$ python manage.py runserver 0.0.0.0 8000
+$ python manage.py runserver 0.0.0.0:8000
 ```
 Now go to [127.0.0.1:8000](127.0.0.1:8000)
 
