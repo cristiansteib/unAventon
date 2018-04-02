@@ -2,11 +2,13 @@
 {% block title %}SignIn{% endblock %}
 
 {% block content %}
-    <form method="POST">{% csrf_token %}
+    <form action="{% url 'signin_register' %}" method="POST">{% csrf_token %}
         <input type="text" name="name" placeholder="Nombre">
         <input type="text" name="lastName" placeholder="Apellido">
         <input type="email" name="email" placeholder="E-mail">
         <input type="password" name="password" placeholder="Contrase&ntilde;a">
-        <button type="submit">LogIn</button>
+        <button type="submit">Registrarse</button>
     </form>
+
+
 {% endblock %}

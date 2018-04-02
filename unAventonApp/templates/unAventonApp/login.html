@@ -7,4 +7,7 @@
         <input type="password" name="password" placeholder="Contrase&ntilde;a">
         <button type="submit">LogIn</button>
     </form>
+    {% if error %}
+        <p> Usuario o contraseña invalidos</p>
+    {% endif %}
 {% endblock %}
