@@ -31,6 +31,9 @@ def signInRegister(request):
     if request.method == 'POST':
         r = request.POST
         user = User.objects.create_user(r['email'],r['email'],r['password'])
+        #todo   email email????'''
+        #todo verificar si ya existe el correo
+
         user.save()
         return render(request, 'unAventonApp/signin_success.html')
     return HttpResponseRedirect('signin')
