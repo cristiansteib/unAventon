@@ -62,6 +62,7 @@ class Car(models.Model):
     brand = models.CharField(max_length=15)
     model = models.CharField(max_length=15)
     year = models.IntegerField()
+    capacity = models.IntegerField()
 
 
 class BankEntity(models.Model):
