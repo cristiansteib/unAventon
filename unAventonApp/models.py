@@ -11,8 +11,20 @@ class Usuario(models.Model):
     fechaDeNacimiento = models.DateField()
     dni = models.CharField(max_length=15)
 
-    def calificacionesPendientes(self):
+    def calificacionComoPiloto(self):
+        pass
+
+    def calificaionComoCopiloto(self):
+        pass
+
+    def calificacionesPendientesParaPiloto(self):
         raise NotImplementedError
+
+    def calificacionesPendientesParaCoPiloto(self):
+        viajes = Viaje.objects.filter(auto__usuario=self)
+        copilotos = ViajeCopiloto.objects.filter(viajes in viajes, estaConfirmado=True)
+        calificacionesRealizadas = Calificacion.objects.filter(viaje__in=viajes,
+                                                               deUsuario__calificacion__deUsuario__in=copilotos)
 
     def calificar(self, calificacion, aUsuario, enViaje, comentario):
         c = Calificacion()
@@ -29,6 +41,11 @@ class Tarjeta(models.Model):
     numero = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
     ccv = models.IntegerField()
+
+
+class CuentaBancaria(models.Model):
+    usuario = models.ManyToManyField(Usuario)
+    cbu = models.DateField()
 
 
 class Auto(models.Model):
@@ -79,8 +96,8 @@ class ConversacionPublica(models.Model):
 
 
 class Calificacion(models.Model):
-    deUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    paraUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    deUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='Calificacion.deUsuario+')
+    paraUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, )
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     comentario = models.CharField(max_length=150)
     calificacion = models.IntegerField()
