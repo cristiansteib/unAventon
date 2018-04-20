@@ -96,10 +96,10 @@ class Tarjeta(models.Model):
 
 class CuentaBancaria(models.Model):
     usuario = models.ManyToManyField(Usuario)
-    cbu = models.DateField()
+    cbu = models.CharField(max_length=20)
 
     def __str__(self):
-        return "{0} {1}".format(self.usuario, self.cbu)
+        return "CBU = {0}".format(self.cbu)
 
 
 class Auto(models.Model):
