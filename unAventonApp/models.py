@@ -1,5 +1,6 @@
 from django.db import models, IntegrityError
 from django.contrib.auth.models import User
+from django.db.models import Count, Min, Sum, Avg
 from django.utils import timezone
 import ast
 
@@ -15,25 +16,31 @@ class Usuario(models.Model):
         return "{0} {1}".format(self.nombre, self.apellido)
 
     def calificacionComoPiloto(self):
-        pass
+        return Calificacion.objects.filter(viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
+            calificacion=Sum('calificacion'))['calificacion__count']
 
     def calificacionComoCopiloto(self):
-        pass
+        return Calificacion.objects.filter(viaje__in=ViajeCopiloto.objects.filter(usuario=self)).aggregate(
+            calificacion=Sum('calificacion'))['calificacion__count']
 
     def calificacionesPendientesParaPiloto(self):
-        # Lo raro de esta implementacion es retornar los usuarios a los que no califique,
-        pass
-
+        viajesConfirmadosComoCopiloto = ViajeCopiloto.objects.filter(
+            usuario=self,
+            estaConfirmado=True)  # todos mis viajes como copiloto
+        if not viajesConfirmadosComoCopiloto:
+            return None
+        return viajesConfirmadosComoCopiloto.exclude(
+            viaje__in=Calificacion.objects.filter(
+                viaje__in=viajesConfirmadosComoCopiloto.values_list('viaje'),
+                deUsuario=self).values_list('viaje'))
 
     def calificacionesPendientesParaCopilotos(self):
-        # Lo raro de esta implementacion es retornar los usuarios a los que no califique,
-        # y sigo sin saber a que viaje es ..
-        # por eso lo mejor va a ser usar este metodo, pero para la clase ViajeCopiloto
         viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
         if not viajes:
             return None
-        return Usuario.objects.filter(pk__in=ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
-            viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('viaje')).values_list('usuario'))
+        return ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
+            viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('viaje')
+        )
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         c = Calificacion()
@@ -109,6 +116,20 @@ class Viaje(models.Model):
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
 
+    def hayLugar(self):
+        lugaresOcupados = ViajeCopiloto.objects.filter(
+            viaje=self,
+            estaConfirmado=True
+        ).aggregate(Count('usuario'))['usuario__count']
+        capacidad = self.auto.capacidad
+        return lugaresOcupados < capacidad
+
+    def agregarCopilotoEnListaDeEspera(self, usuario):
+        ViajeCopiloto.objects.create(
+            viaje=self,
+            usuario=usuario
+        )
+
 
 class ViajeCopiloto(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -122,17 +143,6 @@ class ViajeCopiloto(models.Model):
 
     def __str__(self):
         return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
-
-    def calificacionesPendientesParaCopilotos(self, usuario):
-        ''' retorna una coleccion de ViajeCopiloto, que el usuario adeuda calificar'''
-        viajes = Viaje.objects.filter(auto__usuario=usuario)  # todos mis viajes
-        if not viajes:
-            return None
-        return ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
-                viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list(
-                    'viaje'))
-
-
 
 
 class ConversacionPrivada(models.Model):
@@ -160,6 +170,3 @@ class Calificacion(models.Model):
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     comentario = models.CharField(max_length=150)
     calificacion = models.IntegerField()
-
-
-

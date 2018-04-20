@@ -1,22 +1,27 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario
+from .models import Usuario, Viaje
 from .modules.Git import Git
 from django.conf import settings
 
-def index(request):
-    context = {
-        'footer' : {
-            'branch' : Git(settings.BASE_DIR).getActuallBranch()
+
+def baseContext():
+    return {
+        'footer': {
+            'branch': Git(settings.BASE_DIR).getActuallBranch()
         }
     }
-    print(Usuario.objects.filter(user=request.user)[0].calificacionesPendientesParaCopilotos())
+
+
+def index(request):
+    context = baseContext()
+    x = Viaje.objects.get(pk=1)
     return render(request, 'unAventonApp/index.html', context)
 
 
 def login(request):
-    context = {}
+    context = baseContext()
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
@@ -39,13 +44,14 @@ def signIn(request):
 def signInRegister(request):
     if request.method == 'POST':
         r = request.POST
-        user = User.objects.create_user(r['email'],r['email'],r['password'])
-        #todo   email email????'''
-        #todo verificar si ya existe el correo
+        user = User.objects.create_user(r['email'], r['email'], r['password'])
+        # todo   email email????'''
+        # todo verificar si ya existe el correo
 
         user.save()
         return render(request, 'unAventonApp/signin_success.html')
     return HttpResponseRedirect('signin')
+
 
 def logout(request):
     __logout(request)
