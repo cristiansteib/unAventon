@@ -193,6 +193,7 @@ class Viaje(models.Model):
 
     objects = ViajeManager()
 
+   
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
             viaje=self,
