@@ -193,7 +193,7 @@ class Viaje(models.Model):
             if not len(__json['error']):
                 # no hay errores, entonces se guarda
                 super(Viaje, self).save(args, kwargs)
-            __json['creado'] = True
+                __json['creado'] = True
 
         return json.dumps(__json, sort_keys=True, indent=4 )
 
