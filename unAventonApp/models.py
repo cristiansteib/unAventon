@@ -154,6 +154,31 @@ class TipoViaje(models.Model):
             sort_keys=True,
             indent=4)
 
+class ViajeManager(models.Manager):
+    def create_viaje(self, *args, **kwargs):
+        __json = {
+            'creado': False,
+            'error': []
+        }
+        usuario = kwargs['autos'].usuario
+        if not usuario.puedeCrearViaje():
+            return None
+
+        if usuario != kwargs['cuentaBancaria'].usuario:
+            __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
+        if usuario.tieneCalificicacionesPendientes():
+            __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
+        #TODO
+        #if usuario.viajesCreadosActivos():
+        #    __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
+        if not len(__json['error']):
+            # no hay errores, entonces se guarda
+            viaje = self.create(*args, **kwargs)
+            __json[id] = viaje.pk
+            __json['creado'] = True
+
+        return __json
+
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
@@ -166,36 +191,7 @@ class Viaje(models.Model):
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
 
-    def crearViaje(self, usuario, *args, **kwargs):
-        """
-        Este metodo resuelve lo necesario para crear un viaje.
-        Chequea las reglas de negocio que permiten creear un viaje.
-        Y retorna un Json con los errores
-
-        :param usuario:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-
-        __json = {
-            'creado': False,
-            'error': []
-        }
-
-        if not self.pk:
-            if self.auto.usuario != self.cuentaBancaria.usuario:
-                __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
-            if usuario.tieneCalificicacionesPendientes():
-                __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
-            if usuario.viajesCreadosActivos().filter():
-                __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
-            if not len(__json['error']):
-                # no hay errores, entonces se guarda
-                super(Viaje, self).save(args, kwargs)
-            __json['creado'] = True
-
-        return json.dumps(__json, sort_keys=True, indent=4 )
+    objects = ViajeManager()
 
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
