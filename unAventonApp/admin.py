@@ -1,14 +1,8 @@
+from django.apps import apps
 from django.contrib import admin
-from .models import *
-# Register your models here.
 
-admin.site.register(Usuario)
-admin.site.register(Viaje)
-admin.site.register(ViajeCopiloto)
-admin.site.register(Calificacion)
-admin.site.register(ConversacionPrivada)
-admin.site.register(ConversacionPublica)
-admin.site.register(CuentaBancaria)
-admin.site.register(Tarjeta)
-admin.site.register(Auto)
-admin.site.register(TipoViaje)
+#agrega dinamicamente todos los modelos de la app
+
+app_models = apps.get_app_config('unAventonApp').get_models()
+for model in app_models:
+    admin.site.register(model)
