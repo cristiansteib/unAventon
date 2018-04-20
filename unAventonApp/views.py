@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
+from .models import Usuario
 from .modules.Git import Git
 from django.conf import settings
 
@@ -10,6 +11,7 @@ def index(request):
             'branch' : Git(settings.BASE_DIR).getActuallBranch()
         }
     }
+    print(Usuario.objects.filter(user=request.user)[0].calificacionesPendientesParaCopilotos())
     return render(request, 'unAventonApp/index.html', context)
 
 

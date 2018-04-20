@@ -11,6 +11,9 @@ class Usuario(models.Model):
     fechaDeNacimiento = models.DateField()
     dni = models.CharField(max_length=15)
 
+    def __str__(self):
+        return "{0} {1}".format(self.nombre, self.apellido)
+
     def calificacionComoPiloto(self):
         pass
 
@@ -18,10 +21,19 @@ class Usuario(models.Model):
         pass
 
     def calificacionesPendientesParaPiloto(self):
-        raise NotImplementedError
+        # Lo raro de esta implementacion es retornar los usuarios a los que no califique,
+        pass
+
 
     def calificacionesPendientesParaCopilotos(self):
-        raise NotImplementedError
+        # Lo raro de esta implementacion es retornar los usuarios a los que no califique,
+        # y sigo sin saber a que viaje es ..
+        # por eso lo mejor va a ser usar este metodo, pero para la clase ViajeCopiloto
+        viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
+        if not viajes:
+            return None
+        return Usuario.objects.filter(pk__in=ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
+            viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('viaje')).values_list('usuario'))
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         c = Calificacion()
@@ -108,6 +120,20 @@ class ViajeCopiloto(models.Model):
         self.estaConfirmado = True
         self.save()
 
+    def __str__(self):
+        return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
+
+    def calificacionesPendientesParaCopilotos(self, usuario):
+        ''' retorna una coleccion de ViajeCopiloto, que el usuario adeuda calificar'''
+        viajes = Viaje.objects.filter(auto__usuario=usuario)  # todos mis viajes
+        if not viajes:
+            return None
+        return ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
+                viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list(
+                    'viaje'))
+
+
+
 
 class ConversacionPrivada(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -134,4 +160,6 @@ class Calificacion(models.Model):
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     comentario = models.CharField(max_length=150)
     calificacion = models.IntegerField()
+
+
 
