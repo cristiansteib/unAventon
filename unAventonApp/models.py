@@ -16,6 +16,12 @@ class Usuario(models.Model):
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
 
+    def puedeCrearViaje(self):
+        return True
+
+    def tieneCalificicacionesPendientes(self):
+        return False
+
     def calificacionComoPiloto(self):
         return Calificacion.objects.filter(viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
             calificacion=Sum('calificacion'))['calificacion__count']
@@ -53,13 +59,13 @@ class Usuario(models.Model):
         c.save()
 
     def calificarPiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if not self.esCopilotoEnViaje(enViaje):
+        if self.esPilotoEnViaje(enViaje):
             return False
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
 
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if not self.esPilotoEnViaje(enViaje):
+        if self.esCopilotoEnViaje(enViaje):
             return False
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
@@ -91,6 +97,9 @@ class Tarjeta(models.Model):
 class CuentaBancaria(models.Model):
     usuario = models.ManyToManyField(Usuario)
     cbu = models.DateField()
+
+    def __str__(self):
+        return "{0} {1}".format(self.usuario, self.cbu)
 
 
 class Auto(models.Model):
@@ -133,6 +142,9 @@ class Viaje(models.Model):
         capacidad = self.auto.capacidad
         return lugaresOcupados < capacidad
 
+    def copilotosEnListaDeEspera(self):
+        return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
+
     def agregarCopilotoEnListaDeEspera(self, usuario):
         ViajeCopiloto.objects.create(
             viaje=self,
@@ -148,7 +160,7 @@ class Viaje(models.Model):
     def gastoPorPasajero(self):
         return self.gastoTotal / self.auto.capacidad
 
-    def publicacion_Json(self):
+    def publicacionAsJson(self):
         """ Datos publicos para todos los usuarios """
         return json.dumps(
             {

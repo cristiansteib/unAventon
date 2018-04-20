@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    {% load unAventonApp_extras %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -106,7 +107,8 @@
 </div>
 
 <footer class="container-fluid text-center">
-    <p>Server on branch: <b style="color: #f9c9df;">{{ footer.branch }}</b></p>
+
+    <p>Server is on branch: <b style="color: #f9c9df;">{{ branch | currentbranch }}</b></p>
 </footer>
 
 </body>
