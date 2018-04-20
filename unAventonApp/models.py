@@ -4,6 +4,7 @@ from django.db.models import Count, Min, Sum, Avg
 from django.utils import timezone
 import ast
 import json
+from datetime import datetime
 
 
 class Usuario(models.Model):
@@ -17,6 +18,10 @@ class Usuario(models.Model):
         return "{0} {1}".format(self.nombre, self.apellido)
 
     def puedeCrearViaje(self):
+        # no tiene calificaciones pendientes
+        # tiene auto
+        # tiene tarjeta de credito
+        # no tiene otro viaje en el mismo horario
         return True
 
     def tieneCalificicacionesPendientes(self):
@@ -76,6 +81,18 @@ class Usuario(models.Model):
     def viajesConfirmadosComoCopiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True)
 
+    def viajesCreados(self):
+        """ Todos los viajes que creo el usuario"""
+        return Viaje.objects.filter(auto__usuario=self)
+
+    def viajesCreadosActivos(self):
+        """ Todos los viajes que creados por el usuario, no finalizados"""
+        return self.viajesCreados().filter(fechaHoraSalida__lt=datetime.now())
+
+    def viajesFinalizados(self):
+        """ Todos los viajes que creados por el usuario, finalizados"""
+        return self.viajesCreados().exclude(self.viajesCreadosActivos())
+
     def esPilotoEnViaje(self, viaje):
         return viaje.auto.usuario == self
 
@@ -96,10 +113,19 @@ class Tarjeta(models.Model):
 
 class CuentaBancaria(models.Model):
     usuario = models.ManyToManyField(Usuario)
-    cbu = models.DateField()
+    cbu = models.CharField(max_length=20)
 
     def __str__(self):
-        return "{0} {1}".format(self.usuario, self.cbu)
+        return "CBU = {0}".format(self.cbu)
+
+    def asJson(self):
+        return json.dumps(
+            {
+                'id': self.pk,
+                'cbu': self.cbu
+            },
+            sort_keys=True,
+            indent=4)
 
 
 class Auto(models.Model):
@@ -119,8 +145,14 @@ class TipoViaje(models.Model):
     descripcion = models.CharField(max_length=150)
 
     def asJson(self):
-        # todo
-        pass
+        return json.dumps(
+            {
+                'id': self.pk,
+                'tipoViaje': self.tipo,
+                'descripcion': self.descripcion
+            },
+            sort_keys=True,
+            indent=4)
 
 
 class Viaje(models.Model):
@@ -133,6 +165,37 @@ class Viaje(models.Model):
     destino = models.CharField(max_length=20)
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
+
+    def crearViaje(self, usuario, *args, **kwargs):
+        """
+        Este metodo resuelve lo necesario para crear un viaje.
+        Chequea las reglas de negocio que permiten creear un viaje.
+        Y retorna un Json con los errores
+
+        :param usuario:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        __json = {
+            'creado': False,
+            'error': []
+        }
+
+        if not self.pk:
+            if self.auto.usuario != self.cuentaBancaria.usuario:
+                __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
+            if usuario.tieneCalificicacionesPendientes():
+                __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
+            if usuario.viajesCreadosActivos().filter():
+                __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
+            if not len(__json['error']):
+                # no hay errores, entonces se guarda
+                super(Viaje, self).save(args, kwargs)
+            __json['creado'] = True
+
+        return json.dumps(__json, sort_keys=True, indent=4 )
 
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
@@ -188,7 +251,7 @@ class Viaje(models.Model):
                 'destino': self.destino,
                 'fechaHoraSalida': self.fechaHoraSalida,
                 'duracion': self.duracion,
-                'cuentaBancaria': self.cuentaBancaria
+                'cuentaBancaria': self.cuentaBancaria.asJson()
             },
             sort_keys=True,
             indent=4)
