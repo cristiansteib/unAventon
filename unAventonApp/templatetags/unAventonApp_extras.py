@@ -5,6 +5,7 @@ from django.template.defaultfilters import stringfilter
 
 
 register = template.Library()
+
 @register.filter(is_safe=True)
 def currentbranch(value):
     return (Git(settings.BASE_DIR).getActuallBranch())
