@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Min, Sum, Avg
 from django.utils import timezone
 import ast
+import json
 
 
 class Usuario(models.Model):
@@ -99,10 +100,18 @@ class Auto(models.Model):
     modelo = models.CharField(max_length=15)
     capacidad = models.IntegerField()
 
+    def asJson(self):
+        # todo
+        pass
+
 
 class TipoViaje(models.Model):
     tipo = models.CharField(max_length=20)
     descripcion = models.CharField(max_length=150)
+
+    def asJson(self):
+        # todo
+        pass
 
 
 class Viaje(models.Model):
@@ -129,6 +138,48 @@ class Viaje(models.Model):
             viaje=self,
             usuario=usuario
         )
+
+    def conversacionPublica(self):
+        return ConversacionPublica.objects.filter(viaje=self).order_by('fechaHoraPregunta')
+
+    def conversacionPrivada(self):
+        return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
+
+    def gastoPorPasajero(self):
+        return self.gastoTotal / self.auto.capacidad
+
+    def publicacion_Json(self):
+        """ Datos publicos para todos los usuarios """
+        return json.dumps(
+            {
+                'auto': self.auto.asJson(),
+                'tipoViaje': self.tipoViaje.asJson(),
+                'gastoTotal': self.gastoTotal,
+                'gastoPorPasajero': self.gastoPorPasajero,
+                'origen': self.origen,
+                'destino': self.destino,
+                'fechaHoraSalida': self.fechaHoraSalida,
+                'duracion': self.duracion
+            },
+            sort_keys=True,
+            indent=4)
+
+    def asJson(self):
+        """ Hay datos privados, que solamente los deberia ver el usuario creador """
+        return json.dumps(
+            {
+                'auto': self.auto.asJson(),
+                'tipoViaje': self.tipoViaje.asJson(),
+                'gastoTotal': self.gastoTotal,
+                'gastoPorPasajero': self.gastoPorPasajero,
+                'origen': self.origen,
+                'destino': self.destino,
+                'fechaHoraSalida': self.fechaHoraSalida,
+                'duracion': self.duracion,
+                'cuentaBancaria': self.cuentaBancaria
+            },
+            sort_keys=True,
+            indent=4)
 
 
 class ViajeCopiloto(models.Model):
