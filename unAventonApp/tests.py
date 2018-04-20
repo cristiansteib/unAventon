@@ -37,7 +37,6 @@ class unAventonTest(TestCase):
 
 
 
-
 class unAventonTestViajes(TestCase):
 
     def setUp(self):
@@ -68,5 +67,3 @@ class unAventonTestViajes(TestCase):
 
     def test_usuarioPuedeDarDeAltaUnViajeTeniendoAutoYCuentaBancaria(self):
         pass
-
-
