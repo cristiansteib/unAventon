@@ -16,7 +16,6 @@ def baseContext():
 
 def index(request):
     context = baseContext()
-    x = Viaje.objects.get(pk=1)
     return render(request, 'unAventonApp/index.html', context)
 
 
