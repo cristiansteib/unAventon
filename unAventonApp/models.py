@@ -42,14 +42,12 @@ class Usuario(models.Model):
             calificacion=Sum('calificacion'))['calificacion__count']
 
     def calificacionesPendientesParaPiloto(self):
-        viajesConfirmadosComoCopiloto = ViajeCopiloto.objects.filter(
-            usuario=self,
-            estaConfirmado=True)  # todos mis viajes como copiloto
-        if not viajesConfirmadosComoCopiloto:
-            return None
-        return viajesConfirmadosComoCopiloto.exclude(
+        viajes_confirmados_como_copiloto = self.viajesConfirmadosComoCopiloto()
+        if not viajes_confirmados_como_copiloto:
+            return []
+        return viajes_confirmados_como_copiloto.exclude(
             viaje__in=Calificacion.objects.filter(
-                viaje__in=viajesConfirmadosComoCopiloto.values_list('viaje'),
+                viaje__in=viajes_confirmados_como_copiloto.values_list('viaje'),
                 deUsuario=self).values_list('viaje'))
 
     def calificacionesPendientesParaCopilotos(self):

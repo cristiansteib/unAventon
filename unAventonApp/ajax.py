@@ -51,3 +51,16 @@ def lista_de_calificaciones_pendientes_a_copilotos(request):
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
+
+
+@login_required
+def lista_de_calificaciones_pendientes_a_pilotos(request):
+    data={}
+    try:
+        usuario = Usuario.objects.get(user=4)
+        data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaPiloto()]
+    except Usuario.DoesNotExist:
+        data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
+    except TypeError:
+        pass
+    return JsonResponse(data)
