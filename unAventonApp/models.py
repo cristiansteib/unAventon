@@ -68,12 +68,18 @@ class Usuario(models.Model):
             return False
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
-
+    '''
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
         if self.esCopilotoEnViaje(enViaje):
             return False
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
+    '''
+    def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
+        if aUsuario.esCopilotoEnViaje(enViaje):
+            self.__calificar(calificacion, aUsuario, enViaje, comentario)
+            return True
+        return False
 
     def viajesEnEsperaComoCopiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=False)
@@ -100,7 +106,7 @@ class Usuario(models.Model):
         try:
             ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
             return True
-        except IntegrityError:
+        except:# IntegrityError:
             return False
 
 
@@ -154,6 +160,7 @@ class TipoViaje(models.Model):
             sort_keys=True,
             indent=4)
 
+
 class ViajeManager(models.Manager):
     def create_viaje(self, *args, **kwargs):
         __json = {
@@ -179,6 +186,7 @@ class ViajeManager(models.Manager):
 
         return __json
 
+        #return viaje
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
