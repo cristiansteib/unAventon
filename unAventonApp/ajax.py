@@ -26,15 +26,16 @@ def mis_viajes_activos(request):
 def lista_de_espera_de_copilotos_para_un_viaje(request):
     """ retorna todos los copilotos que estan en la lista de espera
     para un viaje del usuario logueado """
-    if not neededParams(request.GET, 'viajeId'):
-        print('falta parametro viajeId')
-        raise Http404
-    viaje_id = request.GET['viajeId']
     data = {}
     try:
+        viaje_id = request.GET.get('viajeId',None)
+        if not viaje_id:
+            raise KeyError("viajeId")
         usuario = Usuario.objects.get(user=request.user)
         viaje = Viaje.objects.get(auto__usuario=usuario, id=viaje_id)
         data['lista'] = [obj.asJson() for obj in viaje.copilotosEnListaDeEspera()]
+    except KeyError as e:
+        data.setdefault('error', []).append('Falta parametro para el request: {0} '.format(e))
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     except Viaje.DoesNotExist:
@@ -57,7 +58,7 @@ def lista_de_calificaciones_pendientes_a_copilotos(request):
 def lista_de_calificaciones_pendientes_a_pilotos(request):
     data={}
     try:
-        usuario = Usuario.objects.get(user=4)
+        usuario = Usuario.objects.get(user=request.user)
         data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaPiloto()]
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))

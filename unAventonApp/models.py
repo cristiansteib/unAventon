@@ -204,7 +204,7 @@ class Viaje(models.Model):
     objects = ViajeManager()
 
     def __str__(self):
-        return "{0} , de {1} a {2}, fecha {3}".format(self.auto.usuario, self.origen, self.destino,
+        return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk,self.auto.usuario, self.origen, self.destino,
                                                       self.fechaHoraSalida)
     def asJson(self):
         return {
