@@ -168,23 +168,26 @@ class ViajeManager(models.Manager):
             'error': []
         }
         usuario = kwargs['auto'].usuario
-        if not usuario.puedeCrearViaje():
-            return None
 
         if usuario not in kwargs['cuentaBancaria'].usuario.all():
             __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
         if usuario.tieneCalificicacionesPendientes():
             __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
-        #TODO
-        #if usuario.viajesCreadosActivos():
+        # TODO
+        # if usuario.viajesCreadosActivos():
         #    __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
         if not len(__json['error']):
             # no hay errores, entonces se guarda
             viaje = self.create(*args, **kwargs)
-            __json[id] = viaje.pk
+            __json[id] = viaje.asJson()
             __json['creado'] = True
 
-        return __json
+        return json.dumps(
+            {
+                __json
+            },
+            sort_keys=True,
+            indent=4)
 
         #return viaje
 
@@ -201,7 +204,6 @@ class Viaje(models.Model):
 
     objects = ViajeManager()
 
-   
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
             viaje=self,
@@ -263,6 +265,10 @@ class Viaje(models.Model):
 
 
 class ViajeCopiloto(models.Model):
+
+    class Meta:
+        unique_together = (('usuario', 'viaje'),)
+
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     estaConfirmado = models.BooleanField(default=False)
