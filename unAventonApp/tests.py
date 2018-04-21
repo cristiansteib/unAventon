@@ -2,37 +2,81 @@ from django.test import TestCase
 from .models import Usuario, Auto, Viaje, CuentaBancaria, TipoViaje, ViajeCopiloto
 from django.contrib.auth.models import User
 from django.utils import timezone
+import datetime
+import pytz
 import random
 
-# Create your tests here.
-class unAventonTest(TestCase):
 
-    def setUp(self):
-        self.user = User.objects.create_user(
-            'usuariotest0',
+class MockModels():
+
+    @staticmethod
+    def randomize():
+        return str(random.randrange(100000, 990000))
+
+    def mock_user(self):
+        return User.objects.create_user(
+            username=self.randomize(),
             password='passwordtest0'
         )
-        self.usuario = Usuario.objects.create(
-            user=self.user,
-            nombre='Laura',
-            apellido='LauraApellido',
+
+    def mock_usuario(self, user):
+        return Usuario.objects.create(
+            user=user,
+            nombre='Pepe',
+            apellido='Pepa',
             fechaDeNacimiento='1992-10-10',
             dni='20.200.200'
         )
+
+    def mock_auto(self, usuario, marca='Ford', modelo='Eco Sport', capacidad=5):
+        return Auto.objects.create(
+            usuario=usuario,
+            marca=marca,
+            modelo=modelo,
+            capacidad=capacidad,
+        )
+
+    def mock_cuentaBancaria(self, usuario):
+        return CuentaBancaria.objects.create(
+            usuario=usuario,
+            cbu=self.randomize()
+        )
+
+
+class unAventonTest(TestCase):
+
+    def setUp(self):
+        self.tipo_viaje = TipoViaje.objects.create(
+            tipo="larga distancia",
+            descripcion="algun descripcion"
+        )
+        mocker = MockModels()
+        user1 = mocker.mock_user()
+        self.usuario = mocker.mock_usuario(user1)
+        self.cuenta_bancaria = mocker.mock_cuentaBancaria(self.usuario)
+        self.auto = mocker.mock_auto(self.usuario)
 
     def tearDown(self):
         User.objects.all().delete()
         Usuario.objects.all().delete()
 
-    def test_usuarioPuedeDarDeAltaUnAuto(self):
-        auto = Auto.objects.create(
-            usuario=self.usuario,
-            marca='Ford',
-            modelo='Eco Sport',
-            capacidad='5',
+    def test_usuarioPuedeDarDeAltaUnViaje(self):
+        viaje = Viaje.objects.create_viaje(
+            origen='La plata',
+            destino='BsAs',
+            tipoViaje=self.tipo_viaje,
+            duracion=2,
+            fechaHoraSalida=datetime.datetime(2099, 11, 20, 20, 8, 7, 127325, tzinfo=pytz.UTC),
+            cuentaBancaria=self.cuenta_bancaria,
+            auto=self.auto,
+            gastoTotal=1000,
+            comentario='una mochila por pesona',
         )
 
+        self.assertEqual(viaje['creado'], True, msg="No se pudo crear el viaje. {0}".format(viaje['error']))
 
+
+"""
 class unAventonTestViajes(TestCase):
 
     def setUp(self):
@@ -263,3 +307,4 @@ class TestCalificaciones(TestCase):
 
 
 
+"""
