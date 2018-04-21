@@ -14,6 +14,12 @@ class Usuario(models.Model):
     fechaDeNacimiento = models.DateField()
     dni = models.CharField(max_length=15)
 
+    def asJson(self):
+        return {
+            'nombre': self.nombre,
+            'apellido': self.apellido
+        }
+
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
 
@@ -112,20 +118,17 @@ class Tarjeta(models.Model):
 
 
 class CuentaBancaria(models.Model):
-    usuario = models.ManyToManyField(Usuario)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     cbu = models.CharField(max_length=20)
 
     def __str__(self):
-        return "CBU = {0}".format(self.cbu)
+        return '{0} ---> {1}'.format(self.usuario, self.cbu)
 
     def asJson(self):
-        return json.dumps(
-            {
-                'id': self.pk,
-                'cbu': self.cbu
-            },
-            sort_keys=True,
-            indent=4)
+        return {
+            'id': self.pk,
+            'cbu': self.cbu
+        }
 
 
 class Auto(models.Model):
@@ -134,6 +137,9 @@ class Auto(models.Model):
     marca = models.CharField(max_length=15)
     modelo = models.CharField(max_length=15)
     capacidad = models.IntegerField()
+
+    def __str__(self):
+        return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
         # todo
@@ -176,12 +182,7 @@ class ViajeManager(models.Manager):
             __json[id] = viaje.asJson()
             __json['creado'] = True
 
-        return json.dumps(
-            {
-                __json
-            },
-            sort_keys=True,
-            indent=4)
+        return __json
 
 
 class Viaje(models.Model):
@@ -196,6 +197,10 @@ class Viaje(models.Model):
     duracion = models.IntegerField()
 
     objects = ViajeManager()
+
+    def __str__(self):
+        return "{0} , de {1} a {2}, fecha {3}".format(self.auto.usuario, self.origen, self.destino,
+                                                      self.fechaHoraSalida)
 
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
@@ -225,40 +230,34 @@ class Viaje(models.Model):
 
     def publicacionAsJson(self):
         """ Datos publicos para todos los usuarios """
-        return json.dumps(
-            {
-                'auto': self.auto.asJson(),
-                'tipoViaje': self.tipoViaje.asJson(),
-                'gastoTotal': self.gastoTotal,
-                'gastoPorPasajero': self.gastoPorPasajero,
-                'origen': self.origen,
-                'destino': self.destino,
-                'fechaHoraSalida': self.fechaHoraSalida,
-                'duracion': self.duracion
-            },
-            sort_keys=True,
-            indent=4)
+        return {
+            'auto': self.auto.asJson(),
+            'tipoViaje': self.tipoViaje.asJson(),
+            'gastoTotal': self.gastoTotal,
+            'gastoPorPasajero': self.gastoPorPasajero,
+            'origen': self.origen,
+            'destino': self.destino,
+            'fechaHoraSalida': self.fechaHoraSalida,
+            'duracion': self.duracion
+        }
 
-    def asJson(self):
-        """ Hay datos privados, que solamente los deberia ver el usuario creador """
-        return json.dumps(
-            {
-                'auto': self.auto.asJson(),
-                'tipoViaje': self.tipoViaje.asJson(),
-                'gastoTotal': self.gastoTotal,
-                'gastoPorPasajero': self.gastoPorPasajero,
-                'origen': self.origen,
-                'destino': self.destino,
-                'fechaHoraSalida': self.fechaHoraSalida,
-                'duracion': self.duracion,
-                'cuentaBancaria': self.cuentaBancaria.asJson()
-            },
-            sort_keys=True,
-            indent=4)
+
+def asJson(self):
+    """ Hay datos privados, que solamente los deberia ver el usuario creador """
+    return {
+        'auto': self.auto.asJson(),
+        'tipoViaje': self.tipoViaje.asJson(),
+        'gastoTotal': self.gastoTotal,
+        'gastoPorPasajero': self.gastoPorPasajero,
+        'origen': self.origen,
+        'destino': self.destino,
+        'fechaHoraSalida': self.fechaHoraSalida,
+        'duracion': self.duracion,
+        'cuentaBancaria': self.cuentaBancaria.asJson()
+    }
 
 
 class ViajeCopiloto(models.Model):
-
     class Meta:
         unique_together = (('usuario', 'viaje'),)
 
@@ -273,6 +272,14 @@ class ViajeCopiloto(models.Model):
 
     def __str__(self):
         return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
+
+    def asJson(self):
+        return {
+            'id': self.pk,
+            'estaConfirmado': self.estaConfirmado,
+            'viaje': self.viaje.pk,
+            'usuario': self.usuario.asJson()
+        }
 
 
 class ConversacionPrivada(models.Model):
