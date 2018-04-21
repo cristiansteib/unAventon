@@ -118,20 +118,17 @@ class Tarjeta(models.Model):
 
 
 class CuentaBancaria(models.Model):
-    usuario = models.ManyToManyField(Usuario)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     cbu = models.CharField(max_length=20)
 
     def __str__(self):
-        return "CBU = {0}".format(self.cbu)
+        return '{0} ---> {1}'.format(self.usuario, self.cbu)
 
     def asJson(self):
-        return json.dumps(
-            {
-                'id': self.pk,
-                'cbu': self.cbu
-            },
-            sort_keys=True,
-            indent=4)
+        return {
+            'id': self.pk,
+            'cbu': self.cbu
+        }
 
 
 class Auto(models.Model):
@@ -140,6 +137,9 @@ class Auto(models.Model):
     marca = models.CharField(max_length=15)
     modelo = models.CharField(max_length=15)
     capacidad = models.IntegerField()
+
+    def __str__(self):
+        return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
         # todo
@@ -198,6 +198,10 @@ class Viaje(models.Model):
 
     objects = ViajeManager()
 
+    def __str__(self):
+        return "{0} , de {1} a {2}, fecha {3}".format(self.auto.usuario, self.origen, self.destino,
+                                                      self.fechaHoraSalida)
+
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
             viaje=self,
@@ -241,16 +245,16 @@ class Viaje(models.Model):
 def asJson(self):
     """ Hay datos privados, que solamente los deberia ver el usuario creador """
     return {
-            'auto': self.auto.asJson(),
-            'tipoViaje': self.tipoViaje.asJson(),
-            'gastoTotal': self.gastoTotal,
-            'gastoPorPasajero': self.gastoPorPasajero,
-            'origen': self.origen,
-            'destino': self.destino,
-            'fechaHoraSalida': self.fechaHoraSalida,
-            'duracion': self.duracion,
-            'cuentaBancaria': self.cuentaBancaria.asJson()
-        }
+        'auto': self.auto.asJson(),
+        'tipoViaje': self.tipoViaje.asJson(),
+        'gastoTotal': self.gastoTotal,
+        'gastoPorPasajero': self.gastoPorPasajero,
+        'origen': self.origen,
+        'destino': self.destino,
+        'fechaHoraSalida': self.fechaHoraSalida,
+        'duracion': self.duracion,
+        'cuentaBancaria': self.cuentaBancaria.asJson()
+    }
 
 
 class ViajeCopiloto(models.Model):
