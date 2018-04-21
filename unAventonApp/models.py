@@ -160,11 +160,11 @@ class ViajeManager(models.Manager):
             'creado': False,
             'error': []
         }
-        usuario = kwargs['autos'].usuario
+        usuario = kwargs['auto'].usuario
         if not usuario.puedeCrearViaje():
             return None
 
-        if usuario != kwargs['cuentaBancaria'].usuario:
+        if usuario not in kwargs['cuentaBancaria'].usuario.all():
             __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
         if usuario.tieneCalificicacionesPendientes():
             __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
