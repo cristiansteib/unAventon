@@ -35,11 +35,10 @@ class Usuario(models.Model):
 
     def calificacionComoPiloto(self):
         return Calificacion.objects.filter(viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
-            calificacion=Sum('calificacion'))['calificacion__count']
+            calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionComoCopiloto(self):
-        return Calificacion.objects.filter(viaje__in=ViajeCopiloto.objects.filter(usuario=self)).aggregate(
-            calificacion=Sum('calificacion'))['calificacion__count']
+        return Calificacion.objects.filter(paraUsuario=self, viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionesPendientesParaPiloto(self):
         viajes_confirmados_como_copiloto = self.viajesConfirmadosComoCopiloto()
@@ -72,6 +71,7 @@ class Usuario(models.Model):
             return False
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
+
     '''
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
         if self.esCopilotoEnViaje(enViaje):
@@ -79,6 +79,7 @@ class Usuario(models.Model):
         self.__calificar(calificacion, aUsuario, enViaje, comentario)
         return True
     '''
+
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
         if aUsuario.esCopilotoEnViaje(enViaje):
             self.__calificar(calificacion, aUsuario, enViaje, comentario)
@@ -110,7 +111,7 @@ class Usuario(models.Model):
         try:
             ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
             return True
-        except:# IntegrityError:
+        except:  # IntegrityError:
             return False
 
 
@@ -188,7 +189,8 @@ class ViajeManager(models.Manager):
 
         return __json
 
-        #return viaje
+        # return viaje
+
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
@@ -204,12 +206,14 @@ class Viaje(models.Model):
     objects = ViajeManager()
 
     def __str__(self):
-        return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk,self.auto.usuario, self.origen, self.destino,
-                                                      self.fechaHoraSalida)
+        return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
+                                                             self.fechaHoraSalida)
+
     def asJson(self):
         return {
             'id': self.pk
         }
+
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
             viaje=self,

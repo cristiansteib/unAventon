@@ -5,6 +5,7 @@ from django.http import JsonResponse, Http404
 from django.core import serializers
 import json
 
+
 def neededParams(method_list, *args):
     for value in args:
         if value not in method_list:
@@ -13,7 +14,7 @@ def neededParams(method_list, *args):
 
 
 @login_required
-def mis_viajes_activos(request):
+def viajes_activos(request):
     """ retorna todos los viajes activos
     para el usuario logueado """
     data = {}
@@ -28,7 +29,7 @@ def lista_de_espera_de_copilotos_para_un_viaje(request):
     para un viaje del usuario logueado """
     data = {}
     try:
-        viaje_id = request.GET.get('viajeId',None)
+        viaje_id = request.GET.get('viajeId', None)
         if not viaje_id:
             raise KeyError("viajeId")
         usuario = Usuario.objects.get(user=request.user)
@@ -45,7 +46,7 @@ def lista_de_espera_de_copilotos_para_un_viaje(request):
 
 @login_required
 def lista_de_calificaciones_pendientes_a_copilotos(request):
-    data={}
+    data = {}
     try:
         usuario = Usuario.objects.get(user=request.user)
         data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaCopilotos()]
@@ -56,7 +57,7 @@ def lista_de_calificaciones_pendientes_a_copilotos(request):
 
 @login_required
 def lista_de_calificaciones_pendientes_a_pilotos(request):
-    data={}
+    data = {}
     try:
         usuario = Usuario.objects.get(user=request.user)
         data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaPiloto()]
@@ -64,4 +65,21 @@ def lista_de_calificaciones_pendientes_a_pilotos(request):
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     except TypeError:
         pass
+    return JsonResponse(data)
+
+@login_required
+def datos_del_usuario(request):
+    """ Arma un diccionario con los datos del usuario
+    que luego pueden ser usados para armar el perfil
+    """
+    data = {}
+    try:
+        usuario = Usuario.objects.get(user=request.user)
+        data['usuario'] = usuario.asJson()
+        data['calificacion_como_piloto'] = usuario.calificacionComoPiloto()
+        data['calificacion_como_copiloto'] = usuario.calificacionComoCopiloto()
+        #data['viajes_en_espera_de_confirmacion'] = usuario.viajesEnEsperaComoCopiloto().count('id')
+
+    except Usuario.DoesNotExist:
+        data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
