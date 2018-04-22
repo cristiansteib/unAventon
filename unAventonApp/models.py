@@ -1,10 +1,8 @@
 from django.db import models, IntegrityError
 from django.contrib.auth.models import User
 from django.db.models import Count, Min, Sum, Avg
-from django.utils import timezone
-import ast
 import json
-from datetime import datetime
+from django.utils import timezone
 
 
 class Usuario(models.Model):
@@ -17,7 +15,10 @@ class Usuario(models.Model):
     def asJson(self):
         return {
             'nombre': self.nombre,
-            'apellido': self.apellido
+            'apellido': self.apellido,
+            'mail': self.user.email,
+            'dni': self.dni,
+            'fecha_de_nacimiento': self.fechaDeNacimiento
         }
 
     def __str__(self):
@@ -34,11 +35,14 @@ class Usuario(models.Model):
         return False
 
     def calificacionComoPiloto(self):
-        return Calificacion.objects.filter(viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
+        return \
+        Calificacion.objects.filter(paraUsuario=self, viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
             calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionComoCopiloto(self):
-        return Calificacion.objects.filter(paraUsuario=self, viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(calificacion=Sum('calificacion'))['calificacion']
+        return Calificacion.objects.filter(paraUsuario=self,
+                                           viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(
+            calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionesPendientesParaPiloto(self):
         viajes_confirmados_como_copiloto = self.viajesConfirmadosComoCopiloto()
@@ -98,7 +102,7 @@ class Usuario(models.Model):
 
     def viajesCreadosActivos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.viajesCreados().filter(fechaHoraSalida__lt=datetime.now())
+        return self.viajesCreados().filter(fechaHoraSalida__gt=timezone.now())
 
     def viajesFinalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
@@ -147,8 +151,11 @@ class Auto(models.Model):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
-        # todo
-        pass
+        #TODO: falta completar
+        return {
+            'id': self.id,
+            'dominio': self.dominio,
+        }
 
 
 class TipoViaje(models.Model):
@@ -211,8 +218,16 @@ class Viaje(models.Model):
 
     def asJson(self):
         return {
-            'id': self.pk
+            'id': self.pk,
+            'origen': self.origen,
+            'destino': self.destino,
+            'fecha_hora_salida': self.fechaHoraSalida,
+            'duracion': self.duracion,
+            'auto': self.auto.asJson()
         }
+
+    def asJsonPublicacion(self):
+        raise NotImplementedError
 
     def hayLugar(self):
         lugaresOcupados = ViajeCopiloto.objects.filter(
@@ -252,21 +267,6 @@ class Viaje(models.Model):
             'fechaHoraSalida': self.fechaHoraSalida,
             'duracion': self.duracion
         }
-
-
-def asJson(self):
-    """ Hay datos privados, que solamente los deberia ver el usuario creador """
-    return {
-        'auto': self.auto.asJson(),
-        'tipoViaje': self.tipoViaje.asJson(),
-        'gastoTotal': self.gastoTotal,
-        'gastoPorPasajero': self.gastoPorPasajero,
-        'origen': self.origen,
-        'destino': self.destino,
-        'fechaHoraSalida': self.fechaHoraSalida,
-        'duracion': self.duracion,
-        'cuentaBancaria': self.cuentaBancaria.asJson()
-    }
 
 
 class ViajeCopiloto(models.Model):

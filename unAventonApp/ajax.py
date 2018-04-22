@@ -78,8 +78,9 @@ def datos_del_usuario(request):
         data['usuario'] = usuario.asJson()
         data['calificacion_como_piloto'] = usuario.calificacionComoPiloto()
         data['calificacion_como_copiloto'] = usuario.calificacionComoCopiloto()
-        #data['viajes_en_espera_de_confirmacion'] = usuario.viajesEnEsperaComoCopiloto().count('id')
-
+        viajes_creados_activos = usuario.viajesCreadosActivos()
+        data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
+        data['viajes_en_espera_de_confirmacion'] = len(usuario.viajesEnEsperaComoCopiloto())
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
