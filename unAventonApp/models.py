@@ -12,14 +12,23 @@ class Usuario(models.Model):
     fechaDeNacimiento = models.DateField()
     dni = models.CharField(max_length=15)
 
-    def asJson(self):
+    def asJsonMinified(self):
         return {
+            'id': self.pk,
             'nombre': self.nombre,
             'apellido': self.apellido,
-            'mail': self.user.email,
-            'dni': self.dni,
-            'fecha_de_nacimiento': self.fechaDeNacimiento
         }
+
+    def asJson(self):
+        data = self.asJsonMinified()
+        data.update(
+            {
+                'mail': self.user.email,
+                'dni': self.dni,
+                'fecha_de_nacimiento': self.fechaDeNacimiento
+            }
+        )
+        return data
 
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
@@ -35,13 +44,18 @@ class Usuario(models.Model):
         return False
 
     def calificacionComoPiloto(self):
-        return \
-        Calificacion.objects.filter(paraUsuario=self, viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
-            calificacion=Sum('calificacion'))['calificacion']
+        return Calificacion.objects.filter(
+            paraUsuario=self, viaje__in=Viaje.objects.filter(
+                auto__usuario=self
+            )
+        ).aggregate(
+            calificacion=Sum('calificacion')
+        )['calificacion']
 
     def calificacionComoCopiloto(self):
-        return Calificacion.objects.filter(paraUsuario=self,
-                                           viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(
+        return Calificacion.objects.filter(
+            paraUsuario=self,
+            viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(
             calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionesPendientesParaPiloto(self):
@@ -118,12 +132,22 @@ class Usuario(models.Model):
         except:  # IntegrityError:
             return False
 
+    def tarjetas_de_credito(self):
+        return Tarjeta.objects.filter(usuario=self)
+
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
     numero = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
     ccv = models.IntegerField()
+
+    def asJson(self):
+        return {
+            'id':self.id,
+            'numero':self.numero,
+            'fecha_de_vencimiento':self.fechaDeVencimiento
+        }
 
 
 class CuentaBancaria(models.Model):
@@ -151,7 +175,7 @@ class Auto(models.Model):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
-        #TODO: falta completar
+        # TODO: falta completar
         return {
             'id': self.id,
             'dominio': self.dominio,
@@ -217,56 +241,75 @@ class Viaje(models.Model):
                                                              self.fechaHoraSalida)
 
     def asJson(self):
+        data = {
+            'id': self.pk,
+            'origen': self.origen,
+            'destino': self.destino,
+            'fecha_hora_salida': self.fechaHoraSalida,
+            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'costo_total': self.gastoTotal,
+            'costo_por_pasajero': self.gasto_por_pasajero(),
+            'duracion': self.duracion,
+            'auto': self.auto.asJson(),
+            'hay_lugar': self.hay_lugar(),
+            'asientos_disponibles': self.asientos_disponibles(),
+            'usuarios_confirmados': None
+        }
+        usuarios_confirmados = self.copilotos_confirmados()
+        if usuarios_confirmados:
+            data['usuarios_confirmados'] = [obj.asJsonMinified() for obj in usuarios_confirmados]
+
+        return data
+
+    def asJsonPublicacion(self):
         return {
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
             'fecha_hora_salida': self.fechaHoraSalida,
+            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'costo_por_pasajero': self.gasto_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson()
         }
 
-    def asJsonPublicacion(self):
-        raise NotImplementedError
+    def copilotos_confirmados(self):
+        return Usuario.objects.filter(
+            pk__in=ViajeCopiloto.objects.filter(
+                viaje=self,
+                estaConfirmado=True
+            ).values('usuario__pk')
+        )
 
-    def hayLugar(self):
-        lugaresOcupados = ViajeCopiloto.objects.filter(
+    def asientos_disponibles(self):
+        asientos_ocupados = ViajeCopiloto.objects.filter(
             viaje=self,
             estaConfirmado=True
-        ).aggregate(Count('usuario'))['usuario__count']
-        capacidad = self.auto.capacidad
-        return lugaresOcupados < capacidad
+        ).aggregate(
+            Count('usuario')
+        )['usuario__count']
+        return self.auto.capacidad - asientos_ocupados
 
-    def copilotosEnListaDeEspera(self):
+    def hay_lugar(self):
+        return True if self.asientos_disponibles() else False
+
+    def copilotos_en_lista_de_espera(self):
         return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
 
-    def agregarCopilotoEnListaDeEspera(self, usuario):
+    def agregar_copiloto_en_lista_de_espera(self, usuario):
         ViajeCopiloto.objects.create(
             viaje=self,
             usuario=usuario
         )
 
-    def conversacionPublica(self):
+    def conversacion_publica(self):
         return ConversacionPublica.objects.filter(viaje=self).order_by('fechaHoraPregunta')
 
-    def conversacionPrivada(self):
+    def conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
-    def gastoPorPasajero(self):
+    def gasto_por_pasajero(self):
         return self.gastoTotal / self.auto.capacidad
-
-    def publicacionAsJson(self):
-        """ Datos publicos para todos los usuarios """
-        return {
-            'auto': self.auto.asJson(),
-            'tipoViaje': self.tipoViaje.asJson(),
-            'gastoTotal': self.gastoTotal,
-            'gastoPorPasajero': self.gastoPorPasajero,
-            'origen': self.origen,
-            'destino': self.destino,
-            'fechaHoraSalida': self.fechaHoraSalida,
-            'duracion': self.duracion
-        }
 
 
 class ViajeCopiloto(models.Model):
