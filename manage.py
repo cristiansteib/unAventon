@@ -18,7 +18,10 @@ if __name__ == "__main__":
 
     try:
         if is_testing:
+            print('coverge')
             import coverage
+            is_coverage_running = True
+
             cov = coverage.coverage(
                 source=['unAventonApp'],
                 omit=[
@@ -38,12 +41,14 @@ if __name__ == "__main__":
             cov.exclude('import')
             cov.erase()
             cov.start()
-            is_coverage_running = True
 
     except ImportError:
         print("Deberias instalar los requirements.txt")
 
-    execute_from_command_line(sys.argv)
+    try:
+        execute_from_command_line(sys.argv)
+    except:
+        print("exploto " + str(sys.exc_info()))
 
     if is_testing and is_coverage_running:
         cov.stop()
