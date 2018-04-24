@@ -7,7 +7,7 @@ from django.utils import timezone
 
 class Usuario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=15,)
+    nombre = models.CharField(max_length=15, )
     apellido = models.CharField(max_length=15)
     fechaDeNacimiento = models.DateField(default=None, null=True)
     dni = models.CharField(max_length=15, default=None, null=True)
@@ -85,21 +85,13 @@ class Usuario(models.Model):
         c.save()
 
     def calificarPiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if self.esPilotoEnViaje(enViaje):
-            return False
-        self.__calificar(calificacion, aUsuario, enViaje, comentario)
-        return True
-
-    '''
-    def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
         if self.esCopilotoEnViaje(enViaje):
-            return False
-        self.__calificar(calificacion, aUsuario, enViaje, comentario)
-        return True
-    '''
+            self.__calificar(calificacion, aUsuario, enViaje, comentario)
+            return True
+        return False
 
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if aUsuario.esCopilotoEnViaje(enViaje):
+        if self.esPilotoEnViaje(enViaje):
             self.__calificar(calificacion, aUsuario, enViaje, comentario)
             return True
         return False
@@ -144,9 +136,9 @@ class Tarjeta(models.Model):
 
     def asJson(self):
         return {
-            'id':self.id,
-            'numero':self.numero,
-            'fecha_de_vencimiento':self.fechaDeVencimiento
+            'id': self.id,
+            'numero': self.numero,
+            'fecha_de_vencimiento': self.fechaDeVencimiento
         }
 
 
@@ -233,12 +225,22 @@ class Viaje(models.Model):
     destino = models.CharField(max_length=20)
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
+    comision = models.FloatField(default=5.0)
 
     objects = ViajeManager()
 
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fechaHoraSalida)
+
+    def total_a_reintegrar_al_conductor(self):
+        return self.comision - self.total_cobrado()
+
+    def comision_a_cobrar(self):
+        return (self.comision * self.gastoTotal) / 100
+
+    def total_cobrado(self):
+        return len(self.copilotos_confirmados()) * self.gasto_por_pasajero()
 
     def asJson(self):
         data = {
@@ -322,8 +324,12 @@ class ViajeCopiloto(models.Model):
     fechaHoraDeSolicitud = models.DateTimeField(auto_created=True)
 
     def confirmarCopiloto(self):
-        self.estaConfirmado = True
-        self.save()
+        if self.viaje.hay_lugar():
+            self.estaConfirmado = True
+            self.save()
+            return True
+        else:
+            return False
 
     def __str__(self):
         return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
