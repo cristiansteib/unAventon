@@ -121,7 +121,7 @@ class Usuario(models.Model):
         try:
             ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
             return True
-        except:  # IntegrityError:
+        except ViajeCopiloto.DoesNotExist:
             return False
 
     def tarjetas_de_credito(self):
@@ -219,13 +219,13 @@ class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
     tipoViaje = models.ForeignKey(TipoViaje, on_delete=models.DO_NOTHING)
     cuentaBancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
-    gastoTotal = models.FloatField(default=0.0)
+    gasto_total = models.FloatField(default=0.0)
     comentario = models.CharField(max_length=150)
     origen = models.CharField(max_length=20)
     destino = models.CharField(max_length=20)
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
-    comision = models.FloatField(default=5.0)
+    comision = models.FloatField(default=0.5)
 
     objects = ViajeManager()
 
@@ -234,13 +234,17 @@ class Viaje(models.Model):
                                                              self.fechaHoraSalida)
 
     def total_a_reintegrar_al_conductor(self):
-        return self.comision - self.total_cobrado()
+        value = self.total_cobrado() - self.comision_a_cobrar()
+        return value if value > 0 else 0
 
     def comision_a_cobrar(self):
-        return (self.comision * self.gastoTotal) / 100
+        return self.comision * self.gasto_total
 
     def total_cobrado(self):
         return len(self.copilotos_confirmados()) * self.gasto_por_pasajero()
+
+    def gasto_por_pasajero(self):
+        return self.gasto_total / self.auto.capacidad
 
     def asJson(self):
         data = {
@@ -249,7 +253,7 @@ class Viaje(models.Model):
             'destino': self.destino,
             'fecha_hora_salida': self.fechaHoraSalida,
             'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
-            'costo_total': self.gastoTotal,
+            'costo_total': self.gasto_total,
             'costo_por_pasajero': self.gasto_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson(),
@@ -310,9 +314,6 @@ class Viaje(models.Model):
     def conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
-    def gasto_por_pasajero(self):
-        return self.gastoTotal / self.auto.capacidad
-
 
 class ViajeCopiloto(models.Model):
     class Meta:
@@ -366,5 +367,5 @@ class Calificacion(models.Model):
     deUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='Calificacion.deUsuario+')
     paraUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, )
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
-    comentario = models.CharField(max_length=150)
+    comentario = models.CharField(max_length=150, default=None, null=True)
     calificacion = models.IntegerField()
