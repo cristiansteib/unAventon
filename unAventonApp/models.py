@@ -7,10 +7,10 @@ from django.utils import timezone
 
 class Usuario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=15)
+    nombre = models.CharField(max_length=15,)
     apellido = models.CharField(max_length=15)
-    fechaDeNacimiento = models.DateField()
-    dni = models.CharField(max_length=15)
+    fechaDeNacimiento = models.DateField(default=None, null=True)
+    dni = models.CharField(max_length=15, default=None, null=True)
 
     def asJsonMinified(self):
         return {

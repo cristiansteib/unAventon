@@ -15,6 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+HTMLVALIDATOR_ENABLED = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -24,7 +25,8 @@ SECRET_KEY = '1+26k#$ve_weyn@4b%p56db+rx4yp)!$qgyqn#y82^a2olfhb2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+TEMPLATE_DEBUG = True   # development
+DEGUB_TEMPLATE = True
 ALLOWED_HOSTS = ['*']
 
 
@@ -115,6 +117,7 @@ USE_L10N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
@@ -128,3 +131,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_QUERY_EMAIL = True
+
+HTMLVALIDATOR_VNU_JAR = './contrib/vnu.jar'
+
+#DEBUG = TEMPLATE_DEBUG = False  # production

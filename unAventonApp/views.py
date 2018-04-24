@@ -8,9 +8,7 @@ from django.conf import settings
 
 def baseContext():
     return {
-        'footer': {
-            'branch': Git(settings.BASE_DIR).getActuallBranch()
-        }
+        'footer': {}
     }
 
 
@@ -31,7 +29,7 @@ def login(request):
             return HttpResponseRedirect('/')
         else:
             ## algun dato esta mal
-            context['error'] = True
+            context['error'] = {'message':'E-mail inexistente, o contraseña invalida'}
 
     return render(request, 'unAventonApp/login.html', context)
 
@@ -44,10 +42,11 @@ def signInRegister(request):
     if request.method == 'POST':
         r = request.POST
         user = User.objects.create_user(r['email'], r['email'], r['password'])
+        usuario = Usuario.objects.create(user=user, nombre='todo',apellido='todo')
+        print(usuario)
         # todo   email email????'''
         # todo verificar si ya existe el correo
 
-        user.save()
         return render(request, 'unAventonApp/signin_success.html')
     return HttpResponseRedirect('signin')
 

@@ -4,7 +4,7 @@ from .views import (
     login,
     signIn,
     logout,
-    signInRegister
+    signInRegister,
 )
 
 from .ajax import (
@@ -33,4 +33,6 @@ urlpatterns = [
          name='lista_calificaciones_pilotos'),
     path('ajax/datosRelacionandosAlUsuario', datos_relacionados_al_usuario,
          name='datos_del_usuario'),
+
+
 ]
