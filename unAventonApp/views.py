@@ -1,20 +1,24 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
+from .models import Usuario, Viaje
 from .modules.Git import Git
 from django.conf import settings
 
-def index(request):
-    context = {
-        'footer' : {
-            'branch' : Git(settings.BASE_DIR).getActuallBranch()
-        }
+
+def baseContext():
+    return {
+        'footer': {}
     }
+
+
+def index(request):
+    context = baseContext()
     return render(request, 'unAventonApp/index.html', context)
 
 
 def login(request):
-    context = {}
+    context = baseContext()
     if request.method == 'POST':
         email = request.POST['email']
         password = request.POST['password']
@@ -22,10 +26,11 @@ def login(request):
         if user is not None:
             ## se autentico bien
             __login(request, user)
-            return HttpResponseRedirect('/')
+
+            return HttpResponseRedirect(request.GET.get('next','/'))
         else:
             ## algun dato esta mal
-            context['error'] = True
+            context['error'] = {'message':'E-mail inexistente, o contraseña invalida'}
 
     return render(request, 'unAventonApp/login.html', context)
 
@@ -37,13 +42,15 @@ def signIn(request):
 def signInRegister(request):
     if request.method == 'POST':
         r = request.POST
-        user = User.objects.create_user(r['email'],r['email'],r['password'])
-        #todo   email email????'''
-        #todo verificar si ya existe el correo
+        user = User.objects.create_user(r['email'], r['email'], r['password'])
+        usuario = Usuario.objects.create(user=user, nombre='todo',apellido='todo')
+        print(usuario)
+        # todo   email email????'''
+        # todo verificar si ya existe el correo
 
-        user.save()
         return render(request, 'unAventonApp/signin_success.html')
     return HttpResponseRedirect('signin')
+
 
 def logout(request):
     __logout(request)

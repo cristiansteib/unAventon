@@ -12,4 +12,45 @@ if __name__ == "__main__":
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+
+    is_testing = 'test' in sys.argv
+    is_coverage_running = False
+
+    try:
+        if is_testing:
+            print('coverge')
+            import coverage
+            is_coverage_running = True
+
+            cov = coverage.coverage(
+                source=['unAventonApp'],
+                omit=[
+                    '*/tests/*',
+                    '*/migrations/*',
+                    '*/__init__.py',
+                    '*/apps.py',
+                    '*/urls.py',
+                    '*/admin.py',
+                    '*/tests.py'],
+            )
+            cov.exclude('  pragma: no cover')
+            cov.exclude('raise AssertionError')
+            cov.exclude('raise NotImplementedError')
+            cov.exclude('if __name__ == .__main__.:')
+            cov.exclude('from')
+            cov.exclude('import')
+            cov.erase()
+            cov.start()
+
+    except ImportError:
+        print("Deberias instalar los requirements.txt")
+
+    try:
+        execute_from_command_line(sys.argv)
+    except:
+        print("exploto " + str(sys.exc_info()))
+
+    if is_testing and is_coverage_running:
+        cov.stop()
+        cov.save()
+        cov.html_report(directory='coverageTestHTML')
