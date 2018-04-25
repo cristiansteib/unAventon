@@ -18,8 +18,11 @@ def viajes_activos(request):
     """ retorna todos los viajes activos
     para el usuario logueado """
     data = {}
-    usuario = Usuario.objects.get(user=request.user)
-    data['viajes'] = [viaje.asJson() for viaje in usuario.viajesCreadosActivos()]
+    try:
+        usuario = Usuario.objects.get(user=request.user)
+        data['viajes'] = [viaje.asJson() for viaje in usuario.viajesCreadosActivos()]
+    except Usuario.DoesNotExist:
+        data.setdefault('error', []).append('No exisite un Usuario para el user {0}'.format(request.user))
     return JsonResponse(data)
 
 
@@ -38,7 +41,7 @@ def lista_de_espera_de_copilotos_para_un_viaje(request):
     except KeyError as e:
         data.setdefault('error', []).append('Falta parametro para el request: {0} '.format(e))
     except Usuario.DoesNotExist:
-        data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
+        data.setdefault('error', []).append('No exisite un Usuario para el user {0}'.format(request.user))
     except Viaje.DoesNotExist:
         data.setdefault('error', []).append('No exisite el viaje {0} para el usuario = {1} '.format(viaje_id, usuario))
     return JsonResponse(data)

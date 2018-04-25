@@ -176,7 +176,6 @@ class TestMetodosDeModels(BaseTest):
         ViajeCopiloto.objects.all().delete()
 
     def test_copiloto_confirmado_tiene_calificaciones_pendientes_para_el_piloto(self):
-
         self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos().filter(usuario=self.copiloto_1)), 1)
         self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos().filter(usuario=self.copiloto_2)), 1)
         self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos().filter(usuario=self.copiloto_3)), 1)

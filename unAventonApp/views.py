@@ -26,7 +26,8 @@ def login(request):
         if user is not None:
             ## se autentico bien
             __login(request, user)
-            return HttpResponseRedirect('/')
+
+            return HttpResponseRedirect(request.GET.get('next','/'))
         else:
             ## algun dato esta mal
             context['error'] = {'message':'E-mail inexistente, o contraseña invalida'}
