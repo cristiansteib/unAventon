@@ -71,9 +71,10 @@ class Usuario(models.Model):
         viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
         if not viajes:
             return None
-        return ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
-            viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('viaje')
+        viajesCopiloto = ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
+            usuario__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('paraUsuario')
         )
+        return viajesCopiloto
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         c = Calificacion()
