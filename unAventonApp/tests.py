@@ -111,7 +111,7 @@ class  BaseTest(TestCase):
         mocker.mock_ViajeCopiloto(self.copiloto_5, self.viaje2).confirmarCopiloto()
 
         self.copiloto_1.calificarPiloto(1, self.conductor_1, self.viaje1, 'todo bien')
-        self.conductor_1.calificarCopiloto(1,self.copiloto_1,self.viaje1,'genial')
+        self.conductor_1.calificarCopiloto(1, self.copiloto_1, self.viaje1, 'genial')
 
 class unAventonTest(TestCase):
 
@@ -156,15 +156,12 @@ class TestMetodosDeModels(BaseTest):
         TipoViaje.objects.all().delete()
         ViajeCopiloto.objects.all().delete()
 
-    '''
-        def test_copiloto_confirmado_tiene_calificaciones_pendientes_para_el_piloto(self):
-        #TODO
-        self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos().filter(usuario=self.copiloto_2)), 1)
-
-    '''
+    def test_copiloto_confirmado_tiene_calificaciones_pendientes_para_el_piloto(self):
+        self.assertEqual(len(self.copiloto_2.calificacionesPendientesParaPiloto()), 1, msg='error, el copiloto_2 aun no confirmo al conductor_1')
+            #copiloto2 no calificar al piloto en el viaje 1
 
     def test_copiloto_no_confirmado_no_tiene_calificaciones_pendientes_para_el_piloto(self):
-        self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos().filter(usuario=self.copiloto_4)),0)
+        self.assertEqual(len(self.copiloto_4.calificacionesPendientesParaPiloto()),0)
 
     def test_copiloto_sin_viajes_no_tiene_calificaciones_pendientes_para_el_piloto(self):
         self.assertEqual(len(self.copiloto_6.calificacionesPendientesParaPiloto()), 0, msg='No deberia, si no tiene viajes!!')
@@ -234,16 +231,16 @@ class TestMetodosDeModels(BaseTest):
         self.assertEqual(self.conductor_2.calificacionComoPiloto(),None,msg='Deberia ser None, nadie lo califico como piloto aun')
 
 
-    def test_calificacionComoCopiloto(self):
-        viaje1 = Viaje.objects.get(id=self.v1['id'])
+    def test_pasajero_calificado_como_copiloto(self):
         '''
         mocker = MockModels()
         mocker.mock_ViajeCopiloto(self.copiloto_1, viaje1).confirmarCopiloto()
         mocker.mock_ViajeCopiloto(self.copiloto_2, viaje1)
         '''
-        self.assertEqual(self.copiloto_1.calificacionComoCopiloto(), None, msg='Deberia ser None')
-        self.conductor_1.calificarCopiloto(0,self.copiloto_1,viaje1,'todo en orden')
-        self.assertEqual(self.copiloto_1.calificacionComoCopiloto(),0,msg='Deberia ser 0')
+        self.assertEqual(self.copiloto_1.calificacionComoCopiloto(), 1, msg='Deberia ser 1, solo lo califiacron una vez')
+
+    def test_pasajero_sin_calificar_como_copiloto(self):
+        self.assertEqual(self.copiloto_4.calificacionComoCopiloto(), None, msg='Deberia ser None, nadie lo califico')
 
 
 class TestAjax(BaseTest):
@@ -253,11 +250,12 @@ class TestAjax(BaseTest):
         self.createSomeData()
         self.c = Client()
         self.c.post('/login', {'email': self.conductor_1.user.username, 'password': MockModels.password})
-    """
+
     def tearDown(self):
         User.objects.all().delete()
         Usuario.objects.all().delete()
-    """
+        Viaje.objects.all().delete()
+
     def test_lista_de_espera_de_copilotos_para_un_viaje_dado(self):
 
         response = self.c.get('/ajax/copilotosEnEspera',{'viajeId':self.viaje1.id})
@@ -268,12 +266,24 @@ class TestAjax(BaseTest):
             ((data['lista'][1]['usuario']['id']) == (self.copiloto_5.id)),
             True,
             msg='Solo deberia haber 2 copilotos en espera, copiloto_4 y copiloto_5')
+
+    def test_lista_de_espera_de_copilotos_para_un_viaje_inexistente(self):
+        response = self.c.get('/ajax/copilotosEnEspera', {'viajeId': '-2'})
+        data = response.json()
+        self.assertEqual('error' in data,True)
+
+    def test_lista_de_espera_de_copilotos_sin_parametros(self):
+        response = self.c.get('/ajax/copilotosEnEspera', {'viajeId': ''})
+        data = response.json()
+        self.assertEqual('error' in data, True)
+
     """
     def test_viajes_activos(self):
         response = self.c.get('/ajax/misViajesActivos')#, {'viajeId': self.viaje1.id})
         data = response.json()
         self.assertEqual(data['viajes']==[],False,msg='no tiene ningun viaje, en realidad si')
     """
+
     def test_lista_calificaciones_copilotos(self):
         pass
 
