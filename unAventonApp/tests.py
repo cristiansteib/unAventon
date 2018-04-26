@@ -166,6 +166,11 @@ class TestMetodosDeModels(BaseTest):
     def test_copiloto_sin_viajes_no_tiene_calificaciones_pendientes_para_el_piloto(self):
         self.assertEqual(len(self.copiloto_6.calificacionesPendientesParaPiloto()), 0, msg='No deberia, si no tiene viajes!!')
 
+    def test_piloto_tiene_calificaciones_pendientes_para_copilotos_de_su_viaje(self):
+        self.assertEqual(len(self.conductor_1.calificacionesPendientesParaCopilotos()),2,msg='error, aun debe calificar a copiloto_2 y copiloto_3')
+
+
+
     def test_viajes_en_espera_como_copiloto(self):
 
         self.assertEqual(self.copiloto_1.viajesEnEsperaComoCopiloto().count() == 1, True)
@@ -277,12 +282,12 @@ class TestAjax(BaseTest):
         data = response.json()
         self.assertEqual('error' in data, True)
 
-    """
+
     def test_viajes_activos(self):
         response = self.c.get('/ajax/misViajesActivos')#, {'viajeId': self.viaje1.id})
         data = response.json()
         self.assertEqual(data['viajes']==[],False,msg='no tiene ningun viaje, en realidad si')
-    """
+
 
     def test_lista_calificaciones_copilotos(self):
         pass
@@ -292,14 +297,13 @@ class TestAjax(BaseTest):
 
     def test_datos_del_usuario(self):
         pass
-    '''
+
     'ajax/copilotosEnEspera'
     'ajax/misViajesActivos'
     'ajax/califPendientesCopilotos'    
     'ajax/califPendientesPilotos'
     'ajax/datosRelacionandosAlUsuario'
     
-    '''
 
 class TestViews(TestCase):
     pass
