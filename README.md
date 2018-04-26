@@ -1,5 +1,6 @@
 # "Un Aventon"
-
+Demo online [WebSite](https://unaventon.debuguear.com/)  
+Demo is running on branch stable.
 # Installation  
 Install the dependencies
 ```bash
@@ -11,12 +12,8 @@ Installing the project
 $ mkdir projectUnAventon
 $ cd projectUnAventonproject
 $ git clone 
-$ virtualenv -p python3.5 venv
-$ source venv/bin/activate
 $ cd unAventon
-$ pip install -r requirements.txt
-$ python manage.py makemigrations
-$ python manage.py migrate
+$ bash hardUpdate.sh 
 $ python manage.py runserver 0.0.0.0:8000
 ```
 Now go to [127.0.0.1:8000](127.0.0.1:8000)
