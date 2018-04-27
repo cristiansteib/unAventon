@@ -1,24 +1,34 @@
 from django.db import models, IntegrityError
 from django.contrib.auth.models import User
 from django.db.models import Count, Min, Sum, Avg
-from django.utils import timezone
-import ast
 import json
-from datetime import datetime
+from django.utils import timezone
 
 
 class Usuario(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=15)
+    nombre = models.CharField(max_length=15, )
     apellido = models.CharField(max_length=15)
-    fechaDeNacimiento = models.DateField()
-    dni = models.CharField(max_length=15)
+    fechaDeNacimiento = models.DateField(default=None, null=True)
+    dni = models.CharField(max_length=15, default=None, null=True)
+
+    def asJsonMinified(self):
+        return {
+            'id': self.pk,
+            'nombre': self.nombre,
+            'apellido': self.apellido,
+        }
 
     def asJson(self):
-        return {
-            'nombre': self.nombre,
-            'apellido': self.apellido
-        }
+        data = self.asJsonMinified()
+        data.update(
+            {
+                'mail': self.user.email,
+                'dni': self.dni,
+                'fecha_de_nacimiento': self.fechaDeNacimiento
+            }
+        )
+        return data
 
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
@@ -34,12 +44,19 @@ class Usuario(models.Model):
         return False
 
     def calificacionComoPiloto(self):
-        return Calificacion.objects.filter(viaje__in=Viaje.objects.filter(auto__usuario=self)).aggregate(
-            calificacion=Sum('calificacion'))['calificacion__count']
+        return Calificacion.objects.filter(
+            paraUsuario=self, viaje__in=Viaje.objects.filter(
+                auto__usuario=self
+            )
+        ).aggregate(
+            calificacion=Sum('calificacion')
+        )['calificacion']
 
     def calificacionComoCopiloto(self):
-        return Calificacion.objects.filter(viaje__in=ViajeCopiloto.objects.filter(usuario=self)).aggregate(
-            calificacion=Sum('calificacion'))['calificacion__count']
+        return Calificacion.objects.filter(
+            paraUsuario=self,
+            viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(
+            calificacion=Sum('calificacion'))['calificacion']
 
     def calificacionesPendientesParaPiloto(self):
         viajes_confirmados_como_copiloto = self.viajesConfirmadosComoCopiloto()
@@ -54,9 +71,10 @@ class Usuario(models.Model):
         viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
         if not viajes:
             return None
-        return ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
-            viaje__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('viaje')
+        viajesCopiloto = ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
+            usuario__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('paraUsuario')
         )
+        return viajesCopiloto
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         c = Calificacion()
@@ -68,19 +86,13 @@ class Usuario(models.Model):
         c.save()
 
     def calificarPiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if self.esPilotoEnViaje(enViaje):
-            return False
-        self.__calificar(calificacion, aUsuario, enViaje, comentario)
-        return True
-    '''
-    def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
         if self.esCopilotoEnViaje(enViaje):
-            return False
-        self.__calificar(calificacion, aUsuario, enViaje, comentario)
-        return True
-    '''
+            self.__calificar(calificacion, aUsuario, enViaje, comentario)
+            return True
+        return False
+
     def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if aUsuario.esCopilotoEnViaje(enViaje):
+        if self.esPilotoEnViaje(enViaje):
             self.__calificar(calificacion, aUsuario, enViaje, comentario)
             return True
         return False
@@ -97,7 +109,7 @@ class Usuario(models.Model):
 
     def viajesCreadosActivos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.viajesCreados().filter(fechaHoraSalida__lt=datetime.now())
+        return self.viajesCreados().filter(fechaHoraSalida__gt=timezone.now())
 
     def viajesFinalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
@@ -110,8 +122,11 @@ class Usuario(models.Model):
         try:
             ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
             return True
-        except:# IntegrityError:
+        except ViajeCopiloto.DoesNotExist:
             return False
+
+    def tarjetas_de_credito(self):
+        return Tarjeta.objects.filter(usuario=self)
 
 
 class Tarjeta(models.Model):
@@ -119,6 +134,13 @@ class Tarjeta(models.Model):
     numero = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
     ccv = models.IntegerField()
+
+    def asJson(self):
+        return {
+            'id': self.id,
+            'numero': self.numero,
+            'fecha_de_vencimiento': self.fechaDeVencimiento
+        }
 
 
 class CuentaBancaria(models.Model):
@@ -146,8 +168,11 @@ class Auto(models.Model):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
-        # todo
-        pass
+        # TODO: falta completar
+        return {
+            'id': self.id,
+            'dominio': self.dominio,
+        }
 
 
 class TipoViaje(models.Model):
@@ -188,81 +213,107 @@ class ViajeManager(models.Manager):
 
         return __json
 
-        #return viaje
+        # return viaje
+
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
     tipoViaje = models.ForeignKey(TipoViaje, on_delete=models.DO_NOTHING)
     cuentaBancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
-    gastoTotal = models.FloatField(default=0.0)
+    gasto_total = models.FloatField(default=0.0)
     comentario = models.CharField(max_length=150)
     origen = models.CharField(max_length=20)
     destino = models.CharField(max_length=20)
     fechaHoraSalida = models.DateTimeField()
     duracion = models.IntegerField()
+    comision = models.FloatField(default=0.5)
 
     objects = ViajeManager()
 
     def __str__(self):
-        return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk,self.auto.usuario, self.origen, self.destino,
-                                                      self.fechaHoraSalida)
+        return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
+                                                             self.fechaHoraSalida)
+
+    def total_a_reintegrar_al_conductor(self):
+        value = self.total_cobrado() - self.comision_a_cobrar()
+        return value if value > 0 else 0
+
+    def comision_a_cobrar(self):
+        return self.comision * self.gasto_total
+
+    def total_cobrado(self):
+        return len(self.copilotos_confirmados()) * self.gasto_por_pasajero()
+
+    def gasto_por_pasajero(self):
+        return self.gasto_total / self.auto.capacidad
+
     def asJson(self):
-        return {
-            'id': self.pk
+        data = {
+            'id': self.pk,
+            'origen': self.origen,
+            'destino': self.destino,
+            'fecha_hora_salida': self.fechaHoraSalida,
+            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'costo_total': self.gasto_total,
+            'costo_por_pasajero': self.gasto_por_pasajero(),
+            'duracion': self.duracion,
+            'auto': self.auto.asJson(),
+            'hay_lugar': self.hay_lugar(),
+            'asientos_disponibles': self.asientos_disponibles(),
+            'usuarios_confirmados': None
         }
-    def hayLugar(self):
-        lugaresOcupados = ViajeCopiloto.objects.filter(
+        usuarios_confirmados = self.copilotos_confirmados()
+        if usuarios_confirmados:
+            data['usuarios_confirmados'] = [obj.asJsonMinified() for obj in usuarios_confirmados]
+
+        return data
+
+    def asJsonPublicacion(self):
+        return {
+            'id': self.pk,
+            'origen': self.origen,
+            'destino': self.destino,
+            'fecha_hora_salida': self.fechaHoraSalida,
+            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'costo_por_pasajero': self.gasto_por_pasajero(),
+            'duracion': self.duracion,
+            'auto': self.auto.asJson()
+        }
+
+    def copilotos_confirmados(self):
+        return Usuario.objects.filter(
+            pk__in=ViajeCopiloto.objects.filter(
+                viaje=self,
+                estaConfirmado=True
+            ).values('usuario__pk')
+        )
+
+    def asientos_disponibles(self):
+        asientos_ocupados = ViajeCopiloto.objects.filter(
             viaje=self,
             estaConfirmado=True
-        ).aggregate(Count('usuario'))['usuario__count']
-        capacidad = self.auto.capacidad
-        return lugaresOcupados < capacidad
+        ).aggregate(
+            Count('usuario')
+        )['usuario__count']
+        return self.auto.capacidad - asientos_ocupados
 
-    def copilotosEnListaDeEspera(self):
+    def hay_lugar(self):
+        return True if self.asientos_disponibles() else False
+
+    def copilotos_en_lista_de_espera(self):
         return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
 
-    def agregarCopilotoEnListaDeEspera(self, usuario):
+    def agregar_copiloto_en_lista_de_espera(self, usuario):
         ViajeCopiloto.objects.create(
             viaje=self,
             usuario=usuario
         )
 
-    def conversacionPublica(self):
+    def conversacion_publica(self):
         return ConversacionPublica.objects.filter(viaje=self).order_by('fechaHoraPregunta')
 
-    def conversacionPrivada(self):
+    def conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
-
-    def gastoPorPasajero(self):
-        return self.gastoTotal / self.auto.capacidad
-
-    def publicacionAsJson(self):
-        """ Datos publicos para todos los usuarios """
-        return {
-            'auto': self.auto.asJson(),
-            'tipoViaje': self.tipoViaje.asJson(),
-            'gastoTotal': self.gastoTotal,
-            'gastoPorPasajero': self.gastoPorPasajero,
-            'origen': self.origen,
-            'destino': self.destino,
-            'fechaHoraSalida': self.fechaHoraSalida,
-            'duracion': self.duracion
-        }
-
-
-def asJson(self):
-    """ Hay datos privados, que solamente los deberia ver el usuario creador """
-    return {
-        'auto': self.auto.asJson(),
-        'tipoViaje': self.tipoViaje.asJson(),
-        'gastoTotal': self.gastoTotal,
-        'gastoPorPasajero': self.gastoPorPasajero,
-        'origen': self.origen,
-        'destino': self.destino,
-        'fechaHoraSalida': self.fechaHoraSalida,
-        'duracion': self.duracion,
-        'cuentaBancaria': self.cuentaBancaria.asJson()
-    }
 
 
 class ViajeCopiloto(models.Model):
@@ -275,8 +326,12 @@ class ViajeCopiloto(models.Model):
     fechaHoraDeSolicitud = models.DateTimeField(auto_created=True)
 
     def confirmarCopiloto(self):
-        self.estaConfirmado = True
-        self.save()
+        if self.viaje.hay_lugar():
+            self.estaConfirmado = True
+            self.save()
+            return True
+        else:
+            return False
 
     def __str__(self):
         return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
@@ -313,5 +368,5 @@ class Calificacion(models.Model):
     deUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='Calificacion.deUsuario+')
     paraUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, )
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
-    comentario = models.CharField(max_length=150)
+    comentario = models.CharField(max_length=150, default=None, null=True)
     calificacion = models.IntegerField()
