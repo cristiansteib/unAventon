@@ -16,4 +16,4 @@ def currentuser(value):
 
 @register.filter(is_safe=True)
 def lastupdate(value):
-    return Git(settings.BASE_DIR).git('log','-1','--pretty=format:Ultimo commit %ar')
+    return Git(settings.BASE_DIR).git('log','-1','--pretty=format:Last commit %ar')
