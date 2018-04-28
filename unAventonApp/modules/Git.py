@@ -14,6 +14,9 @@ class Git(runCommand):
     def __init__(self, path):
         os.chdir(path)
 
+    def git(self, *args):
+        return self.execute('git', *args).stdout.decode()
+
     def branch(self, name):
         return self.execute('git', 'branch', name)
 
@@ -40,3 +43,4 @@ class Git(runCommand):
 
     def pull(self, origin='master'):
         return self.execute('git', 'pull', 'origin', origin)
+
