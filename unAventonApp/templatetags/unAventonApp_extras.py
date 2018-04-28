@@ -14,3 +14,6 @@ def currentuser(value):
     usuario = Usuario.objects.get(user=value)
     return "{0} {1}".format(usuario.nombre, usuario.apellido)
 
+@register.filter(is_safe=True)
+def lastupdate(value):
+    return Git(settings.BASE_DIR).git('log','-1','--pretty=format:Ultima actualización %ar')
