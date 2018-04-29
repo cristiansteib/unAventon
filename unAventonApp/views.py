@@ -52,3 +52,4 @@ def signInRegister(request):
 def logout(request):
     __logout(request)
     return HttpResponseRedirect('/')
+
