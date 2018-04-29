@@ -34,14 +34,18 @@
 
     /* Set black background color, white text and some padding */
     footer {
-        background-color: #555;
-        color: white;
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
+      background-color: #f8ddbc;
+      color: black;
+      position: fixed;
+      left: 0;
+      bottom: 0;
     }
-
+    body {
+      padding: 0 0 100px 0;
+    }
+    #content{
+      margin-top: 15px;
+    }
 </style>
 
 <body>
@@ -57,7 +61,7 @@
 
 
 <footer class="container-fluid text-center">
-    <p>Running on branch: <b style="color: #f9c9df;">{{ branch | currentbranch }}</b></p>
+    <p>Running on branch: <b style="color: #212af9;">{{ branch | currentbranch }}</b></p>
     <p>{{ lastUpd | lastupdate }}</p>
 </footer>
 
