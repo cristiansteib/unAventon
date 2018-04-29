@@ -43,11 +43,8 @@ def signInRegister(request):
     if request.method == 'POST':
         r = request.POST
         user = User.objects.create_user(r['email'], r['email'], r['password'])
-        usuario = Usuario.objects.create(user=user, nombre='todo',apellido='todo')
-        print(usuario)
-        # todo   email email????'''
-        # todo verificar si ya existe el correo
-
+        usuario = Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'], fechaDeNacimiento=r['birthDay'])
+        # todo verificar si ya existe el correo, y retornar un contexxto mas apropiado segun el error
         return render(request, 'unAventonApp/signin_success.html')
     return HttpResponseRedirect('signin')
 
@@ -55,3 +52,4 @@ def signInRegister(request):
 def logout(request):
     __logout(request)
     return HttpResponseRedirect('/')
+
