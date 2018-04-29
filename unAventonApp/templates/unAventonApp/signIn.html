@@ -5,8 +5,8 @@
 
   <div class="container">
     <div class="row" style="margin-top: 10%">
-      <div class="col-md-4"></div>
-      <div class="col-sm-12 col-lg-4">
+      <div class="col-md-3"></div>
+      <div class="col-sm-12 col-lg-5">
         <div class="login-panel panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">Ingrese sus datos</h3>
@@ -14,26 +14,38 @@
           <div class="panel-body">
             <form method="POST" action="{% url 'signin_register' %}">{% csrf_token %}
               <fieldset>
-                <div class="form-group">
-                  <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus required>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input class="form-control" placeholder="Nombre" type="text" name="firstName"
+                           required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input class="form-control" placeholder="Apellido" type="text" name="lastName"
+                           required>
+                  </div>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" placeholder="DNI" name="dni" type="text" required>
+                  <input class="form-control" placeholder="E-mail" name="email" type="email" autofocus
+                         required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input class="form-control" placeholder="DNI" name="dni" type="text" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                  <input class="form-control" placeholder="Fecha de nacimiento" type="date"
+                         name="birthDay" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <input class="form-control" placeholder="Contrase&ntilde;a" name="password"
+                         type="password" required>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" placeholder="Fecha de nacimiento" type="date" name="birthDay" required >
-                </div>
-                <div class="form-group">
-                  <input class="form-control" placeholder="Nombre" type="text" name="firstName" required>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" placeholder="Apellido" type="text" name="lastName" required>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" placeholder="Contrase&ntilde;a" name="password" type="password" required>
-                </div>
-                <div class="form-group">
-                  <input class="form-control" placeholder="Confirmar contrase&ntilde;a" name="confirmPassword" type="password" required>
+                  <input class="form-control" placeholder="Confirmar contrase&ntilde;a"
+                         name="confirmPassword" type="password" required>
                 </div>
 
                 <button type="submit" class="btn btn-lg btn-success btn-block">Registrarse</button>
