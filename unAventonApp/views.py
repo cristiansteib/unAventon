@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import Usuario, Viaje
 from .modules.Git import Git
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 
 def baseContext():
@@ -53,6 +54,22 @@ def logout(request):
     __logout(request)
     return HttpResponseRedirect('/')
 
-def viajesInscriptos(request):
+@login_required
+def viajes_inscriptos(request):
     return render(request, 'unAventonApp/viajes_inscriptos.html')
 
+@login_required
+def buscar_viajes(request):
+    return render(request, 'unAventonApp/buscar_viajes.html')
+
+@login_required
+def configuracion_cuenta(request):
+    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
+
+@login_required
+def mis_viajes(request):
+    return render(request, 'unAventonApp/mis_viajes.html')
+
+@login_required
+def crear_viaje(request):
+    return render(request, 'unAventonApp/crear_viaje.html')
