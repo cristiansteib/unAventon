@@ -1,0 +1,82 @@
+<!-- lista de los viajes en el que el usuario esta inscripto -->
+{% extends "unAventonApp/base.html" %}
+{% block title %}Viajes inscriptos{% endblock %}
+
+{% block content %}
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')">Todos</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-warning')">Esperando confirmacion</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-success')">Confirmados</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-danger')">Rechazados</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-info')">Finalizados</button>
+
+  <div class="table-responsive-sm">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Origen</th>
+        <th>Destino</th>
+        <th>Fecha y Hora de salida</th>
+        <th>Precio</th>
+        <th>Conductor</th>
+        <th>Calificaci&oacute;n</th>
+        <th>Estado</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr class="table-warning">
+        <td>La Plata</td>
+        <td>Tandil</td>
+        <td>20/1/2019 20:30</td>
+        <td>200</td>
+        <td>Mariano G.</td>
+        <td>Muy buena</td>
+        <td>Esperando confirmacion</td>
+      </tr>
+
+      <tr class="table-danger">
+        <td>La Plata</td>
+        <td>Tandil</td>
+        <td>20/1/2018 20:30</td>
+        <td>200</td>
+        <td>Mariano G.</td>
+        <td>Muy buena</td>
+        <td>Rechazado</td>
+      </tr>
+
+      <tr class="table-success">
+        <td>La Plata</td>
+        <td>Tandil</td>
+        <td>20/1/2020 20:30</td>
+        <td>200</td>
+        <td>Mariano G.</td>
+        <td>Muy buena</td>
+        <td>Confirmado</td>
+
+      <tr class="table-info">
+        <td>La Plata</td>
+        <td>Tandil</td>
+        <td>20/1/2020 20:30</td>
+        <td>200</td>
+        <td>Mariano G.</td>
+        <td>Muy buena</td>
+        <td>Finalizado</td>
+      </tr>
+
+
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+      function mostrar_solo(clase) {
+          $("tr").hide();
+          if (clase == 'tr'){
+              $("tr").show();
+          }else {
+              $("." + clase).show();
+          }
+      }
+  </script>
+
+{% endblock %}
