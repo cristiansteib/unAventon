@@ -53,3 +53,6 @@ def logout(request):
     __logout(request)
     return HttpResponseRedirect('/')
 
+def viajesInscriptos(request):
+    return render(request, 'unAventonApp/viajes_inscriptos.html')
+

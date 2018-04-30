@@ -5,6 +5,7 @@ from .views import (
     signIn,
     logout,
     signInRegister,
+viajesInscriptos
 )
 
 from .ajax import (
@@ -23,6 +24,8 @@ urlpatterns = [
     path('signin', signIn, name='signin'),
     path('signinReg', signInRegister, name='signin_register'),
     path('logout', logout, name='logout'),
+
+    path('viajesInscriptos',viajesInscriptos,name='viajes_inscriptos'),
 
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
          name='lista_espera'),
