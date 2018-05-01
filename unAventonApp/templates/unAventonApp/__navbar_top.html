@@ -1,8 +1,9 @@
 {% load unAventonApp_extras %}
+{% load static %}
 
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
   <div class=" order-0">
-    <a class="navbar-brand" href="{% url 'index' %}">unAvent&oacute;n</a>
+    <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'unAventonApp/logo.jpg' %}" alt="" height="30px" width="30px" >unAvent&oacute;n</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
       <span class="navbar-toggler-icon"></span>
     </button>
