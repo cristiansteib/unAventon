@@ -3,11 +3,27 @@
 {% block title %}Configuracion de la cuenta{% endblock %}
 
 {% block content %}
-<h3>Cuenta de usuario</h3>
+  <h3>Cuenta de usuario</h3>
   <hr>
-<h3>Autos</h3>
+  <h3>Autos</h3>
   <hr>
-<h3>Tarjetas</h3>
-<hr>
+  <h3>Tarjetas</h3>
+  <hr>
+
+  <script>
+      function loadUserData() {
+          var url = {% url 'datos_del_usuario' %};
+          getJson(url ,{}, insertData, errorMessage);
+      }
+
+      function insertData(data) {
+        //parsear la data
+      }
+
+      function errorMessage(data) {
+
+      }
+
+  </script>
 
 {% endblock %}

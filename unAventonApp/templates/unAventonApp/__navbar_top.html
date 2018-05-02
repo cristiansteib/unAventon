@@ -1,8 +1,9 @@
 {% load unAventonApp_extras %}
+{% load static %}
 
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
   <div class=" order-0">
-    <a class="navbar-brand" href="{% url 'index' %}">unAvent&oacute;n</a>
+    <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'unAventonApp/icono.png' %}" alt="" height="30px" width="30px" >unAvent&oacute;n</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -13,9 +14,6 @@
       {% if user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'buscar_viajes' %}">Buscar viajes</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'viajes_inscriptos' %}">Viajes incriptos</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'crear_viaje' %}">Crear viaje</a>
@@ -37,8 +35,11 @@
             {{ user.id | currentuser }}
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+
+            <a class="dropdown-item" href="{% url 'mis_viajes' %}">Mi perfil</a>
+            <a class="dropdown-item" href="{% url 'mis_viajes' %}">Viajes creados</a>
+            <a class="dropdown-item" href="{% url 'viajes_inscriptos' %}">Viajes solicitados</a>
             <a class="dropdown-item" href="{% url 'config_cuenta' %}">Configuracion de la cuenta</a>
-            <a class="dropdown-item" href="{% url 'mis_viajes' %}">Mis viajes</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesion</a>
           </div>
