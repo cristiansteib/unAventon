@@ -24,7 +24,7 @@ HTMLVALIDATOR_ENABLED = True
 SECRET_KEY = '1+26k#$ve_weyn@4b%p56db+rx4yp)!$qgyqn#y82^a2olfhb2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = False   # development
 DEGUB_TEMPLATE = False
 ALLOWED_HOSTS = ['*']
