@@ -9,7 +9,8 @@ from .views import (
     buscar_viajes,
     configuracion_cuenta,
     mis_viajes,
-    crear_viaje
+    crear_viaje,
+    mi_perfil
 )
 
 from .ajax import (
