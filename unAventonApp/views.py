@@ -71,5 +71,10 @@ def mis_viajes(request):
     return render(request, 'unAventonApp/mis_viajes.html')
 
 @login_required
+def mi_perfil(request):
+    return render(request, 'unAventonApp/mi_perfil.html')
+
+
+@login_required
 def crear_viaje(request):
     return render(request, 'unAventonApp/crear_viaje.html')
