@@ -49,7 +49,7 @@ def signInRegister(request):
             Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'], fechaDeNacimiento=r['birthDay'])
             return render(request, 'unAventonApp/signin_success.html')
         except IntegrityError:
-            context = {'error':'ya existe ese usuario'}
+            context = {'error':'Ese usuario ya esta registrado'}
             return render(request,'unAventonApp/signIn.html', context)
 
     return HttpResponseRedirect('signin')

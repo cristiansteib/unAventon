@@ -38,3 +38,7 @@ function postJson(url, data, successCallback, errorCallback, completeCallback) {
         complete: completeCallback
     });
 }
+
+function validate() {
+    return $('#id_confirmPassword').val() === $('#id_password').val();
+}
