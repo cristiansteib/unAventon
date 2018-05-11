@@ -5,6 +5,7 @@ from .models import Usuario, Viaje
 from .modules.Git import Git
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 
 
 def baseContext():
@@ -42,11 +43,15 @@ def signIn(request):
 
 def signInRegister(request):
     if request.method == 'POST':
-        r = request.POST
-        user = User.objects.create_user(r['email'], r['email'], r['password'])
-        usuario = Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'], fechaDeNacimiento=r['birthDay'])
-        # todo verificar si ya existe el correo, y retornar un contexxto mas apropiado segun el error
-        return render(request, 'unAventonApp/signin_success.html')
+        try:
+            r = request.POST
+            user = User.objects.create_user(r['email'], r['email'], r['password'])
+            Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'], fechaDeNacimiento=r['birthDay'])
+            return render(request, 'unAventonApp/signin_success.html')
+        except IntegrityError:
+            context = {'error':'ya existe ese usuario'}
+            return render(request,'unAventonApp/signIn.html', context)
+
     return HttpResponseRedirect('signin')
 
 
