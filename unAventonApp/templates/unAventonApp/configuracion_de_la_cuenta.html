@@ -1,29 +1,45 @@
-<!-- lista de los viajes en el que el usuario esta inscripto -->
 {% extends "unAventonApp/base.html" %}
-{% block title %}Configuracion de la cuenta{% endblock %}
+{% block title %}Perfil{% endblock %}
 
 {% block content %}
-  <h3>Cuenta de usuario</h3>
-  <hr>
-  <h3>Autos</h3>
-  <hr>
-  <h3>Tarjetas</h3>
-  <hr>
 
-  <script>
-      function loadUserData() {
-          var url = {% url 'datos_del_usuario' %};
-          getJson(url ,{}, insertData, errorMessage);
-      }
 
-      function insertData(data) {
-        //parsear la data
-      }
+    <button class="btn btn-default" onclick="mostrar('#id_personal')"><h3>Datos Personales</h3></button>
+    {% include 'unAventonApp/personal_data.html' %}
+    <hr>
+    <button class="btn btn-default" onclick="mostrar('#id_vehiculos')"><h3>Veh&iacute;culos</h3></button>
+    {% include 'unAventonApp/personal_vehicles.html' %}
+    <hr>
+    <button class="btn btn-default" onclick="mostrar('#id_tarjetas')"><h3>Tarjetas</h3></button>
+    {% include 'unAventonApp/personal_credit_card.html' %}
+    <hr>
+    <button class="btn btn-default" onclick="mostrar('#id_reputacion')"><h3>Reputaci&oacute;n</h3></button>
+    {% include 'unAventonApp/personal_reputation.html' %}
+    <hr>
 
-      function errorMessage(data) {
+<script>
 
-      }
+    function mostrar(id) {
+        $(id).toggle(400);
+        console.log(id);
+    }
 
-  </script>
+
+   function loadUserData() {
+          var url = '{% url "datos_del_usuario" %}';
+          getJson(url,{},function(data){insertData(data);},function(data){errorMessage(data);});
+   }
+
+   function insertData(data) {
+       console.log(data);
+   }
+
+   function errorMessage(data) {
+       console.log(data.error)
+   }
+
+</script>
 
 {% endblock %}
+
+
