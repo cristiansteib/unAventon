@@ -39,6 +39,6 @@ function postJson(url, data, successCallback, errorCallback, completeCallback) {
     });
 }
 
-function validate() {
+function validate_passwords_match() {
     return $('#id_confirmPassword').val() === $('#id_password').val();
 }

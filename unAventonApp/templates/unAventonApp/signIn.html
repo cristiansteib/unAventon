@@ -12,7 +12,7 @@
             <h3 class="panel-title">Ingrese sus datos</h3>
           </div>
           <div class="panel-body">
-            <form method="POST" action="{% url 'signin_register' %}" onsubmit="return validate()">{% csrf_token %}
+            <form method="POST" action="{% url 'signin_register' %}" onsubmit="return validate_passwords_match()">{% csrf_token %}
               <fieldset>
 
                 <div class="form-row">

@@ -1,12 +1,11 @@
 from django.shortcuts import render, HttpResponseRedirect, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario, Viaje
+from .models import Usuario, Viaje, Tarjeta
 from .modules.Git import Git
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-
 
 def baseContext():
     return {
