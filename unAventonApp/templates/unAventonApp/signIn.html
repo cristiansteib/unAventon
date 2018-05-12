@@ -12,7 +12,7 @@
             <h3 class="panel-title">Ingrese sus datos</h3>
           </div>
           <div class="panel-body">
-            <form method="POST" action="{% url 'signin_register' %}">{% csrf_token %}
+            <form method="POST" action="{% url 'signin_register' %}" onsubmit="return validate_passwords_match()">{% csrf_token %}
               <fieldset>
 
                 <div class="form-row">
@@ -40,11 +40,11 @@
                 </div>
 
                 <div class="form-group">
-                  <input class="form-control" placeholder="Contrase&ntilde;a" name="password"
-                         type="password" required>
+                  <input id="id_password" class="form-control" placeholder="Contrase&ntilde;a" name="password"
+                         type="password" pattern=".{8,}" required title="Minimo 8 caracteres">
                 </div>
                 <div class="form-group">
-                  <input class="form-control" placeholder="Confirmar contrase&ntilde;a"
+                  <input id="id_confirmPassword" class="form-control" placeholder="Confirmar contrase&ntilde;a"
                          name="confirmPassword" type="password" required>
                 </div>
 
@@ -52,13 +52,24 @@
               </fieldset>
             </form>
             {% if error %}
-              <p style="color:red"> Ese usuario ya esta registrado</p>
+              <p style="color:red"> {{ error }}</p>
             {% endif %}
+            <p style="color:red" id="pwdAlert"></p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+
+
+    <script>
+    $('#id_confirmPassword').on('keyup', function(){
+        if($('#id_confirmPassword').val() === $('#id_password').val())
+            $('#pwdAlert').hide();
+        else
+            $('#pwdAlert').show().html('Las contraseñas no coinciden');
+    });
+    </script>
 
 {% endblock %}
