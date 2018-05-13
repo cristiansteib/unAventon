@@ -1,10 +1,9 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta
+from .models import Usuario, Viaje, Tarjeta, Auto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
 import json
-
 
 def neededParams(method_list, *args):
     for value in args:
@@ -88,6 +87,28 @@ def datos_relacionados_al_usuario(request):
         tarjetas_de_creditos = usuario.tarjetas_de_credito()
         data['tarjetas_de_credito'] = [obj.asJson() for obj in tarjetas_de_creditos] if tarjetas_de_creditos else None
         data['viajes_en_espera_de_confirmacion'] = len(usuario.viajesEnEsperaComoCopiloto())
+        autos = Auto.objects.filter(usuario=usuario)
+        data['vehiculos'] = [obj.asJson() for obj in autos] if autos else None
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
+    return JsonResponse(data)
+
+@login_required
+def actualizar_datos_usuario(request):
+    data = {}
+    if request.is_ajax():
+        try:
+            r = request.POST
+            Usuario.objects.update(
+                user=request.user,
+                nombre=r['Nombre'],
+                apellido=r['Apellido'],
+                dni=r['DNI'],
+                fechaDeNacimiento=r['Nacimiento'],
+            )
+            data['error'] = False
+            JsonResponse(data)
+        except:
+            data['error'] = 'algo salio mal'
+            return JsonResponse(data)
     return JsonResponse(data)

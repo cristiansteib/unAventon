@@ -14,18 +14,17 @@ class Usuario(models.Model):
 
     def asJsonMinified(self):
         return {
-            'id': self.pk,
-            'nombre': self.nombre,
-            'apellido': self.apellido,
+            'Nombre': self.nombre,
+            'Apellido': self.apellido,
         }
 
     def asJson(self):
         data = self.asJsonMinified()
         data.update(
             {
-                'mail': self.user.email,
-                'dni': self.dni,
-                'fecha_de_nacimiento': self.fechaDeNacimiento
+                'e-mail': self.user.email,
+                'DNI': self.dni,
+                'Nacimiento': self.fechaDeNacimiento
             }
         )
         return data
@@ -170,8 +169,10 @@ class Auto(models.Model):
     def asJson(self):
         # TODO: falta completar
         return {
-            'id': self.id,
-            'dominio': self.dominio,
+            'Dominio': self.dominio,
+            'Marca': self.marca,
+            'Modelo': self.modelo,
+            'Capacidad': self.capacidad
         }
 
 

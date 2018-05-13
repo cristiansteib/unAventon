@@ -17,7 +17,8 @@ from .ajax import (
     viajes_activos,
     lista_de_calificaciones_pendientes_a_copilotos,
     lista_de_calificaciones_pendientes_a_pilotos,
-    datos_relacionados_al_usuario
+    datos_relacionados_al_usuario,
+    actualizar_datos_usuario
 )
 
 name = 'unAventonApp'
@@ -43,6 +44,6 @@ urlpatterns = [
          name='lista_calificaciones_pilotos'),
     path('ajax/datosRelacionandosAlUsuario', datos_relacionados_al_usuario,
          name='datos_del_usuario'),
-
+    path('ajax/actualizar_datos_usuario', actualizar_datos_usuario, name='actualizar_datos_usuario'),
 
 ]

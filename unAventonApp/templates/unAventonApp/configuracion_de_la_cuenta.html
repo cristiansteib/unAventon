@@ -3,40 +3,70 @@
 
 {% block content %}
 
+<div class="container">
 
-    <button class="btn btn-default" onclick="mostrar('#id_personal')"><h3>Datos Personales</h3></button>
-    {% include 'unAventonApp/personal_data.html' %}
+    <h3 onclick="mostrar('#datos')">Datos Personales</h3>
+    <div id="datos" style="display: none"></div>
     <hr>
-    <button class="btn btn-default" onclick="mostrar('#id_vehiculos')"><h3>Veh&iacute;culos</h3></button>
-    {% include 'unAventonApp/personal_vehicles.html' %}
+    <h3>Tarjetas</h3>
+    <div id="tarjetas"></div>
     <hr>
-    <button class="btn btn-default" onclick="mostrar('#id_tarjetas')"><h3>Tarjetas</h3></button>
-    {% include 'unAventonApp/personal_credit_card.html' %}
+    <h3  onclick="mostrar('#autos')">Vehiculos</h3>
+    <div id="autos" style="display: none"></div>
     <hr>
-    <button class="btn btn-default" onclick="mostrar('#id_reputacion')"><h3>Reputaci&oacute;n</h3></button>
-    {% include 'unAventonApp/personal_reputation.html' %}
+    <h3>Reputacion</h3>
     <hr>
+    <button onclick="changeToEditable()">editar</button>
+    <button onclick="updateUserData()">guardar</button>
+</div>
 
 <script>
 
-    function mostrar(id) {
-        $(id).toggle(400);
-        console.log(id);
+
+    $(function(){
+        loadUserData();
+    });
+
+    function loadUserData(){
+        var url = '{% url "datos_del_usuario" %}';
+        getJson(url,{},function(data){insertData(data);},function(data){errorMessage(data);});
     }
 
+    function insertData(data) {
+        armarLista("#datos", data.usuario);
+        for (var key in data.vehiculos){
+           armarLista("#autos",data.vehiculos[key])
+        };
+        console.log()
+    }
 
-   function loadUserData() {
-          var url = '{% url "datos_del_usuario" %}';
-          getJson(url,{},function(data){insertData(data);},function(data){errorMessage(data);});
+    function armarLista(id, datos){
+       for(var key in datos) {
+           $(id).append('<p> ' + key + ' <input id="id_'+key+'"value="' + datos[key] + '"name="'+key+'" readonly></p>')
+       }
    }
 
-   function insertData(data) {
-       console.log(data);
-   }
-
-   function errorMessage(data) {
+    function errorMessage(data) {
        console.log(data.error)
    }
+
+    function updateUserData() {
+        var url = '{% url "actualizar_datos_usuario" %}';
+        var data = {
+            {% for key,value in context.items %}
+            '{{ key }}': $("#id_{{ key }}").val(),
+            {% endfor %}
+        }
+        postJson(url,data,function(result){console.log(result);},function(result){errorMessage(result);});
+    }
+
+    function mostrar(id) {
+        $(id).toggle(400);
+    }
+
+    function changeToEditable(){
+        $("input").removeAttr('readonly')
+    }
 
 </script>
 

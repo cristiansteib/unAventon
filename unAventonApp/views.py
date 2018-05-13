@@ -64,8 +64,8 @@ def buscar_viajes(request):
 
 @login_required
 def configuracion_cuenta(request):
-    context = Usuario.objects.get(user=request.user).asJson()
-    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html',context)
+    data = Usuario.objects.get(user=request.user).asJson()
+    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html',{'context':data})
 
 @login_required
 def mis_viajes(request):
@@ -74,3 +74,4 @@ def mis_viajes(request):
 @login_required
 def crear_viaje(request):
     return render(request, 'unAventonApp/crear_viaje.html')
+
