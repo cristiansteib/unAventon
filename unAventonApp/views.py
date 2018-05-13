@@ -66,9 +66,6 @@ def viajes_inscriptos(request):
 def buscar_viajes(request):
     return render(request, 'unAventonApp/buscar_viajes.html')
 
-@login_required
-def configuracion_cuenta(request):
-    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
 
 @login_required
 def mis_viajes(request):
@@ -76,8 +73,7 @@ def mis_viajes(request):
 
 @login_required
 def mi_perfil(request):
-    return render(request, 'unAventonApp/mi_perfil.html')
-
+    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
 
 @login_required
 def crear_viaje(request):
