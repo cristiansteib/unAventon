@@ -1,9 +1,7 @@
-from django.shortcuts import render, HttpResponseRedirect, redirect
+from django.shortcuts import render, HttpResponseRedirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario, Viaje, Tarjeta
-from .modules.Git import Git
-from django.conf import settings
+from .models import Usuario
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 
@@ -81,5 +79,4 @@ def crear_viaje(request):
     usuario = Usuario.objects.get(user=request.user)
     context['autos'] = [auto.asJson() for auto in usuario.autos()]
     context['cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.cuentas_bancarias()]
-
     return render(request, 'unAventonApp/crear_viaje.html', context)
