@@ -53,7 +53,7 @@
                     <select class="form-control" name="auto" id="auto" required>
                       <option value="" selected disabled>Selecciona un auto</option>
                       {% for auto in autos %}
-                        <option data-id={{ auto.id }} data-capacidad="{{ auto.capacidad }}">{{ auto.marca }}  {{ auto.modelo }} ({{ auto.dominio | upper }})</option>
+                        <option data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }}  {{ auto.modelo }} ({{ auto.dominio | upper }})</option>
                       {% endfor %}
 
                     </select>
@@ -65,8 +65,11 @@
                 <div class="form-row">
               <div class="form-group col-md-4">
                     <label for="capacidad_restante">Asientos disponibles</label>
-                     <input id="capacidad_restante" class="form-control" placeholder="" type="number"
-                         name="capacidad_restante" required>
+                    <select class="form-control" name="capacidad_restante" id="capacidad_restante" required>
+                      <option value="" selected disabled> - </option>
+
+                    </select>
+
                   </div>
                 </div>
                 <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
@@ -87,4 +90,26 @@
       </div>
     </div>
   </div>
+
+<script>
+
+
+    $( "#auto" ).change(function() {
+        auto_seleccionado = $( "#auto option:selected" )[0];
+        insertar_opciones_de_capacidad(auto_seleccionado.dataset.capacidad - 1);
+    });
+
+   function insertar_opciones_de_capacidad(start) {
+       output = '';
+       for (i=start;i>0;i--) {
+         output += '<option value="' + i + '">' + i + '</option>';
+
+       }
+       $('#capacidad_restante').html(output);
+   }
+
+
+</script>
+
+
 {% endblock %}
