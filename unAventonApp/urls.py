@@ -7,7 +7,6 @@ from .views import (
     signInRegister,
     viajes_inscriptos,
     buscar_viajes,
-    configuracion_cuenta,
     mis_viajes,
     crear_viaje,
     mi_perfil
@@ -18,7 +17,8 @@ from .ajax import (
     viajes_activos,
     lista_de_calificaciones_pendientes_a_copilotos,
     lista_de_calificaciones_pendientes_a_pilotos,
-    datos_relacionados_al_usuario
+    datos_relacionados_al_usuario,
+    crear_viaje_ajax
 )
 
 name = 'unAventonApp'
@@ -31,10 +31,10 @@ urlpatterns = [
     path('logout', logout, name='logout'),
     path('viajesInscriptos', viajes_inscriptos, name='viajes_inscriptos'),
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
-    path('configuracionCuenta', configuracion_cuenta, name='config_cuenta'),
+    path('miPerfil', mi_perfil, name='miPerfil'),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
-    path('miPerfil', mi_perfil, name='mi_perfil'),
+
 
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
          name='lista_espera'),
@@ -45,6 +45,8 @@ urlpatterns = [
          name='lista_calificaciones_pilotos'),
     path('ajax/datosRelacionandosAlUsuario', datos_relacionados_al_usuario,
          name='datos_del_usuario'),
+    path('ajax/crearViaje', crear_viaje_ajax,
+         name='crear_viaje_ajax'),
 
 
 ]

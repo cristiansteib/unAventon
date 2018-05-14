@@ -42,3 +42,13 @@ function postJson(url, data, successCallback, errorCallback, completeCallback) {
 function validate_passwords_match() {
     return $('#id_confirmPassword').val() === $('#id_password').val();
 }
+
+function getFormData($form){
+    /* retorna la data del form en json*/
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+    return indexed_array;
+}
