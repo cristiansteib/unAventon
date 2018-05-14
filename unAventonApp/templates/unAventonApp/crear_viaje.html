@@ -3,113 +3,129 @@
 {% block title %}Crear nuevo  viaje{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="row">
-      <div class="col-md-3"></div>
-      <div class="col-sm-12 col-md-6">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-sm-12 col-md-6">
 
-      {% if autos and cuentas_bancarias%}
- <form method="POST" action="{% url 'signin_register' %}" onsubmit="return validate_passwords_match()">{% csrf_token %}
-              <fieldset>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <input class="form-control" placeholder="Origen" type="text" name="origen"
-                           required>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <input class="form-control" placeholder="Destino" type="text" name="destino"
-                           required>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-group col-md-4">
-                    <input class="form-control" placeholder="Duracion" type="text" name="duracion"
-                           required>
-                  </div>
-                  <div class="form-group col-md-4">
-                     <input class="form-control" placeholder="Costo" type="number"
-                         name="fecha" required>
-                  </div>
-                  <div class="form-group col-md-4">
-                     <input class="form-control" placeholder="Fecha de salida" type="datetime-local"
-                         name="fecha" required>
-                  </div>
-                </div>
-
-
-                <div class="form-group">
-                    <select class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
-                      <option value="" selected disabled>Selecciona una cuenta bancaria</option>
-                      {% for cuenta in cuentas_bancarias %}
-                        <option value="{{ cuenta.id }}" >{{ cuenta.entidad }} - {{ cuenta.cbu }}</option>
-                      {% endfor %}
-
-                    </select>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-7">
-                    <select class="form-control" name="auto" id="auto" required>
-                      <option value="" selected disabled>Selecciona un auto</option>
-                      {% for auto in autos %}
-                        <option data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }}  {{ auto.modelo }} ({{ auto.dominio | upper }})</option>
-                      {% endfor %}
-
-                    </select>
-
-                  </div>
-
-                </div >
-
-                <div class="form-row">
-              <div class="form-group col-md-4">
-                    <label for="capacidad_restante">Asientos disponibles</label>
-                    <select class="form-control" name="capacidad_restante" id="capacidad_restante" required>
-                      <option value="" selected disabled> - </option>
-
-                    </select>
-
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
-              </fieldset>
-            </form>
-      {% else %}
-        <h4> Debes registrar primero
-        {%  if not autos%}
-          almenos un auto,
-        {% endif %}
-          {%  if not cuentas_bancarias%}
-          almenos una cuenta bancaria,
-        {% endif %} para poder continuar
-        </h4> <p>Accede a <a href="{% url 'miPerfil' %}">Mi Perfil</a> para continuar</p>
- {% endif %}
+                {% if autos and cuentas_bancarias %}
+                    <form method="GET" action="{% url 'signin_register' %}"
+                          onsubmit="return validate_passwords_match()">{% csrf_token %}
+                        <fieldset>
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <input class="form-control" placeholder="Origen" type="text" name="origen"
+                                           required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input class="form-control" placeholder="Destino" type="text" name="destino"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <input class="form-control" placeholder="Duracion" type="text" name="duracion"
+                                           required>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input class="form-control" placeholder="Costo" type="number"
+                                           name="fecha" required>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <input class="form-control" placeholder="Fecha de salida" type="datetime-local"
+                                           name="fecha" required>
+                                </div>
+                            </div>
 
 
-      </div>
+                            <div class="form-group">
+                                <select class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
+                                    <option value="" selected disabled>Selecciona una cuenta bancaria</option>
+                                    {% for cuenta in cuentas_bancarias %}
+                                        <option value="{{ cuenta.id }}">{{ cuenta.entidad }} - {{ cuenta.cbu }}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-7">
+                                    <select class="form-control" name="auto" id="auto" required>
+                                        <option value="" selected disabled>Selecciona un auto</option>
+                                        {% for auto in autos %}
+                                            <option data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }} {{ auto.modelo }}
+                                                ({{ auto.dominio | upper }})
+                                            </option>
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="capacidad_restante">Asientos disponibles</label>
+                                    <select class="form-control" name="capacidad_restante" id="capacidad_restante"
+                                            required>
+                                        <option value="" selected disabled> -</option>
+
+                                    </select>
+
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <select class="form-control" name="repeticion" id="repeticion"
+                                            required>
+                                        <option value="" selected disabled> Se repite?</option>
+                                        <option value="diario"  >Diariamente</option>
+                                        <option value="semanal"  >Semanalmente</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
+                        </fieldset>
+                    </form>
+                {% else %}
+                    <h4> Debes registrar primero
+                        {% if not autos %}
+                            almenos un auto,
+                        {% endif %}
+                        {% if not cuentas_bancarias %}
+                            almenos una cuenta bancaria,
+                        {% endif %} para poder continuar
+                    </h4> <p>Accede a <a href="{% url 'miPerfil' %}">Mi Perfil</a> para continuar</p>
+                {% endif %}
+
+
+            </div>
+        </div>
     </div>
-  </div>
 
-<script>
-
-
-    $( "#auto" ).change(function() {
-        auto_seleccionado = $( "#auto option:selected" )[0];
-        insertar_opciones_de_capacidad(auto_seleccionado.dataset.capacidad - 1);
-    });
-
-   function insertar_opciones_de_capacidad(start) {
-       output = '';
-       for (i=start;i>0;i--) {
-         output += '<option value="' + i + '">' + i + '</option>';
-
-       }
-       $('#capacidad_restante').html(output);
-   }
+    <script>
 
 
-</script>
+        $("#auto").change(function () {
+            auto_seleccionado = $("#auto option:selected")[0];
+            insertar_opciones_de_capacidad(auto_seleccionado.dataset.capacidad - 1);
+        });
+
+        function insertar_opciones_de_capacidad(start) {
+            output = '';
+            for (i = start; i > 0; i--) {
+                output += '<option value="' + i + '">' + i + '</option>';
+
+            }
+            $('#capacidad_restante').html(output);
+        }
+
+
+    </script>
 
 
 {% endblock %}
