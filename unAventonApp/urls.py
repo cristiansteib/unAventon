@@ -7,7 +7,6 @@ from .views import (
     signInRegister,
     viajes_inscriptos,
     buscar_viajes,
-    configuracion_cuenta,
     mis_viajes,
     crear_viaje,
     mi_perfil
@@ -31,10 +30,10 @@ urlpatterns = [
     path('logout', logout, name='logout'),
     path('viajesInscriptos', viajes_inscriptos, name='viajes_inscriptos'),
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
-    path('configuracionCuenta', configuracion_cuenta, name='config_cuenta'),
+    path('miPerfil', mi_perfil, name='miPerfil'),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
-    path('miPerfil', mi_perfil, name='mi_perfil'),
+
 
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
          name='lista_espera'),
