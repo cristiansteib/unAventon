@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
 import json
+from django.utils import timezone
+import datetime
 
 
 def neededParams(method_list, *args):
@@ -92,15 +94,30 @@ def datos_relacionados_al_usuario(request):
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
 
+
 @login_required
 def crear_viaje_ajax(request):
-    metodo = 'GET'
+    metodo = 'POST'
     request_data = getattr(request, metodo)
     fecha = request_data['fecha']
+    fecha_unix = int(request_data['fecha_hora_unix'])
     duracion = request_data['duracion']
     origen = request_data['origen']
+    costo = request_data['origen']
     destino = request_data['destino']
-    auto_id = request_data['auto']
+    auto_id = request_data['auto_id']
     cuenta_bancaria_id = request_data['cuenta_bancaria']
+    if True:
+        pass #la cuenta bancaria es del usario ?
+    if True:
+        pass #El auto es del usario ?
+    nuevo_viaje = Viaje.objects.create(
+        auto_id=auto_id,
+        fechaHoraSalida= datetime.datetime.fromtimestamp(fecha_unix),
+        duracion=duracion,
+        cuentaBancaria_id=cuenta_bancaria_id,
 
+
+    )
+    nuevo_viaje.delete()
     return JsonResponse({})

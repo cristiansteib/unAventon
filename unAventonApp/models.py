@@ -228,7 +228,7 @@ class ViajeManager(models.Manager):
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
-    tipoViaje = models.ForeignKey(TipoViaje, on_delete=models.DO_NOTHING)
+    tipoViaje = models.ForeignKey(TipoViaje, on_delete=models.DO_NOTHING, null=True, default=None)
     cuentaBancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
     gasto_total = models.FloatField(default=0.0)
     comentario = models.CharField(max_length=150)

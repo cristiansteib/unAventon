@@ -9,8 +9,8 @@
             <div class="col-sm-12 col-md-6">
 
                 {% if autos and cuentas_bancarias %}
-                    <form method="GET" action="{% url 'signin_register' %}"
-                          onsubmit="return validate_passwords_match()">{% csrf_token %}
+                    <form id="id_form_viaje" method="POST" >
+                   {% csrf_token %}
                         <fieldset>
                             {% csrf_token %}
                             <div class="form-row">
@@ -24,17 +24,24 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-md-6">
                                     <input class="form-control" placeholder="Duracion" type="text" name="duracion"
                                            required>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <input class="form-control" placeholder="Costo" type="number"
+                                <div class="form-group col-md-6">
+                                    <input name="costo" class="form-control" placeholder="Costo Total $" type="number"
+                                           required>
+                                </div>
+                            </div>
+                          <div class="form-row">
+
+                                <div class="form-group col-md-6">
+                                    <input class="form-control" placeholder="Fecha" type="date"
                                            name="fecha" required>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <input class="form-control" placeholder="Fecha de salida" type="datetime-local"
-                                           name="fecha" required>
+                              <div class="form-group col-md-6">
+                                    <input class="form-control" placeholder="Hora" type="time"
+                                           name="hora" required>
                                 </div>
                             </div>
 
@@ -88,6 +95,7 @@
 
                                 </div>
                             </div>
+                          <input type="area" name="comentario" maxlength="200">
                             <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
                         </fieldset>
                     </form>
@@ -109,6 +117,31 @@
 
     <script>
 
+        $('#id_form_viaje').on('submit', function(e) {
+            e.preventDefault();
+
+            successCallback = function(response) {
+              console.log(response);
+            };
+
+            errorCallback = function(response) {
+              console.log(response);
+            };
+
+            $data = getFormData($(this));
+
+            date = ($data['fecha'].split("-") + "," + $data['hora'].split(":") + ",0").split(",");
+            date = new Date(date[0],date[1],date[2],date[3],date[4],date[5]);
+            $unix_time = date.getTime() / 1000;
+
+            $data['auto_id'] = $("#auto option:selected")[0].dataset.id;
+            $data['fecha_hora_unix'] = $unix_time;
+            $url =" {% url 'crear_viaje_ajax' %}";
+            postJson($url,$data,successCallback, errorCallback );
+
+
+        });
+
 
         $("#auto").change(function () {
             auto_seleccionado = $("#auto option:selected")[0];
@@ -123,6 +156,8 @@
             }
             $('#capacidad_restante').html(output);
         }
+
+
 
 
     </script>
