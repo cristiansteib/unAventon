@@ -128,6 +128,11 @@ class Usuario(models.Model):
     def tarjetas_de_credito(self):
         return Tarjeta.objects.filter(usuario=self)
 
+    def autos(self):
+        return Auto.objects.filter(usuario=self)
+
+    def cuentas_bancarias(self):
+        return CuentaBancaria.objects.filter(usuario=self)
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
@@ -146,6 +151,7 @@ class Tarjeta(models.Model):
 class CuentaBancaria(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     cbu = models.CharField(max_length=20)
+    entidad = models.CharField(max_length=20, default=None, null=True)
 
     def __str__(self):
         return '{0} ---> {1}'.format(self.usuario, self.cbu)
@@ -153,6 +159,7 @@ class CuentaBancaria(models.Model):
     def asJson(self):
         return {
             'id': self.pk,
+            'entidad': self.entidad,
             'cbu': self.cbu
         }
 
@@ -171,6 +178,9 @@ class Auto(models.Model):
         # TODO: falta completar
         return {
             'id': self.id,
+            'marca': self.marca,
+            'modelo': self.modelo,
+            'capacidad': self.capacidad,
             'dominio': self.dominio,
         }
 

@@ -3,5 +3,88 @@
 {% block title %}Crear nuevo  viaje{% endblock %}
 
 {% block content %}
-<p> crear un nuevo viaje</p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-sm-12 col-md-6">
+
+      {% if autos and cuentas_bancarias%}
+ <form method="POST" action="{% url 'signin_register' %}" onsubmit="return validate_passwords_match()">{% csrf_token %}
+              <fieldset>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input class="form-control" placeholder="Origen" type="text" name="origen"
+                           required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input class="form-control" placeholder="Destino" type="text" name="destino"
+                           required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <input class="form-control" placeholder="Duracion" type="text" name="duracion"
+                           required>
+                  </div>
+                  <div class="form-group col-md-4">
+                     <input class="form-control" placeholder="Costo" type="number"
+                         name="fecha" required>
+                  </div>
+                  <div class="form-group col-md-4">
+                     <input class="form-control" placeholder="Fecha de salida" type="datetime-local"
+                         name="fecha" required>
+                  </div>
+                </div>
+
+
+                <div class="form-group">
+                    <select class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
+                      <option value="" selected disabled>Selecciona una cuenta bancaria</option>
+                      {% for cuenta in cuentas_bancarias %}
+                        <option value="{{ cuenta.id }}" >{{ cuenta.entidad }} - {{ cuenta.cbu }}</option>
+                      {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-7">
+                    <select class="form-control" name="auto" id="auto" required>
+                      <option value="" selected disabled>Selecciona un auto</option>
+                      {% for auto in autos %}
+                        <option data-id={{ auto.id }} data-capacidad="{{ auto.capacidad }}">{{ auto.marca }}  {{ auto.modelo }} ({{ auto.dominio | upper }})</option>
+                      {% endfor %}
+
+                    </select>
+
+                  </div>
+
+                </div >
+
+                <div class="form-row">
+              <div class="form-group col-md-4">
+                    <label for="capacidad_restante">Asientos disponibles</label>
+                     <input id="capacidad_restante" class="form-control" placeholder="" type="number"
+                         name="capacidad_restante" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
+              </fieldset>
+            </form>
+      {% else %}
+        <h4> Debes registrar primero
+        {%  if not autos%}
+          almenos un auto,
+        {% endif %}
+          {%  if not cuentas_bancarias%}
+          almenos una cuenta bancaria,
+        {% endif %} para poder continuar
+        </h4> <p>Accede a <a href="{% url 'miPerfil' %}">Mi Perfil</a> para continuar</p>
+ {% endif %}
+
+
+      </div>
+    </div>
+  </div>
 {% endblock %}

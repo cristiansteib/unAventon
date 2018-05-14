@@ -77,4 +77,9 @@ def mi_perfil(request):
 
 @login_required
 def crear_viaje(request):
-    return render(request, 'unAventonApp/crear_viaje.html')
+    context = {}
+    usuario = Usuario.objects.get(user=request.user)
+    context['autos'] = [auto.asJson() for auto in usuario.autos()]
+    context['cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.cuentas_bancarias()]
+
+    return render(request, 'unAventonApp/crear_viaje.html', context)
