@@ -91,3 +91,16 @@ def datos_relacionados_al_usuario(request):
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
+
+@login_required
+def crear_viaje_ajax(request):
+    metodo = 'GET'
+    request_data = getattr(request, metodo)
+    fecha = request_data['fecha']
+    duracion = request_data['duracion']
+    origen = request_data['origen']
+    destino = request_data['destino']
+    auto_id = request_data['auto']
+    cuenta_bancaria_id = request_data['cuenta_bancaria']
+
+    return JsonResponse({})
