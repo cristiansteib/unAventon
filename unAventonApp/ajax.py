@@ -72,6 +72,7 @@ def lista_de_calificaciones_pendientes_a_pilotos(request):
         pass
     return JsonResponse(data)
 
+
 @login_required
 def datos_relacionados_al_usuario(request):
     """ Arma un diccionario con los datos del usuario
@@ -99,25 +100,18 @@ def datos_relacionados_al_usuario(request):
 def crear_viaje_ajax(request):
     metodo = 'POST'
     request_data = getattr(request, metodo)
-    fecha = request_data['fecha']
-    fecha_unix = int(request_data['fecha_hora_unix'])
-    duracion = request_data['duracion']
-    origen = request_data['origen']
-    costo = request_data['origen']
-    destino = request_data['destino']
-    auto_id = request_data['auto_id']
-    cuenta_bancaria_id = request_data['cuenta_bancaria']
-    if True:
-        pass #la cuenta bancaria es del usario ?
-    if True:
-        pass #El auto es del usario ?
-    nuevo_viaje = Viaje.objects.create(
-        auto_id=auto_id,
-        fechaHoraSalida= datetime.datetime.fromtimestamp(fecha_unix),
-        duracion=duracion,
-        cuentaBancaria_id=cuenta_bancaria_id,
+    datos_viaje = {
+        'comentario': request_data['comentario'],
+        'fecha_hora_salida': timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])),
+        'duracion': request_data['duracion'],
+        'origen': request_data['origen'],
+        'gasto_total': request_data['costo'],
+        'destino': request_data['destino'],
+        'auto_id': request_data['auto_id'],
+        'cuenta_bancaria_id': request_data['cuenta_bancaria'],
+        'se_repite': (request_data['repeticion'], timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])).weekday())
+    }
 
+    request.user.usuario.nuevo_viaje(datos_viaje)
 
-    )
-    nuevo_viaje.delete()
     return JsonResponse({})

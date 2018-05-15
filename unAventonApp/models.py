@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 class Usuario(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=15, )
     apellido = models.CharField(max_length=15)
     fechaDeNacimiento = models.DateField(default=None, null=True)
@@ -109,7 +109,7 @@ class Usuario(models.Model):
 
     def viajesCreadosActivos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.viajesCreados().filter(fechaHoraSalida__gt=timezone.now())
+        return self.viajesCreados().filter(fecha_hora_salida__gt =timezone.now())
 
     def viajesFinalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
@@ -133,6 +133,12 @@ class Usuario(models.Model):
 
     def cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self)
+
+    def nuevo_viaje(self, datos):
+        viaje = Viaje.objects.create_viaje(usuario=self, **datos)
+        print(viaje)
+
+
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
@@ -206,18 +212,25 @@ class ViajeManager(models.Manager):
             'creado': False,
             'error': []
         }
-        usuario = kwargs['auto'].usuario
+        print(kwargs)
 
-        if usuario != kwargs['cuentaBancaria'].usuario:
+        usuario = kwargs['usuario']
+
+        cuenta_bancaria = CuentaBancaria.objects.get(pk=kwargs['cuenta_bancaria_id'])
+        if usuario != cuenta_bancaria.usuario:
             __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
         if usuario.tieneCalificicacionesPendientes():
             __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
-        # TODO
-        # if usuario.viajesCreadosActivos():
-        #    __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
+        # se solapa con algun viaje ?? #TODO: testear
+        viajes_existentes = usuario.viajesCreadosActivos()
+        if viajes_existentes.filter(fecha_hora_salida__le=kwargs['fecha_hora_salida'] + timezone.timedelta(hours=kwargs['duracion'])):
+            __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
+
+
         if not len(__json['error']):
             # no hay errores, entonces se guarda
-            viaje = self.create(*args, **kwargs)
+            del kwargs['usuario']
+            viaje = self.create(**kwargs)
             __json['id'] = viaje.pk
             __json['creado'] = True
 
@@ -228,21 +241,33 @@ class ViajeManager(models.Manager):
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
-    tipoViaje = models.ForeignKey(TipoViaje, on_delete=models.DO_NOTHING, null=True, default=None)
-    cuentaBancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
+    se_repite = models.CharField(default=None, null=True, max_length=50)
+    cuenta_bancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
     gasto_total = models.FloatField(default=0.0)
     comentario = models.CharField(max_length=150)
     origen = models.CharField(max_length=20)
     destino = models.CharField(max_length=20)
-    fechaHoraSalida = models.DateTimeField()
-    duracion = models.IntegerField()
+    fecha_hora_salida = models.DateTimeField()
+    duracion = models.FloatField()
     comision = models.FloatField(default=0.5)
+    activo = models.BooleanField(default=True)
 
     objects = ViajeManager()
 
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
-                                                             self.fechaHoraSalida)
+                                                             self.fecha_hora_salida)
+
+    def activar(self):
+        self.activo = True
+        self.save()
+
+    def desactivar(self):
+        self.activo = False
+        self.save()
+
+    def esta_activo(self):
+        return self.activo
 
     def total_a_reintegrar_al_conductor(self):
         value = self.total_cobrado() - self.comision_a_cobrar()
@@ -257,20 +282,32 @@ class Viaje(models.Model):
     def gasto_por_pasajero(self):
         return self.gasto_total / self.auto.capacidad
 
+    def get_se_repite_string(self):
+        import ast
+        frecuencia, dia = ast.literal_eval(self.se_repite)
+        dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+        if frecuencia == 'semanal':
+            return "Se repite todas las semanas"
+        elif frecuencia == 'diario':
+            return "Se repite todos los " + dias[dia] + "."
+        return "Sin datos"
+
     def asJson(self):
         data = {
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fechaHoraSalida,
-            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'fecha_hora_salida': self.fecha_hora_salida,
+            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_total': self.gasto_total,
             'costo_por_pasajero': self.gasto_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson(),
             'hay_lugar': self.hay_lugar(),
             'asientos_disponibles': self.asientos_disponibles(),
-            'usuarios_confirmados': None
+            'usuarios_confirmados': None,
+            'activo': self.esta_activo(),
+            'se_repite': self.get_se_repite_string()
         }
         usuarios_confirmados = self.copilotos_confirmados()
         if usuarios_confirmados:
