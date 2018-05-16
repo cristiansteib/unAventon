@@ -52,3 +52,11 @@ function getFormData($form){
     });
     return indexed_array;
 }
+
+function toTimeUnix( date, hour) {
+    /*los parametros son los values de los inputs !!! */
+    date = new Date(date);
+    hora = hour.split(":");
+    date.setHours(hora[0], hora[1]);
+    return date.getTime() / 1000;
+}
