@@ -4,7 +4,7 @@ from django.db.models import Count, Min, Sum, Avg
 import json
 from django.utils import timezone
 from django.conf import settings
-
+import datetime
 
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -39,24 +39,33 @@ class Usuario(models.Model):
         # tiene auto
         # tiene tarjeta de credito
         # no tiene otro viaje en el mismo horario
+        # no se permiten viajes en el pasado
+
 
         from collections import namedtuple
         Range = namedtuple('Range', ['start', 'end'])
 
         mensaje = {'error': []}
+
+        if fecha_hora_salida < timezone.datetime.now():
+            mensaje['error'].append({110: 'El viaje debe ser posterior a la fecha actual.'})
+
         pendientes = self.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos()
 
         if pendientes:
             plural = "es" if pendientes > 1 else ""
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
-
         ##check que no este en uso en otro viaje en el mismo rango horario como piloto
-        viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__month=fecha_hora_salida.month,
-                                                                  fecha_hora_salida__day=fecha_hora_salida.day,
-                                                                  fecha_hora_salida__year=fecha_hora_salida.year,
-                                                                  auto__usuario=self)
-        if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_activos):
+        viajes_activos = self.get_viajes_creados_activos()
+        viajes_diarios = self.get_viajes_diarios_activos()
+        viajes_semanales = viajes_activos.filter(se_repite__contains='semanal',
+                                                 fecha_hora_salida__week_day=datetime.datetime.fromtimestamp(fecha_hora_salida.timestamp()).weekday())
+        viajes_mismo_dia = viajes_activos.filter(fecha_hora_salida__year=fecha_hora_salida.year,
+                                                 fecha_hora_salida__month=fecha_hora_salida.month,
+                                                 fecha_hora_salida__day=fecha_hora_salida.day)
+        sp = self.__se_superpone_rango_horario
+        if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales):
             mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
 
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
@@ -70,21 +79,34 @@ class Usuario(models.Model):
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_salida, duracion, viajes):
+        import datetime
+        duracion = int(duracion)
+
+        def sumar_tiempo(hora, minutos, incremento):
+            delta = datetime.timedelta(hours=incremento)
+            hora_final = datetime.datetime(1, 1, 1, hora, minutos) + delta
+            return hora_final
+
         from collections import namedtuple
+        import datetime
         Range = namedtuple('Range', ['start', 'end'])
+        hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_salida.hour, fecha_hora_salida.minute)
+        hora_salida_end = sumar_tiempo(fecha_hora_salida.hour, fecha_hora_salida.minute, duracion)
         for viaje in viajes:
-            time_start = viaje.fecha_hora_salida
-            time_end = time_start + timezone.timedelta(hours=viaje.duracion)
-            r1 = Range(start=time_start.timestamp(), end=time_end.timestamp())
-            actual_end = fecha_hora_salida + timezone.timedelta(hours=int(duracion))
-            r2 = Range(start=fecha_hora_salida.timestamp(), end=actual_end.timestamp())
+            time_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute)
+            time_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, viaje.duracion)
+            r1 = Range(start=time_start, end=time_end)
+            r2 = Range(start=hora_salida_start, end=hora_salida_end)
             latest_start = max(r1.start, r2.start)
             earliest_end = min(r1.end, r2.end)
-            delta = (earliest_end - latest_start) + 1
-            overlap = max(0, delta)
-            if overlap > 0:
+            delta = (earliest_end - latest_start)
+            overlap = max(datetime.timedelta(0, 0), delta)
+            if overlap > datetime.timedelta(0, 0):
                 return True
         return False
+
+    def get_viajes_diarios_activos(self):
+        return self.get_viajes_creados_activos().filter(se_repite__contains='diario')
 
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
@@ -114,9 +136,10 @@ class Usuario(models.Model):
             calificacion=Sum('calificacion'))['calificacion']
 
     def get_calificaciones_pendientes_para_piloto(self):
+
         viajes_confirmados_como_copiloto = self.get_viajes_confirmados_como_copiloto()
         if not viajes_confirmados_como_copiloto:
-            return []
+            return models.QuerySet(ViajeCopiloto)
         return viajes_confirmados_como_copiloto.exclude(
             viaje__in=Calificacion.objects.filter(
                 viaje__in=viajes_confirmados_como_copiloto.values_list('viaje'),
@@ -125,7 +148,7 @@ class Usuario(models.Model):
     def get_calificaciones_pendientes_para_copilotos(self):
         viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
         if not viajes:
-            return None
+            return models.QuerySet(ViajeCopiloto)
         viajesCopiloto = ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
             usuario__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('paraUsuario')
         )
@@ -164,7 +187,7 @@ class Usuario(models.Model):
 
     def get_viajes_creados_activos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.get_viajes_creados().filter(fecha_hora_salida__gte=timezone.now())
+        return self.get_viajes_creados().filter(activo=True)
 
     def get_viajes_finalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
@@ -283,7 +306,7 @@ class ViajeManager(models.Manager):
             viaje = self.create(**kwargs)
             __json['id'] = viaje.pk
             __json['creado'] = True
-            viaje.delete()
+            #viaje.delete()
         return __json
 
         # return viaje
@@ -415,10 +438,11 @@ class Viaje(models.Model):
 
 class ViajeCopiloto(models.Model):
     class Meta:
-        unique_together = (('usuario', 'viaje'),)
+        unique_together = (('usuario', 'viaje', 'fecha_del_viaje'),)
 
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
+    fecha_del_viaje = models.DateTimeField()
     estaConfirmado = models.BooleanField(default=False)
     fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now())
 
