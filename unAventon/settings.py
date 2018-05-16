@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
+APP_COMISION = 0.05 # es el 5% de comision
+APP_MAX_DIAS_CALIFICACION_PENDIENTES  = 30
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,7 +30,9 @@ DEBUG = True
 TEMPLATE_DEBUG = False   # development
 DEGUB_TEMPLATE = False
 ALLOWED_HOSTS = ['*']
-
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
+USE_TZ = True
+LANGUAGE_CODE = 'es-ar'
 
 # Application definition
 
