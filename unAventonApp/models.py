@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Min, Sum, Avg
 import json
 from django.utils import timezone
+from django.conf import settings
 
 
 class Usuario(models.Model):
@@ -33,17 +34,71 @@ class Usuario(models.Model):
     def __str__(self):
         return "{0} {1}".format(self.nombre, self.apellido)
 
-    def puedeCrearViaje(self):
+    def puede_crear_viaje(self, fecha_hora_salida, duracion):
         # no tiene calificaciones pendientes
         # tiene auto
         # tiene tarjeta de credito
         # no tiene otro viaje en el mismo horario
-        return True
 
-    def tieneCalificicacionesPendientes(self):
+        from collections import namedtuple
+        Range = namedtuple('Range', ['start', 'end'])
+
+        mensaje = {'error': []}
+        pendientes = self.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos()
+
+        if pendientes:
+            plural = "es" if pendientes > 1 else ""
+            mensaje['error'].append(
+                {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
+
+        ##check que no este en uso en otro viaje en el mismo rango horario como piloto
+        viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__month=fecha_hora_salida.month,
+                                                                  fecha_hora_salida__day=fecha_hora_salida.day,
+                                                                  fecha_hora_salida__year=fecha_hora_salida.year,
+                                                                  auto__usuario=self)
+        if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_activos):
+            mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
+
+        ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
+        viajes_como_copiloto = Viaje.objects.filter(
+            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+        if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto):
+            mensaje['error'].append(
+                {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
+
+        return True if not len(mensaje['error']) else False, mensaje
+
+    @staticmethod
+    def __se_superpone_rango_horario(fecha_hora_salida, duracion, viajes):
+        from collections import namedtuple
+        Range = namedtuple('Range', ['start', 'end'])
+        for viaje in viajes:
+            time_start = viaje.fecha_hora_salida
+            time_end = time_start + timezone.timedelta(hours=viaje.duracion)
+            r1 = Range(start=time_start.timestamp(), end=time_end.timestamp())
+            actual_end = fecha_hora_salida + timezone.timedelta(hours=int(duracion))
+            r2 = Range(start=fecha_hora_salida.timestamp(), end=actual_end.timestamp())
+            latest_start = max(r1.start, r2.start)
+            earliest_end = min(r1.end, r2.end)
+            delta = (earliest_end - latest_start) + 1
+            overlap = max(0, delta)
+            if overlap > 0:
+                return True
         return False
 
-    def calificacionComoPiloto(self):
+    def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
+        maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
+        p1 = self.get_calificaciones_pendientes_para_piloto().filter(
+            viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
+        p2 = self.get_calificaciones_pendientes_para_copilotos().filter(
+            viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
+        print("calif pendientes ", p1, p2)
+        return len(p1) + len(p2)
+
+    def tiene_calificicaciones_pendientes(self):
+        return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
+
+    def get_calificacion_como_piloto(self):
         return Calificacion.objects.filter(
             paraUsuario=self, viaje__in=Viaje.objects.filter(
                 auto__usuario=self
@@ -52,14 +107,14 @@ class Usuario(models.Model):
             calificacion=Sum('calificacion')
         )['calificacion']
 
-    def calificacionComoCopiloto(self):
+    def get_calificacion_como_copiloto(self):
         return Calificacion.objects.filter(
             paraUsuario=self,
-            viaje__in=self.viajesConfirmadosComoCopiloto().values('viaje_id')).aggregate(
+            viaje__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id')).aggregate(
             calificacion=Sum('calificacion'))['calificacion']
 
-    def calificacionesPendientesParaPiloto(self):
-        viajes_confirmados_como_copiloto = self.viajesConfirmadosComoCopiloto()
+    def get_calificaciones_pendientes_para_piloto(self):
+        viajes_confirmados_como_copiloto = self.get_viajes_confirmados_como_copiloto()
         if not viajes_confirmados_como_copiloto:
             return []
         return viajes_confirmados_como_copiloto.exclude(
@@ -67,7 +122,7 @@ class Usuario(models.Model):
                 viaje__in=viajes_confirmados_como_copiloto.values_list('viaje'),
                 deUsuario=self).values_list('viaje'))
 
-    def calificacionesPendientesParaCopilotos(self):
+    def get_calificaciones_pendientes_para_copilotos(self):
         viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
         if not viajes:
             return None
@@ -85,59 +140,58 @@ class Usuario(models.Model):
         c.calificacion = calificacion
         c.save()
 
-    def calificarPiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if self.esCopilotoEnViaje(enViaje):
+    def set_calificar_piloto(self, calificacion, aUsuario, enViaje, comentario):
+        if self.es_copiloto_en_viaje(enViaje):
             self.__calificar(calificacion, aUsuario, enViaje, comentario)
             return True
         return False
 
-    def calificarCopiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if self.esPilotoEnViaje(enViaje):
+    def set_calificar_copiloto(self, calificacion, aUsuario, enViaje, comentario):
+        if self.es_piloto_en_viaje(enViaje):
             self.__calificar(calificacion, aUsuario, enViaje, comentario)
             return True
         return False
 
-    def viajesEnEsperaComoCopiloto(self):
+    def get_viajes_en_espera_como_copiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=False)
 
-    def viajesConfirmadosComoCopiloto(self):
+    def get_viajes_confirmados_como_copiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True)
 
-    def viajesCreados(self):
+    def get_viajes_creados(self):
         """ Todos los viajes que creo el usuario"""
         return Viaje.objects.filter(auto__usuario=self)
 
-    def viajesCreadosActivos(self):
+    def get_viajes_creados_activos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.viajesCreados().filter(fecha_hora_salida__gt =timezone.now())
+        return self.get_viajes_creados().filter(fecha_hora_salida__gte=timezone.now())
 
-    def viajesFinalizados(self):
+    def get_viajes_finalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
-        return self.viajesCreados().exclude(self.viajesCreadosActivos())
+        return self.get_viajes_creados().exclude(self.get_viajes_creados_activos())
 
-    def esPilotoEnViaje(self, viaje):
+    def es_piloto_en_viaje(self, viaje):
         return viaje.auto.usuario == self
 
-    def esCopilotoEnViaje(self, viaje):
+    def es_copiloto_en_viaje(self, viaje):
         try:
             ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
             return True
         except ViajeCopiloto.DoesNotExist:
             return False
 
-    def tarjetas_de_credito(self):
+    def get_tarjetas_de_credito(self):
         return Tarjeta.objects.filter(usuario=self)
 
-    def autos(self):
+    def get_autos(self):
         return Auto.objects.filter(usuario=self)
 
-    def cuentas_bancarias(self):
+    def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self)
 
-    def nuevo_viaje(self, datos):
-        viaje = Viaje.objects.create_viaje(usuario=self, **datos)
-        print(viaje)
-
+    def set_nuevo_viaje(self, datos):
+        json_info = Viaje.objects.create_viaje(usuario=self, **datos)
+        return json_info
 
 
 class Tarjeta(models.Model):
@@ -207,33 +261,29 @@ class TipoViaje(models.Model):
 
 
 class ViajeManager(models.Manager):
-    def create_viaje(self, *args, **kwargs):
+    def create_viaje(self, usuario=..., **kwargs):
         __json = {
             'creado': False,
             'error': []
         }
-        print(kwargs)
 
-        usuario = kwargs['usuario']
+        print("Crear viaje " + str(kwargs))
 
-        cuenta_bancaria = CuentaBancaria.objects.get(pk=kwargs['cuenta_bancaria_id'])
-        if usuario != cuenta_bancaria.usuario:
+        cuenta_bancaria = CuentaBancaria.objects.filter(pk=kwargs['cuenta_bancaria_id'], usuario=usuario)
+        if not cuenta_bancaria:
+            print('entro')
             __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
-        if usuario.tieneCalificicacionesPendientes():
-            __json['error'].append({1: 'El usuario tiene calificaciones pendientes'})
-        # se solapa con algun viaje ?? #TODO: testear
-        viajes_existentes = usuario.viajesCreadosActivos()
-        if viajes_existentes.filter(fecha_hora_salida__le=kwargs['fecha_hora_salida'] + timezone.timedelta(hours=kwargs['duracion'])):
-            __json['error'].append({2: 'El usuario tiene viajes creados en el rango horario'})
 
+        puede_crear, mensaje = usuario.puede_crear_viaje(kwargs['fecha_hora_salida'], kwargs['duracion'])
+        if not puede_crear:
+            __json['error'].extend(mensaje['error'])
 
         if not len(__json['error']):
             # no hay errores, entonces se guarda
-            del kwargs['usuario']
             viaje = self.create(**kwargs)
             __json['id'] = viaje.pk
             __json['creado'] = True
-
+            viaje.delete()
         return __json
 
         # return viaje
@@ -249,7 +299,7 @@ class Viaje(models.Model):
     destino = models.CharField(max_length=20)
     fecha_hora_salida = models.DateTimeField()
     duracion = models.FloatField()
-    comision = models.FloatField(default=0.5)
+    comision = models.FloatField(default=settings.APP_COMISION)
     activo = models.BooleanField(default=True)
 
     objects = ViajeManager()
@@ -269,20 +319,20 @@ class Viaje(models.Model):
     def esta_activo(self):
         return self.activo
 
-    def total_a_reintegrar_al_conductor(self):
-        value = self.total_cobrado() - self.comision_a_cobrar()
+    def get_total_a_reintegrar_al_conductor(self):
+        value = self.get_total_cobrado() - self.get_comision_a_cobrar()
         return value if value > 0 else 0
 
-    def comision_a_cobrar(self):
+    def get_comision_a_cobrar(self):
         return self.comision * self.gasto_total
 
-    def total_cobrado(self):
-        return len(self.copilotos_confirmados()) * self.gasto_por_pasajero()
+    def get_total_cobrado(self):
+        return len(self.get_copilotos_confirmados()) * self.get_costo_por_pasajero()
 
-    def gasto_por_pasajero(self):
+    def get_costo_por_pasajero(self):
         return self.gasto_total / self.auto.capacidad
 
-    def get_se_repite_string(self):
+    def get_se_repite_asString(self):
         import ast
         frecuencia, dia = ast.literal_eval(self.se_repite)
         dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes']
@@ -300,16 +350,16 @@ class Viaje(models.Model):
             'fecha_hora_salida': self.fecha_hora_salida,
             'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_total': self.gasto_total,
-            'costo_por_pasajero': self.gasto_por_pasajero(),
+            'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson(),
             'hay_lugar': self.hay_lugar(),
-            'asientos_disponibles': self.asientos_disponibles(),
+            'get_asientos_disponibles': self.get_asientos_disponibles(),
             'usuarios_confirmados': None,
             'activo': self.esta_activo(),
-            'se_repite': self.get_se_repite_string()
+            'se_repite': self.get_se_repite_asString()
         }
-        usuarios_confirmados = self.copilotos_confirmados()
+        usuarios_confirmados = self.get_copilotos_confirmados()
         if usuarios_confirmados:
             data['usuarios_confirmados'] = [obj.asJsonMinified() for obj in usuarios_confirmados]
 
@@ -322,12 +372,12 @@ class Viaje(models.Model):
             'destino': self.destino,
             'fecha_hora_salida': self.fechaHoraSalida,
             'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
-            'costo_por_pasajero': self.gasto_por_pasajero(),
+            'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson()
         }
 
-    def copilotos_confirmados(self):
+    def get_copilotos_confirmados(self):
         return Usuario.objects.filter(
             pk__in=ViajeCopiloto.objects.filter(
                 viaje=self,
@@ -335,7 +385,7 @@ class Viaje(models.Model):
             ).values('usuario__pk')
         )
 
-    def asientos_disponibles(self):
+    def get_asientos_disponibles(self):
         asientos_ocupados = ViajeCopiloto.objects.filter(
             viaje=self,
             estaConfirmado=True
@@ -345,21 +395,21 @@ class Viaje(models.Model):
         return self.auto.capacidad - asientos_ocupados
 
     def hay_lugar(self):
-        return True if self.asientos_disponibles() else False
+        return True if self.get_asientos_disponibles() else False
 
-    def copilotos_en_lista_de_espera(self):
+    def get_copilotos_en_lista_de_espera(self):
         return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
 
-    def agregar_copiloto_en_lista_de_espera(self, usuario):
-        ViajeCopiloto.objects.create(
+    def set_agregar_copiloto_en_lista_de_espera(self, usuario):
+        return ViajeCopiloto.objects.create(
             viaje=self,
             usuario=usuario
         )
 
-    def conversacion_publica(self):
+    def get_conversacion_publica(self):
         return ConversacionPublica.objects.filter(viaje=self).order_by('fechaHoraPregunta')
 
-    def conversacion_privada(self):
+    def get_conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
 
@@ -370,7 +420,7 @@ class ViajeCopiloto(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     estaConfirmado = models.BooleanField(default=False)
-    fechaHoraDeSolicitud = models.DateTimeField(auto_created=True)
+    fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now())
 
     def confirmarCopiloto(self):
         if self.viaje.hay_lugar():

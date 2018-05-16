@@ -8,7 +8,7 @@
       <div class="col-md-3"></div>
       <div class="col-sm-12 col-md-6">
 
-        {% if autos and cuentas_bancarias %}
+        {% if get_autos and get_cuentas_bancarias %}
           <form id="id_form_viaje" method="POST">
             {% csrf_token %}
             <fieldset>
@@ -25,7 +25,7 @@
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">
-                  <input class="form-control" placeholder="Duracion" type="text" name="duracion"
+                  <input class="form-control" placeholder="Duracion" type="number" name="duracion"
                          required>
                 </div>
                 <div class="form-group col-md-6">
@@ -49,7 +49,7 @@
               <div class="form-group">
                 <select class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
                   <option value="" selected disabled>Selecciona una cuenta bancaria</option>
-                  {% for cuenta in cuentas_bancarias %}
+                  {% for cuenta in get_cuentas_bancarias %}
                     <option value="{{ cuenta.id }}">{{ cuenta.entidad }} - {{ cuenta.cbu }}</option>
                   {% endfor %}
 
@@ -60,7 +60,7 @@
                 <div class="form-group col-md-7">
                   <select class="form-control" name="auto" id="auto" required>
                     <option value="" selected disabled>Selecciona un auto</option>
-                    {% for auto in autos %}
+                    {% for auto in get_autos %}
                       <option
                           data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }} {{ auto.modelo }}
                         ({{ auto.dominio | upper }})
@@ -112,10 +112,10 @@
           </form>
         {% else %}
           <h4> Debes registrar primero
-            {% if not autos %}
+            {% if not get_autos %}
               almenos un auto,
             {% endif %}
-            {% if not cuentas_bancarias %}
+            {% if not get_cuentas_bancarias %}
               almenos una cuenta bancaria,
             {% endif %} para poder continuar
           </h4> <p>Accede a <a href="{% url 'miPerfil' %}">Mi Perfil</a> para continuar</p>
@@ -124,27 +124,43 @@
 
       </div>
     </div>
-  </div>
 
+  </div>
+  <div id="alert" class="alert alert-danger" style="margin-top: 15px; display: none">
+  <strong>Error!</strong>
+    <ul class="list-group" id="mensaje_error">
+    </ul>
+</div>
   <script>
 
       $('#id_form_viaje').on('submit', function (e) {
           e.preventDefault();
 
           successCallback = function (response) {
-              console.log(response);
+              if (response.creado === true) {
+
+              } else {
+                  out = "";
+                  for (i = 0; i<response.error.length; i++) {
+                      var p = response.error[i]
+                    for (var key in p) {
+                          if (p.hasOwnProperty(key)) {
+                              out += '<li class="list-group-item">'+ p[key] + '</li>';
+                          }
+                      }
+                  }
+                  $('#mensaje_error').html(out);
+                  $('#alert').fadeIn();
+              }
           };
 
           errorCallback = function (response) {
               console.log(response);
           };
 
+
           $data = getFormData($(this));
-
-          date = ($data['fecha'].split("-") + "," + $data['hora'].split(":") + ",0").split(",");
-          date = new Date(date[0], date[1], date[2], date[3], date[4], date[5]);
-          $unix_time = date.getTime() / 1000;
-
+          $unix_time = toTimeUnix($data['fecha'], $data['hora']);
           $data['auto_id'] = $("#auto option:selected")[0].dataset.id;
           $data['fecha_hora_unix'] = $unix_time;
           $url = " {% url 'crear_viaje_ajax' %}";
