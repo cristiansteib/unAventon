@@ -53,14 +53,20 @@ class Usuario(models.Model):
             plural = "es" if pendientes > 1 else ""
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
+
         ##check que no este en uso en otro viaje en el mismo rango horario como piloto
-        viajes_activos = self.get_viajes_creados_activos()
-        viajes_diarios = self.get_viajes_diarios_activos()
-        viajes_semanales = viajes_activos.filter(se_repite__contains='semanal',
-                                                 fecha_hora_salida__week_day=datetime.datetime.fromtimestamp(fecha_hora_salida.timestamp()).weekday())
-        viajes_mismo_dia = viajes_activos.filter(fecha_hora_salida__year=fecha_hora_salida.year,
-                                                 fecha_hora_salida__month=fecha_hora_salida.month,
-                                                 fecha_hora_salida__day=fecha_hora_salida.day)
+        viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
+
+        viajes_diarios = self.get_viajes_diarios_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
+        week_day = datetime.datetime.fromtimestamp(fecha_hora_salida.timestamp()).weekday()
+        viajes_semanales = self.get_viajes_semanales_activos_para_weekday(week_day).filter(fecha_hora_salida__lte=fecha_hora_salida)
+
+
+        viajes_mismo_dia = viajes_activos.filter(
+            fecha_hora_salida__year=fecha_hora_salida.year,
+            fecha_hora_salida__month=fecha_hora_salida.month,
+            fecha_hora_salida__day=fecha_hora_salida.day)
+
         sp = self.__se_superpone_rango_horario
         if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales):
             mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
@@ -109,13 +115,19 @@ class Usuario(models.Model):
     def get_viajes_diarios_activos(self):
         return self.get_viajes_creados_activos().filter(se_repite__contains='diario')
 
+    def get_viajes_semanales_activos(self):
+        return self.get_viajes_creados_activos().filter(se_repite__contains='semanal')
+
+    def get_viajes_semanales_activos_para_weekday(self, weekday):
+        return self.get_viajes_semanales_activos().filter(se_repite__contains=weekday)
+
+
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
         p1 = self.get_calificaciones_pendientes_para_piloto().filter(
             viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
         p2 = self.get_calificaciones_pendientes_para_copilotos().filter(
             viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
-        print("calif pendientes ", p1, p2)
         return len(p1) + len(p2)
 
     def tiene_calificicaciones_pendientes(self):
@@ -291,11 +303,8 @@ class ViajeManager(models.Manager):
             'error': []
         }
 
-        print("Crear viaje " + str(kwargs))
-
         cuenta_bancaria = CuentaBancaria.objects.filter(pk=kwargs['cuenta_bancaria_id'], usuario=usuario)
         if not cuenta_bancaria:
-            print('entro')
             __json['error'].append({0: 'La cuenta bancaria no corresponde al usuario conductor'})
 
         puede_crear, mensaje = usuario.puede_crear_viaje(kwargs['fecha_hora_salida'], kwargs['duracion'])
@@ -312,6 +321,14 @@ class ViajeManager(models.Manager):
 
         # return viaje
 
+    def buscar_viajes_activos(self, usuario=None, fecha=None):
+        viajes = self.filter(activo=True)
+        if usuario:
+            viajes = viajes.filter(usuario=usuario)
+        if fecha:
+            viajes = viajes.filter(fecha_hora_salida=fecha)
+
+        return viajes
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
@@ -331,6 +348,9 @@ class Viaje(models.Model):
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
+
+    def buscar_viaje(self,origen, destino, fecha):
+        pass
 
     def activar(self):
         self.activo = True
