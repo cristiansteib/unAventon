@@ -31,7 +31,7 @@ TEMPLATE_DEBUG = True   # development
 DEGUB_TEMPLATE = True
 ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
-USE_TZ = True
+USE_TZ = False
 LANGUAGE_CODE = 'es-ar'
 
 # Application definition
