@@ -5,6 +5,8 @@ import json
 from django.utils import timezone
 from django.conf import settings
 import datetime
+from collections import namedtuple
+
 
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -39,14 +41,9 @@ class Usuario(models.Model):
         # tiene auto
         # tiene tarjeta de credito
         # no tiene otro viaje en el mismo horario
-        # no se permiten viajes en el pasado
-
-
-        from collections import namedtuple
-        Range = namedtuple('Range', ['start', 'end'])
 
         mensaje = {'error': []}
-
+        # esta tratando de hacer un viaje de un dia anterior?
         if fecha_hora_salida < timezone.datetime.now():
             mensaje['error'].append({110: 'El viaje debe ser posterior a la fecha actual.'})
 
@@ -79,28 +76,32 @@ class Usuario(models.Model):
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_salida, duracion, viajes):
-        import datetime
         duracion = int(duracion)
+
+        def get_overlap(lowest_value, start1, end1, start2, end2):
+            Range = namedtuple('Range', ['start', 'end'])
+            r1 = Range(start=start1, end=end1)
+            r2 = Range(start=start2, end=end2)
+            latest_start = max(r1.start, r2.start)
+            earliest_end = min(r1.end, r2.end)
+            delta = (earliest_end - latest_start)
+            return max(lowest_value, delta)
+
 
         def sumar_tiempo(hora, minutos, incremento):
             delta = datetime.timedelta(hours=incremento)
             hora_final = datetime.datetime(1, 1, 1, hora, minutos) + delta
             return hora_final
 
-        from collections import namedtuple
         import datetime
-        Range = namedtuple('Range', ['start', 'end'])
-        hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_salida.hour, fecha_hora_salida.minute)
-        hora_salida_end = sumar_tiempo(fecha_hora_salida.hour, fecha_hora_salida.minute, duracion)
+        fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_salida.hour, fecha_hora_salida.minute)
+        fecha_hora_salida_end = sumar_tiempo(fecha_hora_salida.hour, fecha_hora_salida.minute, duracion)
+        slow_value = datetime.timedelta(0,0)
         for viaje in viajes:
-            time_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute)
-            time_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, viaje.duracion)
-            r1 = Range(start=time_start, end=time_end)
-            r2 = Range(start=hora_salida_start, end=hora_salida_end)
-            latest_start = max(r1.start, r2.start)
-            earliest_end = min(r1.end, r2.end)
-            delta = (earliest_end - latest_start)
-            overlap = max(datetime.timedelta(0, 0), delta)
+            viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute)
+            viaje_datetime_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, viaje.duracion)
+
+            overlap = get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start, fecha_hora_salida_end )
             if overlap > datetime.timedelta(0, 0):
                 return True
         return False
