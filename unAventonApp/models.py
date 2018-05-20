@@ -210,7 +210,7 @@ class Tarjeta(models.Model):
 
 class CuentaBancaria(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    cbu = models.CharField(max_length=20)
+    cbu = models.CharField(max_length=25)
     entidad = models.CharField(max_length=20, default=None, null=True)
 
     def __str__(self):

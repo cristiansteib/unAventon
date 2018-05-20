@@ -1,5 +1,5 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria,Auto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
@@ -91,6 +91,8 @@ def datos_relacionados_al_usuario(request):
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
         data['get_tarjetas_de_credito'] = [obj.asJson() for obj in tarjetas_de_creditos] if tarjetas_de_creditos else None
         data['viajes_en_espera_de_confirmacion'] = len(usuario.get_viajes_en_espera_como_copiloto())
+        cuentas_bancarias = usuario.get_cuentas_bancarias()
+        data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
@@ -121,3 +123,108 @@ def crear_viaje_ajax(request):
             'error':[{200:'El a&ntilde;o esta fuera del rango'}]
         }
     return JsonResponse(mensaje_json)
+
+
+@login_required
+def actualizar_datos_perfil(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        usuario.nombre= r['firstName']
+        usuario.apellido= r['lastName']
+        usuario.dni= r['dni']
+        usuario.fechaDeNacimiento=r['birthDay']
+        usuario.save()
+
+        return JsonResponse({'error': False, 'data': usuario.asJson()})
+    except:
+        return JsonResponse({'error': True})
+
+
+@login_required
+def crear_cbu(request):
+    response = {}
+    try:
+        #TODO revisar que no exista otro cbu en el sistema
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        cbu, created = CuentaBancaria.objects.get_or_create(
+            cbu = r['cbu'],
+            usuario = usuario,
+            entidad = r['entity']
+        )
+        if created:
+            response['error'] = False
+            response['msg'] = 'Se creo exitosamente'
+            return JsonResponse(response)
+        response['error'] = True
+        response['msg'] = 'Ya existe'
+        return JsonResponse(response)
+    except:
+        response['error'] = True
+        return JsonResponse(response)
+
+@login_required
+def actualizar_cbu(request):
+    try:
+        r = request.POST
+        CuentaBancaria.objects.create(
+            usuario = r.user,
+            cbu = r['cbu'],
+            entidad = r['entity']
+        )
+        return JsonResponse({'error': False})
+    except:
+        return JsonResponse({'error': True})
+
+@login_required
+def crear_tarjeta(request):
+    response = {}
+    try:
+        r = request.POST
+        tarjeta = Tarjeta.objects.create(
+            numero = r['number'],
+            fechaDeVencimiento = r['fechaVto'],
+            ccv = r['ccv']
+        )
+        tarjeta.usuario.add(request.user.usuario)
+        response['error'] = False
+        response['msg'] = 'creado exitosamente'
+        return JsonResponse(response)
+    except:
+        response['error'] = True
+        return JsonResponse(response)
+
+
+@login_required
+def actualizar_tarjeta(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user = request.user)
+        Tarjeta.objects.create(
+            usuario = r.user,
+            numero = r['number'],
+            fechaDeVencimiento = r['fechaVto'],
+            ccv = r['ccv']
+        )
+        return JsonResponse({'error': False})
+    except:
+        return JsonResponse({'error': True})
+
+
+@login_required
+def crear_auto(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        print(r['marca'],r['modelo'],r['capacidad'],r['dominio'])
+        auto = Auto.objects.create(
+            usuario = usuario,
+            marca = r['marca'],
+            modelo = r['modelo'],
+            capacidad = r['capacidad'],
+            dominio = r['dominio']
+        )
+        return JsonResponse({'error': False,'data':auto.asJson(),'msg': 'creado exitosamente'})
+    except:
+        return JsonResponse({'error': True})

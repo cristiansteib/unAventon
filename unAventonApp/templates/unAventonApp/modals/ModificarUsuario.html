@@ -1,0 +1,61 @@
+<div class="modal fade" id="id_info_user" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Editar datos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="id_form_user_data" method="POST" >{% csrf_token %}
+              <fieldset>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_fname" class="form-control" placeholder="Nombre" type="text" name="firstName" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_lname" class="form-control" placeholder="Apellido" type="text" name="lastName" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <input id="modal_email" class="form-control" placeholder="E-mail" name="email" type="email" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_dni" class="form-control" placeholder="DNI" name="dni" type="text" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                      <p id="modal_brithday"></p>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button id="btn_update_profile_ok" type="button" class="btn btn-primary" onclick="update_user_data()"> <i id="check_update_profile" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
+              </fieldset>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+    var datos;
+    function update_user_data() {
+        var data = getFormData($("#id_form_user_data"));
+        var url = " {% url 'actualizar_perfil' %}";
+        successCallback = function (response) {
+            insert_user_data(response.data);
+            $("#check_update_profile").fadeIn(500);
+            $("#check_update_profile").fadeOut(500);
+        }
+        errorCallback = function (response) {
+            console.log(response.error);
+        }
+        postJson(url,data,successCallback,errorCallback);
+
+
+    };
+</script>
