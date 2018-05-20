@@ -89,7 +89,8 @@ def datos_relacionados_al_usuario(request):
         viajes_creados_activos = usuario.get_viajes_creados_activos()
         data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
-        data['get_tarjetas_de_credito'] = [obj.asJson() for obj in tarjetas_de_creditos] if tarjetas_de_creditos else None
+        data['get_tarjetas_de_credito'] = [obj.asJson() for obj in
+                                           tarjetas_de_creditos] if tarjetas_de_creditos else None
         data['viajes_en_espera_de_confirmacion'] = len(usuario.get_viajes_en_espera_como_copiloto())
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
@@ -101,7 +102,8 @@ def crear_viaje_ajax(request):
     try:
         metodo = 'POST'
         request_data = getattr(request, metodo)
-        fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(hours=21)
+        fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
+            hours=21)
         datos_viaje = {
             'comentario': request_data['comentario'],
             'fecha_hora_salida': fecha_hora,
@@ -111,14 +113,15 @@ def crear_viaje_ajax(request):
             'destino': request_data['destino'],
             'auto_id': request_data['auto_id'],
             'cuenta_bancaria_id': request_data['cuenta_bancaria'],
-            'se_repite': (request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
+            'se_repite': (
+            request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
         }
 
         mensaje_json = request.user.usuario.set_nuevo_viaje(datos_viaje)
         print(mensaje_json)
-    except ValueError :
-        mensaje_json={
-            'creado':False,
-            'error':[{200:'El a&ntilde;o esta fuera del rango'}]
+    except ValueError:
+        mensaje_json = {
+            'creado': False,
+            'error': [{200: 'El a&ntilde;o esta fuera del rango'}]
         }
     return JsonResponse(mensaje_json)
