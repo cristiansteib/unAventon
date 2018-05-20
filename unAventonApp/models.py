@@ -228,7 +228,8 @@ class Usuario(models.Model):
     def set_nuevo_viaje(self, datos):
         json_info = Viaje.objects.create_viaje(usuario=self, **datos)
         return json_info
-
+    def get_viajes_unicos_activos(self):
+        return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)

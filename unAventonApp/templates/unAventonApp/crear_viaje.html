@@ -150,7 +150,7 @@
               } else {
                   out = "";
                   for (i = 0; i < response.error.length; i++) {
-                      var p = response.error[i]
+                      var p = response.error[i];
                       for (var key in p) {
                           if (p.hasOwnProperty(key)) {
                               out += '<li class="list-group-item">' + p[key] + '</li>';
@@ -170,6 +170,7 @@
 
 
           $data = getFormData($(this));
+
           $unix_time = toTimeUnix($data['fecha'], $data['hora']);
           $data['auto_id'] = $("#auto option:selected")[0].dataset.id;
           $data['fecha_hora_unix'] = $unix_time;
