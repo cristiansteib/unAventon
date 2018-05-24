@@ -18,7 +18,13 @@ from .ajax import (
     lista_de_calificaciones_pendientes_a_copilotos,
     lista_de_calificaciones_pendientes_a_pilotos,
     datos_relacionados_al_usuario,
-    crear_viaje_ajax
+    crear_viaje_ajax,
+    actualizar_datos_perfil,
+    crear_cuenta_bancaria,
+    crear_tarjeta,
+    actualizar_tarjeta,
+    actualizar_cuenta_bancaria,
+    crear_auto
 )
 
 name = 'unAventonApp'
@@ -47,6 +53,12 @@ urlpatterns = [
          name='datos_del_usuario'),
     path('ajax/crearViaje', crear_viaje_ajax,
          name='crear_viaje_ajax'),
+    path('ajax/updateProfile',actualizar_datos_perfil, name='actualizar_perfil'),
+    path('ajax/createCreditCard',crear_tarjeta, name='crear_tarjeta'),
+    path('ajax/createBankAccount',crear_cuenta_bancaria,name='crear_cuenta_bancaria'),
+    path('ajax/updateCreditCard',actualizar_tarjeta,name='actualizar_tarjeta'),
+    path('ajax/updateBankAccount',actualizar_cuenta_bancaria,name='actualizar_cuenta_bancaria'),
+    path('ajax/createCar',crear_auto,name='crear_auto'),
 
 
 ]

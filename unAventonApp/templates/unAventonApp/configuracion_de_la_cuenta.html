@@ -3,30 +3,63 @@
 {% block title %}Configuracion de la cuenta{% endblock %}
 
 {% block content %}
-  <h3>Cuenta de usuario</h3>
-  <hr>
-  <h3>Autos</h3>
-  <hr>
-  <h3>Tarjetas</h3>
-        <button type="button" class="btn btn-primary" onclick="trigger_modal_agregar_tarjeta()">
-  Launch demo modal
-</button>
-  <hr>
+    {% include "unAventonApp/modals/ModificarUsuario.html" %}
+    {% include "unAventonApp/modals/agregarTarjeta.html" %}
+    {% include "unAventonApp/modals/agregarCuenta.html" %}
+    {% include "unAventonApp/modals/agregarVehiculo.html" %}
 
-  <script>
-      function loadUserData() {
-          var url = {% url 'datos_del_usuario' %};
-          getJson(url ,{}, insertData, errorMessage);
-      }
 
-      function insertData(data) {
-        //parsear la data
-      }
+    <button type="button" class="btn btn-primary" onclick="showElement('#user_data')">Cuenta de usuario</button>
+    <div id="user_data" style="display: none">
+        <p id="fname"></p>
+        <p id="lname"></p>
+        <p id="email"></p>
+        <p id="dni"></p>
+        <p id="birthday"></p>
+        <button type="button" class="btn" onclick="trigger_modal_modificar_usuario(datos)">Editar datos</button>
+    </div>
 
-      function errorMessage(data) {
+    <hr>
 
-      }
+    <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Autos</button>
+    <div id="autos" style="display: none"></div>
+    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
 
-  </script>
+    <hr>
+
+    <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Tarjetas</button>
+    <div id="tarjetas" style="display: none"></div>
+    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
+
+    <hr>
+
+    <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Cuentas Bancarias</button>
+     <div id="cuentas_bancarias" style="display: none"></div>
+    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta</button>
+
+
+    <script>
+
+
+    $(function(){
+        loadUserData();
+    });
+
+    function loadUserData(){
+        var url = '{% url "datos_del_usuario" %}';
+        succesCallback = function (data) {
+            insert_user_data(data.usuario);
+            insert_credit_card_data(data);
+            insert_cuenta_bancaria_data(data);
+            console.log(data);
+            datos = data;
+        }
+        errorCallback = function (data) {
+            console.log(data)
+        }
+        getJson(url,{},succesCallback,errorCallback);
+    }
+    
+    </script>
 
 {% endblock %}
