@@ -1,0 +1,54 @@
+
+<div class="modal fade" id="id_agregar_auto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Agregar auto</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+           <form id="id_form_add_car" method="POST" >{% csrf_token %}
+              <fieldset>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_cbu" class="form-control" placeholder="marca" type="text" name="marca" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_entity" class="form-control" placeholder="modelo" type="text" name="modelo" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_entity" class="form-control" placeholder="capacidad" type="text" name="capacidad" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_entity" class="form-control" placeholder="dominio" type="text" name="dominio" required>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="agregar_auto()">Agregar</button>
+              </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function agregar_auto() {
+        var data = getFormData($("#id_form_add_car"));
+        console.log(data);
+        var url = " {% url 'crear_auto' %}";
+        successCallback = function (response) {
+            console.log('ok auto',response.error,response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('ohoh auto ',response.error,response.msg);
+        }
+        postJson(url,data,successCallback,errorCallback);
+    }
+
+    </script>
