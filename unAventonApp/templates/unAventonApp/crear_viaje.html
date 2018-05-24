@@ -99,14 +99,24 @@
               <div class="form-row">
 
 
-                  <div class="form-group col-md-12">
+                <div class="form-group col-md-12">
 
-                    <label for="comment">Descripci&oacute;n:</label>
-                    <textarea name="comentario" class="form-control" rows="5" id="comentario"></textarea>
-                  </div>
+                  <label for="comment">Descripci&oacute;n:</label>
+                  <textarea name="comentario" class="form-control" rows="5" id="comentario"></textarea>
+                </div>
 
               </div>
+              <div id="alert" class="alert alert-danger" style="margin-top: 15px; display: none">
+                <strong>Error!</strong>
+                <ul class="list-group" id="mensaje_error">
+                </ul>
+              </div>
 
+              <div id="alertSuccess" class="alert alert-success" style="margin-top: 15px; display: none">
+                <strong>Aceptado</strong>
+                <ul class="list-group" id="mensaje_ok">
+                </ul>
+              </div>
               <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
             </fieldset>
           </form>
@@ -126,11 +136,7 @@
     </div>
 
   </div>
-  <div id="alert" class="alert alert-danger" style="margin-top: 15px; display: none">
-  <strong>Error!</strong>
-    <ul class="list-group" id="mensaje_error">
-    </ul>
-</div>
+
   <script>
 
       $('#id_form_viaje').on('submit', function (e) {
@@ -138,20 +144,24 @@
 
           successCallback = function (response) {
               if (response.creado === true) {
-
+                  out = "Creado exitosamente";
+                  $('#mensaje_ok').html(out);
+                  $('#alertSuccess').fadeIn(1000).delay(5000).fadeOut(1000);
               } else {
                   out = "";
-                  for (i = 0; i<response.error.length; i++) {
-                      var p = response.error[i]
-                    for (var key in p) {
+                  for (i = 0; i < response.error.length; i++) {
+                      var p = response.error[i];
+                      for (var key in p) {
                           if (p.hasOwnProperty(key)) {
-                              out += '<li class="list-group-item">'+ p[key] + '</li>';
+                              out += '<li class="list-group-item">' + p[key] + '</li>';
                           }
                       }
                   }
-                  $('#mensaje_error').html(out);
-                  $('#alert').fadeIn();
+              $('#mensaje_error').html(out);
+              $('#alert').fadeIn(1000).delay(5000).fadeOut(1000);
+
               }
+
           };
 
           errorCallback = function (response) {
@@ -160,6 +170,7 @@
 
 
           $data = getFormData($(this));
+
           $unix_time = toTimeUnix($data['fecha'], $data['hora']);
           $data['auto_id'] = $("#auto option:selected")[0].dataset.id;
           $data['fecha_hora_unix'] = $unix_time;
@@ -183,7 +194,6 @@
           }
           $('#capacidad_restante').html(output);
       }
-
 
   </script>
 

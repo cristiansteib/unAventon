@@ -1,9 +1,50 @@
 <!-- lista de los viajes en el que el usuario esta inscripto -->
 {% extends "unAventonApp/base.html" %}
-{% block title %}Viajes inscriptos{% endblock %}
+{% block title %}Viajes creados{% endblock %}
 
 {% block content %}
-  <h3>Viajes como conductor</h3>
-<p> Los viajes creados por mi</p>
+  <style>
+    ul {
+      text-align: initial;
+    }
+  </style>
+  <div class="container">
+    <h3>Viajes como conductor</h3>
+    <hr>
 
+    <h4>Viajes unicos</h4>
+    {% for viaje in viajes.unicos %}
+      <ul>
+        <li>Origen: {{ viaje.origen }}</li>
+        <li> Destino:{{ viaje.destino }}</li>
+        <li> Fecha: {{ viaje.fecha_hora_salida }}</li>
+        <li> Monto: {{ viaje.gasto_total }}</li>
+        <li>-------------------------------------------------------</li>
+      </ul>
+    {% endfor %}
+    <h4>Viajes diarios</h4>
+    {% for viaje in viajes.diarios %}
+      <ul>
+        <li>Origen: {{ viaje.origen }}</li>
+        <li> Destino:{{ viaje.destino }}</li>
+        <li> Fecha: {{ viaje.fecha_hora_salida }}</li>
+        <li> Monto: {{ viaje.gasto_total }}</li>
+
+        <li>-------------------------------------------------------</li>
+
+      </ul>
+    {% endfor %}
+    <h4>Viajes semanales</h4>
+    {% for viaje in viajes.semanales %}
+      <ul>
+        <li>Origen: {{ viaje.origen }}</li>
+        <li> Destino:{{ viaje.destino }}</li>
+        <li> Fecha: {{ viaje.fecha_hora_salida }}</li>
+        <li> Monto: {{ viaje.gasto_total }}</li>
+
+        <li>-------------------------------------------------------</li>
+
+      </ul>
+    {% endfor %}
+  </div>
 {% endblock %}

@@ -67,7 +67,20 @@ def buscar_viajes(request):
 
 @login_required
 def mis_viajes(request):
-    return render(request, 'unAventonApp/mis_viajes.html')
+    context = {
+        'viajes': {
+            'semanales': [],
+            'diarios': [],
+            'unicos': []
+        }
+    }
+    context['viajes']['semanales'] = request.user.usuario.get_viajes_semanales_activos()
+    context['viajes']['diarios'] = request.user.usuario.get_viajes_diarios_activos()
+    context['viajes']['unicos'] = request.user.usuario.get_viajes_unicos_activos()
+
+
+
+    return render(request, 'unAventonApp/mis_viajes.html', context)
 
 @login_required
 def mi_perfil(request):

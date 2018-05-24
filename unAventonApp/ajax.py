@@ -105,19 +105,19 @@ def crear_viaje_ajax(request):
     try:
         metodo = 'POST'
         request_data = getattr(request, metodo)
+        fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
+            hours=21)
         datos_viaje = {
             'comentario': request_data['comentario'],
-            'fecha_hora_salida': timezone.datetime.fromtimestamp(
-                int(request_data['fecha_hora_unix'])) + timezone.timedelta(hours=21),
+            'fecha_hora_salida': fecha_hora,
             'duracion': request_data['duracion'],
             'origen': request_data['origen'],
             'gasto_total': request_data['costo'],
             'destino': request_data['destino'],
             'auto_id': request_data['auto_id'],
             'cuenta_bancaria_id': request_data['cuenta_bancaria'],
-            'se_repite': (request_data['repeticion'],
-                          -1 if request_data['repeticion'] == 'diario' else timezone.datetime.fromtimestamp(
-                              int(request_data['fecha_hora_unix'])).weekday())
+            'se_repite': (
+            request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
         }
 
         mensaje_json = request.user.usuario.set_nuevo_viaje(datos_viaje)
