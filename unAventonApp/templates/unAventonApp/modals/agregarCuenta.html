@@ -22,7 +22,7 @@
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="agregar_cbu()">Agregar</button>
+                <button type="button" class="btn btn-primary" onclick="agregar_cuenta_bancaria()">Agregar</button>
               </fieldset>
         </form>
       </div>
@@ -32,15 +32,15 @@
 
 
 <script>
-    function agregar_cbu() {
+    function agregar_cuenta_bancaria() {
         var data = getFormData($("#id_form_add_cbu"));
         console.log(data);
-        var url = " {% url 'crear_cbu' %}";
+        var url = " {% url 'crear_cuenta_bancaria' %}";
         successCallback = function (response) {
-            console.log('ok cbu',response.data,response.msg,response.error);
+            console.log('cuenta',response.data,response.msg,'   :error',response.error);
         }
         errorCallback = function (response) {
-            console.log('ohoh cbu  ',response.data,response.msg,response.error);
+            console.log('ohoh cuenta  ',response.data,response.msg, ':  error ',response.error);
         }
         postJson(url,data,successCallback,errorCallback);
     }

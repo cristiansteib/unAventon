@@ -37,6 +37,7 @@
      <div id="cuentas_bancarias" style="display: none"></div>
     <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta</button>
 
+
     <script>
 
 
@@ -49,8 +50,8 @@
         succesCallback = function (data) {
             insert_user_data(data.usuario);
             insert_credit_card_data(data);
-            insert_cbu_data(data);
-            console.log(data.usuario);
+            insert_cuenta_bancaria_data(data);
+            console.log(data);
             datos = data;
         }
         errorCallback = function (data) {

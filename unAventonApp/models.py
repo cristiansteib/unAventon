@@ -196,21 +196,23 @@ class Usuario(models.Model):
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
-    numero = models.CharField(max_length=16)
-    fechaDeVencimiento = models.DateField()
+    numero = models.CharField(max_length=16, unique=True)
+    fechaDeVencimiento = models.CharField(max_length=5, default=None, null=True)
+    fechaDeCreacion = models.CharField(max_length=5, default=None, null=True)
     ccv = models.IntegerField()
 
     def asJson(self):
         return {
             'id': self.id,
             'numero': self.numero,
-            'fecha_de_vencimiento': self.fechaDeVencimiento
+            'fecha_de_vencimiento': self.fechaDeVencimiento,
+            'fehca_de_creacion': self.fechaDeCreacion
         }
 
 
 class CuentaBancaria(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    cbu = models.CharField(max_length=25)
+    cbu = models.CharField(max_length=25, unique=True)
     entidad = models.CharField(max_length=20, default=None, null=True)
 
     def __str__(self):

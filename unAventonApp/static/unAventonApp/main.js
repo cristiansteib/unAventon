@@ -85,7 +85,7 @@ function insert_credit_card_data(data) {
     }
 }
 
-function insert_cbu_data(data) {
+function insert_cuenta_bancaria_data(data) {
     var cbu = data.get_cuentas_bancarias;
     if (cbu !== null){
         for (i=0; i < cbu.length; i++){

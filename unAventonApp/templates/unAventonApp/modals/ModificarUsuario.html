@@ -47,7 +47,7 @@
         var data = getFormData($("#id_form_user_data"));
         var url = " {% url 'actualizar_perfil' %}";
         successCallback = function (response) {
-            insert_user_data(response.data);
+            loadUserData();
             $("#check_update_profile").fadeIn(500);
             $("#check_update_profile").fadeOut(500);
         }
