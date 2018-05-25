@@ -1,9 +1,7 @@
-from django.shortcuts import render, HttpResponseRedirect, redirect
+from django.shortcuts import render, HttpResponseRedirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario, Viaje, Tarjeta
-from .modules.Git import Git
-from django.conf import settings
+from .models import Usuario
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 
@@ -69,7 +67,20 @@ def buscar_viajes(request):
 
 @login_required
 def mis_viajes(request):
-    return render(request, 'unAventonApp/mis_viajes.html')
+    context = {
+        'viajes': {
+            'semanales': [],
+            'diarios': [],
+            'unicos': []
+        }
+    }
+    context['viajes']['semanales'] = request.user.usuario.get_viajes_semanales_activos()
+    context['viajes']['diarios'] = request.user.usuario.get_viajes_diarios_activos()
+    context['viajes']['unicos'] = request.user.usuario.get_viajes_unicos_activos()
+
+
+
+    return render(request, 'unAventonApp/mis_viajes.html', context)
 
 @login_required
 def mi_perfil(request):
@@ -77,4 +88,8 @@ def mi_perfil(request):
 
 @login_required
 def crear_viaje(request):
-    return render(request, 'unAventonApp/crear_viaje.html')
+    context = {}
+    usuario = Usuario.objects.get(user=request.user)
+    context['get_autos'] = [auto.asJson() for auto in usuario.get_autos()]
+    context['get_cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.get_cuentas_bancarias()]
+    return render(request, 'unAventonApp/crear_viaje.html', context)

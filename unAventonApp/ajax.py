@@ -1,9 +1,12 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
 import json
+from django.utils import timezone
+import datetime
+from django.db import IntegrityError
 
 
 def neededParams(method_list, *args):
@@ -20,7 +23,7 @@ def viajes_activos(request):
     data = {}
     try:
         usuario = Usuario.objects.get(user=request.user)
-        data['viajes'] = [viaje.asJson() for viaje in usuario.viajesCreadosActivos()]
+        data['viajes'] = [viaje.asJson() for viaje in usuario.get_viajes_creados_activos()]
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un Usuario para el user {0}'.format(request.user))
     return JsonResponse(data)
@@ -37,7 +40,7 @@ def lista_de_espera_de_copilotos_para_un_viaje(request):
             raise KeyError("viajeId")
         usuario = Usuario.objects.get(user=request.user)
         viaje = Viaje.objects.get(auto__usuario=usuario, id=viaje_id)
-        data['lista'] = [obj.asJson() for obj in viaje.copilotos_en_lista_de_espera()]
+        data['lista'] = [obj.asJson() for obj in viaje.get_copilotos_en_lista_de_espera()]
     except KeyError as e:
         data.setdefault('error', []).append('Falta parametro para el request: {0} '.format(e))
     except Usuario.DoesNotExist:
@@ -52,7 +55,7 @@ def lista_de_calificaciones_pendientes_a_copilotos(request):
     data = {}
     try:
         usuario = Usuario.objects.get(user=request.user)
-        data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaCopilotos()]
+        data['lista'] = [obj.asJson() for obj in usuario.get_calificaciones_pendientes_para_copilotos()]
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
@@ -63,12 +66,13 @@ def lista_de_calificaciones_pendientes_a_pilotos(request):
     data = {}
     try:
         usuario = Usuario.objects.get(user=request.user)
-        data['lista'] = [obj.asJson() for obj in usuario.calificacionesPendientesParaPiloto()]
+        data['lista'] = [obj.asJson() for obj in usuario.get_calificaciones_pendientes_para_piloto()]
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     except TypeError:
         pass
     return JsonResponse(data)
+
 
 @login_required
 def datos_relacionados_al_usuario(request):
@@ -81,13 +85,154 @@ def datos_relacionados_al_usuario(request):
     try:
         usuario = Usuario.objects.get(user=request.user)
         data['usuario'] = usuario.asJson()
-        data['calificacion_como_piloto'] = usuario.calificacionComoPiloto()
-        data['calificacion_como_copiloto'] = usuario.calificacionComoCopiloto()
-        viajes_creados_activos = usuario.viajesCreadosActivos()
+        data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
+        data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+        viajes_creados_activos = usuario.get_viajes_creados_activos()
         data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
-        tarjetas_de_creditos = usuario.tarjetas_de_credito()
-        data['tarjetas_de_credito'] = [obj.asJson() for obj in tarjetas_de_creditos] if tarjetas_de_creditos else None
-        data['viajes_en_espera_de_confirmacion'] = len(usuario.viajesEnEsperaComoCopiloto())
+        tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
+        data['get_tarjetas_de_credito'] = [obj.asJson() for obj in
+                                           tarjetas_de_creditos] if tarjetas_de_creditos else None
+        data['viajes_en_espera_de_confirmacion'] = len(usuario.get_viajes_en_espera_como_copiloto())
+        cuentas_bancarias = usuario.get_cuentas_bancarias()
+        data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
+
+
+@login_required
+def crear_viaje_ajax(request):
+    try:
+        metodo = 'POST'
+        request_data = getattr(request, metodo)
+        fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
+            hours=21)
+        datos_viaje = {
+            'comentario': request_data['comentario'],
+            'fecha_hora_salida': fecha_hora,
+            'duracion': request_data['duracion'],
+            'origen': request_data['origen'],
+            'gasto_total': request_data['costo'],
+            'destino': request_data['destino'],
+            'auto_id': request_data['auto_id'],
+            'cuenta_bancaria_id': request_data['cuenta_bancaria'],
+            'se_repite': (
+            request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
+        }
+
+        mensaje_json = request.user.usuario.set_nuevo_viaje(datos_viaje)
+        print(mensaje_json)
+    except ValueError:
+        mensaje_json = {
+            'creado': False,
+            'error': [{200: 'El a&ntilde;o esta fuera del rango'}]
+        }
+    return JsonResponse(mensaje_json)
+
+
+@login_required
+def actualizar_datos_perfil(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        usuario.nombre = r['firstName']
+        usuario.apellido = r['lastName']
+        usuario.dni = r['dni']
+        usuario.fechaDeNacimiento = r['birthDay']
+        usuario.save()
+
+        return JsonResponse({'error': False, 'data': usuario.asJson()})
+    except:
+        return JsonResponse({'error': True})
+
+
+@login_required
+def crear_cuenta_bancaria(request):
+    response = {}
+    r = request.POST
+
+    try:
+        CuentaBancaria.objects.get(
+            cbu=r['cbu'],
+        )
+        response['error'] = True
+        response['msg'] = 'Esa cuenta ya esta en uso'
+        return JsonResponse(response)
+    except CuentaBancaria.DoesNotExist:
+        cuenta = CuentaBancaria.objects.create(
+            usuario=request.user.usuario,
+            cbu=r['cbu'],
+            entidad=r['entity']
+        )
+        response['error'] = False
+        response['msg'] = 'Creado ok'
+        response['data'] = cuenta.asJson()
+        return JsonResponse(response)
+
+
+
+@login_required
+def actualizar_cuenta_bancaria(request):
+    try:
+        r = request.POST
+        CuentaBancaria.objects.create(
+            usuario=r.user,
+            cbu=r['cbu'],
+            entidad=r['entity']
+        )
+        return JsonResponse({'error': False})
+    except:
+        return JsonResponse({'error': True})
+
+
+@login_required
+def crear_tarjeta(request):
+    response = {}
+    try:
+        r = request.POST
+        tarjeta = Tarjeta.objects.create(
+            numero=r['number'],
+            fechaDeVencimiento=r['fechaVto'],
+            ccv=r['ccv']
+        )
+        tarjeta.usuario.add(request.user.usuario)
+        response['error'] = False
+        response['msg'] = 'creado exitosamente'
+        return JsonResponse(response)
+    except:
+        response['error'] = True
+        return JsonResponse(response)
+
+
+@login_required
+def actualizar_tarjeta(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        Tarjeta.objects.create(
+            usuario=r.user,
+            numero=r['number'],
+            fechaDeVencimiento=r['fechaVto'],
+            ccv=r['ccv']
+        )
+        return JsonResponse({'error': False})
+    except:
+        return JsonResponse({'error': True})
+
+
+@login_required
+def crear_auto(request):
+    try:
+        r = request.POST
+        usuario = Usuario.objects.get(user=request.user)
+        print(r['marca'], r['modelo'], r['capacidad'], r['dominio'])
+        auto = Auto.objects.create(
+            usuario=usuario,
+            marca=r['marca'],
+            modelo=r['modelo'],
+            capacidad=r['capacidad'],
+            dominio=r['dominio']
+        )
+        return JsonResponse({'error': False, 'data': auto.asJson(), 'msg': 'creado exitosamente'})
+    except:
+        return JsonResponse({'error': True})

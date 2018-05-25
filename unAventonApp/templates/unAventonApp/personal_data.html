@@ -1,0 +1,38 @@
+<div class="container" id="id_personal" style="display: none">
+  <div class="row">
+    <div class="col-md-4 col-lg-3"></div>
+    <div class="col-sm-12 col-lg-6 panel panel-default">
+      <div class="panel-body">
+        <form method="POST" action="">{% csrf_token %}
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" value="{{ nombre }}" type="text" name="firstName" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" value="{{ apellido }}" type="text" name="lastName" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" value="{{ mail }}" name="email" type="email" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" value="{{ dni }}" name="dni" type="text" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" type="date" name="birthDay" value="{{ fecha_de_nacimiento }}" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+          <div class="form-group form-row">
+            <input class="form-control col-md-10" value="shhhhhh" name="password" type="password" readonly>
+            <button class="btn"> <i class="fas fa-pencil-alt"></i> </button>
+          </div>
+        </form>
+        {% if error %}
+          <p style="color:red"> Ese usuario ya esta registrado</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

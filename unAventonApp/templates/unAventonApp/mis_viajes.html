@@ -1,9 +1,57 @@
 <!-- lista de los viajes en el que el usuario esta inscripto -->
 {% extends "unAventonApp/base.html" %}
-{% block title %}Viajes inscriptos{% endblock %}
+{% block title %}Viajes creados{% endblock %}
 
 {% block content %}
-  <h3>Viajes como conductor</h3>
-<p> Los viajes creados por mi</p>
+  <style>
+    ul {
+      text-align: initial;
+    }
+  </style>
+  <div class="container">
+    <h3>Mis viajes como conductor</h3>
 
+    {% for tipo, viajes in viajes.items %}
+      <div class="card card-block" style="margin-top: 25px; padding: 20px">
+        <h5>Viaje tipo: {{ tipo }}</h5>
+        {% if not viajes %}
+          <div class="card card-block " style="margin: 20px 0 20px 0; padding: 100px">
+            <h5>No hay viajes de este tipo</h5>
+          </div>
+        {% else %}
+          {% for viaje in viajes %}
+            <div class="card card-block" style="margin-top: 25px">
+              <ul>
+                <li>Origen: {{ viaje.origen }}</li>
+                <li> Destino: {{ viaje.destino }}</li>
+                <li> Proxima fecha: {{ viaje.fecha_hora_salida }}</li>
+                <li> Auto : {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
+                  asientos: {{ viaje.auto.capacidad }}</li>
+                <li> Costo por pasajero: ${{ viaje.get_costo_por_pasajero }}</li>
+                <li> Gasto total: ${{ viaje.gasto_total }}</li>
+                <li> Monto a retener por la aplicacion: ${{ viaje.get_comision_a_cobrar }}</li>
+                <li> Total depositado en cuenta: ${{ viaje.get_total_a_reintegrar_al_conductor }}</li>
+                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
+                <li> Copilotos en espera: {{ viaje.get_count_copilotos_confirmados }}</li>
+                <li> Lugares disponibles: {{ viaje.get_asientos_disponibles }}</li>
+                <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})" disabled title="No implementado">Lista de solicitudes
+                  pendientes
+                </button>
+                <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" disabled title="No implementado">Lista de copilotos
+                  confirmados
+                </button>
+                <button type="button" class="btn btn-danger"
+                        onclick="openModalForViajeId('#modal_deleteViaje',{{ viaje.pk }})" disabled
+                        title="No implementado">Eliminar viaje
+                </button>
+              </ul>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    {% endfor %}
+
+  </div>
 {% endblock %}
