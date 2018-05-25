@@ -141,7 +141,7 @@ def crear_auto(request):
         'error': True
     }
     r = request.POST
-    if r['capacidad'] > 1:
+    if int(r['capacidad']) > 1:
         auto = Auto.objects.create(
             usuario=request.user.usuario,
             marca=r['marca'],
