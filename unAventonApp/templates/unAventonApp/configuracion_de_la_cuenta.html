@@ -90,6 +90,18 @@
         postJson(url, data, successCallback, errorCallback);
     }
 
+    function eliminar_auto(id) {
+        var url = '{% url "borrar_auto" %}';
+        var data = {'id': id};
+        successCallback = function (response) {
+            loadUserData();
+            console.log('success auto', response.error, response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('error auto', response.msg, response.error);
+        }
+        postJson(url, data, successCallback, errorCallback);
+    }
 
     function showElement(id) {
     $(id).toggle(300);

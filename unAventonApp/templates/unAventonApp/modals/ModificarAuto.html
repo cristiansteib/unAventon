@@ -33,7 +33,7 @@
                   <i id="error_create_add_car" class="fa fa-times" style="display: none"></i>
                   Guardar cambios
                 </button>
-                   {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='msg_error_modificar_auto' idSucces='msg_ok_modificacion' %}
+                   {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_m_auto' idSucces='ok_m_auto' %}
               </fieldset>
         </form>
       </div>
@@ -51,10 +51,10 @@
             console.log('ok auto',response.error,response.msg);
             if (!response.error) {
                 $("#check_create_add_car").fadeIn(500).fadeOut(500);
-                mostrarMesajeCorrecto('msg_ok_modificacion','Vehiculo modificado correctamente')
+                mostrarMesajeCorrecto('ok_m_auto','Vehiculo modificado correctamente')
             }else {
                 $("#error_create_add_car").fadeIn(500).fadeOut(500);
-                mostrarMensajeDeErrores('msg_error_modificar_auto',[response.msg])
+                mostrarMensajeDeErrores('error_m_auto',[response.msg])
             }
 
         };

@@ -130,7 +130,7 @@ function insert_vehicle_data(data) {
             output += '<p> Dominio:  '+autos[i].dominio+'</p>';
             output += '</div>';
             output += '<button type="button" class="btn" onclick="trigger_modal_modificar_vehiculo('+i+')">Editar datos</button>';
-            output += '<button type="button" class="btn"  title="aun nada">Borrar auto</button>';
+            output += '<button type="button" class="btn" onclick="eliminar_auto('+autos[i].id+')">Borrar auto</button>';
             output += '<hr>';
             $("#autos").append(output);
         }
