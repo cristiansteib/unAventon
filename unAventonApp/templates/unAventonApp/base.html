@@ -70,5 +70,24 @@
     <p>{{ lastUpd | lastupdate }}</p>
 </footer>
 
+
+<script>
+
+    function mostrarMesajeCorrecto(id, mensaje) {
+        $('#' + id + 'mensaje_ok').html(mensaje);
+        $('#' + id + 'alert').fadeIn(1000).delay(5000).fadeOut(1000);
+    }
+
+    function mostrarMensajeDeErrores(id, mensajesArray) {
+        out = "";
+        for (i = 0; i < mensajesArray.length; i++) {
+            out += '<li class="list-group-item">' + mensajesArray[i] + '</li>';
+        }
+        $('#' + id + 'mensaje_error').html(out);
+        $('#' + id + 'alert').fadeIn(1000).delay(5000).fadeOut(1000);
+    }
+
+</script>
+
 </body>
 </html>

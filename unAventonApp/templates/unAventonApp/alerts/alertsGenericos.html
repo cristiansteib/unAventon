@@ -1,35 +1,12 @@
-<div id="alert" class="alert alert-danger" style="margin-top: 15px; display: none">
+<div id="{{ idError }}alert" class="alert alert-danger" style="margin-top: 15px; display: none">
   <strong>Error!</strong>
-  <ul class="list-group" id="mensaje_error">
+  <ul class="list-group" id="{{ idError }}mensaje_error">
   </ul>
 </div>
 
-<div id="alertSuccess" class="alert alert-success" style="margin-top: 15px; display: none">
+<div id="{{ idSuccess }}alert" class="alert alert-success" style="margin-top: 15px; display: none">
   <strong>Aceptado</strong>
-  <ul class="list-group" id="mensaje_ok">
+  <ul class="list-group" id="{{ idSuccess }}mensaje_ok">
   </ul>
 </div>
 
-<script>
-
-    function mostrarMesajeCorrecto(mensaje) {
-        $('#mensaje_ok').html(mensaje);
-        $('#alertSuccess').fadeIn(1000).delay(5000).fadeOut(1000);
-    }
-
-    function mostrarMensajeDeErrores(mensajesArray) {
-        out = "";
-        for (i = 0; i < mensajesArray.length; i++) {
-            var p = mensajesArray[i];
-            for (var key in p) {
-                if (p.hasOwnProperty(key)) {
-                    out += '<li class="list-group-item">' + p[key] + '</li>';
-                }
-            }
-        }
-        $('#mensaje_error').html(out);
-        $('#alert').fadeIn(1000).delay(5000).fadeOut(1000);
-    }
-
-
-</script>
