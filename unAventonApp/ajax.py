@@ -223,6 +223,31 @@ def crear_tarjeta(request):
 
 #---------   Modificacion   ----------
 
+@login_required
+def actualizar_auto(request):
+    response = {}
+    try:
+        r = request.POST
+        usuario = request.user.usuario
+        auto = Auto.objects.get(pk=r['id_auto'], usuario=usuario)
+        if not usuario.tiene_el_auto_en_uso(auto):
+            auto.dominio = r['dominio']
+            auto.marca = r['marca']
+            auto.modelo = r['modelo']
+            auto.save()
+            response['data'] = auto.asJson()
+            response['error'] = False
+            return JsonResponse(response)
+
+        response['msg'] = 'El vehiculo se encuentra en uso, no se puede modificar'
+        response['error'] = True
+        return JsonResponse(response)
+
+    except Auto.DoesNotExist:
+        response['error'] = True
+        response['msg'] = 'no existe esa auto!!!'
+        return JsonResponse(response)
+
 
 @login_required
 def actualizar_tarjeta(request):
@@ -322,7 +347,7 @@ def borrar_auto(request):
         return JsonResponse(response)
     except PermissionError:
         response['error'] = True
-        response['msg'] = 'El vehiculo esta en uso'
+        response['msg'] = 'El vehiculo esta en uso en algun viaje'
     except:
         response['error'] = True
         response['msg'] = 'No se pudo borrar'
