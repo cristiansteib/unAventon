@@ -27,7 +27,8 @@ from .ajax import (
     crear_auto,
     borrar_auto,
     borrar_cuenta_bancaria,
-    borrar_tarjeta
+    borrar_tarjeta,
+    actualizar_auto
 )
 
 name = 'unAventonApp'
@@ -44,7 +45,6 @@ urlpatterns = [
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
 
-
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
          name='lista_espera'),
     path('ajax/misViajesActivos', viajes_activos, name='viajes_activos'),
@@ -56,15 +56,15 @@ urlpatterns = [
          name='datos_del_usuario'),
     path('ajax/crearViaje', crear_viaje_ajax,
          name='crear_viaje_ajax'),
-    path('ajax/updateProfile',actualizar_datos_perfil, name='actualizar_perfil'),
-    path('ajax/createCreditCard',crear_tarjeta, name='crear_tarjeta'),
-    path('ajax/createBankAccount',crear_cuenta_bancaria,name='crear_cuenta_bancaria'),
-    path('ajax/updateCreditCard',actualizar_tarjeta,name='actualizar_tarjeta'),
-    path('ajax/updateBankAccount',actualizar_cuenta_bancaria,name='actualizar_cuenta_bancaria'),
-    path('ajax/createCar',crear_auto,name='crear_auto'),
-    path('ajax/deleteCar',borrar_auto,name='borrar_auto'),
-    path('ajax/deleteBankAccount',borrar_cuenta_bancaria,name='borrar_cuenta_bancaria'),
-    path('ajax/deleteCreditCard',borrar_tarjeta,name='borrar_tarjeta'),
-
+    path('ajax/updateProfile', actualizar_datos_perfil, name='actualizar_perfil'),
+    path('ajax/createCreditCard', crear_tarjeta, name='crear_tarjeta'),
+    path('ajax/createBankAccount', crear_cuenta_bancaria, name='crear_cuenta_bancaria'),
+    path('ajax/updateCreditCard', actualizar_tarjeta, name='actualizar_tarjeta'),
+    path('ajax/updateBankAccount', actualizar_cuenta_bancaria, name='actualizar_cuenta_bancaria'),
+    path('ajax/createCar', crear_auto, name='crear_auto'),
+    path('ajax/createCar', actualizar_auto, name='actualizar_auto'),
+    path('ajax/deleteCar', borrar_auto, name='borrar_auto'),
+    path('ajax/deleteBankAccount', borrar_cuenta_bancaria, name='borrar_cuenta_bancaria'),
+    path('ajax/deleteCreditCard', borrar_tarjeta, name='borrar_tarjeta'),
 
 ]
