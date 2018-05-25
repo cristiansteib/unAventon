@@ -140,7 +140,6 @@ class Usuario(models.Model):
     def get_calificaciones_pendientes_para_piloto(self):
         pass
 
-
     def get_calificaciones_pendientes_para_copilotos(self):
         pass
 
@@ -192,6 +191,15 @@ class Usuario(models.Model):
 
     def get_autos(self):
         return Auto.objects.filter(usuario=self)
+
+    def elimiar_auto(self, unAuto):
+        """ primero verifico que el usuario no tenga en uso el vehiculo,
+        si lo tiene en uso no se podra eliminar"""
+        if self.get_viajes_creados_activos().filter(auto=unAuto):
+            return False
+        else:
+            unAuto.delete()
+            return True
 
     def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self)
