@@ -59,8 +59,8 @@ class Usuario(models.Model):
 
         viajes_diarios = self.get_viajes_diarios_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
         week_day = datetime.datetime.fromtimestamp(fecha_hora_salida.timestamp()).weekday()
-        viajes_semanales = self.get_viajes_semanales_activos_para_weekday(week_day).filter(fecha_hora_salida__lte=fecha_hora_salida)
-
+        viajes_semanales = self.get_viajes_semanales_activos_para_weekday(week_day).filter(
+            fecha_hora_salida__lte=fecha_hora_salida)
 
         viajes_mismo_dia = viajes_activos.filter(
             fecha_hora_salida__year=fecha_hora_salida.year,
@@ -68,7 +68,8 @@ class Usuario(models.Model):
             fecha_hora_salida__day=fecha_hora_salida.day)
 
         sp = self.__se_superpone_rango_horario
-        if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales):
+        if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(
+                fecha_hora_salida, duracion, viajes_semanales):
             mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
 
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
@@ -93,7 +94,6 @@ class Usuario(models.Model):
             delta = (earliest_end - latest_start)
             return max(lowest_value, delta)
 
-
         def sumar_tiempo(hora, minutos, incremento):
             delta = datetime.timedelta(hours=incremento)
             hora_final = datetime.datetime(1, 1, 1, hora, minutos) + delta
@@ -102,12 +102,15 @@ class Usuario(models.Model):
         import datetime
         fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_salida.hour, fecha_hora_salida.minute)
         fecha_hora_salida_end = sumar_tiempo(fecha_hora_salida.hour, fecha_hora_salida.minute, duracion)
-        slow_value = datetime.timedelta(0,0)
+        slow_value = datetime.timedelta(0, 0)
         for viaje in viajes:
-            viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute)
-            viaje_datetime_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, viaje.duracion)
+            viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour,
+                                                     viaje.fecha_hora_salida.minute)
+            viaje_datetime_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute,
+                                              viaje.duracion)
 
-            overlap = get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start, fecha_hora_salida_end )
+            overlap = get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start,
+                                  fecha_hora_salida_end)
             if overlap > datetime.timedelta(0, 0):
                 return True
         return False
@@ -120,7 +123,6 @@ class Usuario(models.Model):
 
     def get_viajes_semanales_activos_para_weekday(self, weekday):
         return self.get_viajes_semanales_activos().filter(se_repite__contains=weekday)
-
 
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
@@ -228,8 +230,10 @@ class Usuario(models.Model):
     def set_nuevo_viaje(self, datos):
         json_info = Viaje.objects.create_viaje(usuario=self, **datos)
         return json_info
+
     def get_viajes_unicos_activos(self):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
+
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
@@ -319,7 +323,7 @@ class ViajeManager(models.Manager):
             viaje = self.create(**kwargs)
             __json['id'] = viaje.pk
             __json['creado'] = True
-            #viaje.delete()
+            # viaje.delete()
         return __json
 
         # return viaje
@@ -332,6 +336,7 @@ class ViajeManager(models.Manager):
             viajes = viajes.filter(fecha_hora_salida=fecha)
 
         return viajes
+
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
@@ -352,7 +357,7 @@ class Viaje(models.Model):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
 
-    def buscar_viaje(self,origen, destino, fecha):
+    def buscar_viaje(self, origen, destino, fecha):
         pass
 
     def activar(self):
@@ -432,6 +437,14 @@ class Viaje(models.Model):
             ).values('usuario__pk')
         )
 
+    def get_count_copilotos_confirmados(self):
+        return len(Usuario.objects.filter(
+            pk__in=ViajeCopiloto.objects.filter(
+                viaje=self,
+                estaConfirmado=True
+            ).values('usuario__pk')
+        ))
+
     def get_asientos_disponibles(self):
         asientos_ocupados = ViajeCopiloto.objects.filter(
             viaje=self,
@@ -439,13 +452,23 @@ class Viaje(models.Model):
         ).aggregate(
             Count('usuario')
         )['usuario__count']
-        return self.auto.capacidad - asientos_ocupados
+        # se resta 1 por el piloto
+        return self.auto.capacidad - asientos_ocupados - 1
 
     def hay_lugar(self):
         return True if self.get_asientos_disponibles() else False
 
     def get_copilotos_en_lista_de_espera(self):
         return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
+
+    def get_copilotos_en_lista_de_espera_siguiente_fecha(self):
+        pass
+
+    def get_count_copilotos_en_lista_de_espera(self):
+        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False))
+
+    def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
+        pass
 
     def set_agregar_copiloto_en_lista_de_espera(self, usuario):
         return ViajeCopiloto.objects.create(
@@ -464,15 +487,27 @@ class ViajeCopiloto(models.Model):
     class Meta:
         unique_together = (('usuario', 'viaje', 'fecha_del_viaje'),)
 
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)  # el copiloto
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     fecha_del_viaje = models.DateTimeField()
-    estaConfirmado = models.BooleanField(default=False)
+    estaConfirmado = models.NullBooleanField(default=None, null=True)
     fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now())
+    calificacion_a_piloto = models.IntegerField(default=None, null=True)
+    calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True)
+    calificacion_a_copiloto = models.IntegerField(default=None, null=True)
+    calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True)
 
     def confirmarCopiloto(self):
         if self.viaje.hay_lugar():
             self.estaConfirmado = True
+            self.save()
+            return True
+        else:
+            return False
+
+    def desconfirmarCopiloto(self):
+        if self.viaje.hay_lugar():
+            self.estaConfirmado = False
             self.save()
             return True
         else:
@@ -504,14 +539,3 @@ class ConversacionPublica(models.Model):
     respuesta = models.CharField(max_length=150, default=None, null=True)
     fechaHoraPregunta = models.DateTimeField(auto_created=True)
     fechaHoraRespuesta = models.DateTimeField()
-
-
-class Calificacion(models.Model):
-    class Meta:
-        unique_together = (('deUsuario', 'paraUsuario', 'viaje'),)
-
-    deUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='Calificacion.deUsuario+')
-    paraUsuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, )
-    viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
-    comentario = models.CharField(max_length=150, default=None, null=True)
-    calificacion = models.IntegerField()
