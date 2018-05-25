@@ -76,6 +76,18 @@
         postJson(url, data, successCallback, errorCallback);
     }
 
+     function eliminar_tarjeta_credito(id) {
+        var url = '{% url "borrar_tarjeta" %}';
+        var data = {'id_tarjeta': id};
+        successCallback = function (response) {
+            loadUserData();
+            console.log('success tarjeta de credito', response.error, response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('error tarjeta credito', response.msg, response.error);
+        }
+        postJson(url, data, successCallback, errorCallback);
+    }
 
 
 

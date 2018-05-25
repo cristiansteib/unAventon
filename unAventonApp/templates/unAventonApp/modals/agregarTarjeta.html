@@ -27,7 +27,11 @@
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="submit" class="btn btn-primary" onsubmit="agregar_tarjeta()">Agregar</button>
+                <button type="button" class="btn btn-primary" onclick="agregar_tarjeta()">
+                  <i id="check_create_credit_card" class="fa fa-check" style="display: none"></i>
+                  <i id="error_create_credit_card" class="fa fa-times" style="display: none"></i>
+                  Agregar
+                </button>
               </fieldset>
         </form>
       </div>
@@ -42,9 +46,18 @@
         var url = " {% url 'crear_tarjeta' %}";
         successCallback = function (response) {
             console.log('ok tarjeta',response.error,response.msg,response.data);
+                if (!response.error) {
+                $("#check_create_credit_card").fadeIn(500);
+                $("#check_create_credit_card").fadeOut(500);
+            }else {
+                $("#error_create_credit_card").fadeIn(500);
+                $("#error_create_credit_card").fadeOut(500);
+            }
         }
         errorCallback = function (response) {
             console.log('ohoh tarjeta  ',response.error,response.msg,response.data);
+            $("#error_create_credit_card").fadeIn(500);
+            $("#error_create_credit_card").fadeOut(500);
         }
         postJson(url,data,successCallback,errorCallback);
     }

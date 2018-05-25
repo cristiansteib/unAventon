@@ -188,7 +188,6 @@ def crear_cuenta_bancaria(request):
 def crear_tarjeta(request):
     response = {}
     r = request.POST
-    print ('entro',r['cardNumber'])
     try:
         tarjeta = Tarjeta.objects.get(
             numero=r['cardNumber'],
@@ -230,21 +229,28 @@ def crear_tarjeta(request):
 
 @login_required
 def actualizar_tarjeta(request):
-    #el numero no se puede cambiar, para eso debe dar de baja la tarjeta
+
     response = {}
     try:
         r = request.POST
-        tarjeta = Tarjeta.objects.get(numero=r['cardNumber'])
-        tarjeta.ccv = r['ccv']
-        tarjeta.fechaDeCreacion = r['fechaCreacion']
-        tarjeta.fechaDeVencimiento = r['fechaVto']
-        tarjeta.save()
-        response['data'] = tarjeta.asJson()
-        response['error'] = False
-        return JsonResponse(response)
+        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'])
+        try:
+            tarjeta.numero = r['cardNumber']
+            tarjeta.ccv = r['ccv']
+            tarjeta.fechaDeCreacion = r['fechaCreacion']
+            tarjeta.fechaDeVencimiento = r['fechaVto']
+            tarjeta.save()
+            response['data'] = tarjeta.asJson()
+            response['error'] = False
+            return JsonResponse(response)
+        except IntegrityError:
+            response['msg'] = 'Tarjeta en uso por otro usuario'
+            response['error'] = True
+            return JsonResponse(response)
+
     except Tarjeta.DoesNotExist:
         response['error'] = True
-        response['msg'] = 'no existe!!!'
+        response['msg'] = 'no existe esa tarjeta!!!'
         return JsonResponse(response)
 
 
@@ -275,7 +281,6 @@ def actualizar_cuenta_bancaria(request):
     try:
         cuenta = CuentaBancaria.objects.get(pk=r['id_cuenta'])
 
-        #si no existe el cbu ingresado, entonces lo agrego
         try:
             cbu = CuentaBancaria.objects.get(cbu=r['cbu'])
             response['error'] = True
@@ -319,7 +324,18 @@ def borrar_auto(request):
 
 @login_required
 def borrar_tarjeta(request):
-    pass
+    response = {}
+    r = request.POST
+    try:
+        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'])
+        tarjeta.delete()
+        response['error'] = False
+        response['msg'] = 'tarjeta borrada'
+        return JsonResponse(response)
+    except CuentaBancaria.DoesNotExist:
+        response['error'] = True
+        response['msg'] = 'No existe esa tarjeta'
+        return JsonResponse(response)
 
 
 @login_required

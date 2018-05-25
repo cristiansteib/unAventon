@@ -40,7 +40,6 @@
 
     function modificar_cuenta() {
         var data = getFormData($("#id_form_modificar_cuenta"));
-        console.log(data);
         var url = " {% url 'actualizar_cuenta_bancaria' %}";
         successCallback = function (response) {
             loadUserData();

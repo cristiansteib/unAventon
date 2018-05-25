@@ -76,7 +76,7 @@ function insert_credit_card_data(data) {
     if (card !== null){
         for (i = 0; i < card.length; i++) {
             output = '';
-            output += '<div id="card_' + i + '"> Tarjeta ' + i;
+            output += '<div id="tarjeta_' + i + '"> Tarjeta ' + i;
             output += '<p> Fecha de vencimiento:  ' + card[i].fecha_de_vencimiento + '</p>';
             output += '<p> Fecha de creacion:  ' + card[i].fecha_de_creacion + '</p>';
             output += '<p> Numero de tarjeta:  ' + card[i].numero + '</p>';
@@ -84,7 +84,7 @@ function insert_credit_card_data(data) {
             output += '<input hidden name="id_tarjeta_'+ i +'" value="' + card[i].id + '">';
             output += '</div>';
             output += '<button type="button" class="btn" onclick="trigger_modal_modificar_tarjeta('+i+')">Editar datos</button>';
-            output += '<button type="button" class="btn"  title="aun nada">Borrar tarjeta</button>';
+            output += '<button type="button" class="btn" onclick="eliminar_tarjeta_credito('+card[i].id+')">Borrar tarjeta</button>';
             output += '<hr>';
             $("#tarjetas").append(output);
         }
@@ -148,7 +148,7 @@ function trigger_modal_modificar_usuario(datos) {
 
 function trigger_modal_modificar_tarjeta(tarjeta) {
     d = datos.get_tarjetas_de_credito[tarjeta];
-    console.log(d);
+    $("#modal_id_tarjeta").val(d.id);
     $("#modal_num_tarjeta").val(d.numero);
     $("#modal_dateVto").val(d.fecha_de_vencimiento);
     $("#modal_dateCreation").val(d.fecha_de_creacion);
@@ -158,7 +158,6 @@ function trigger_modal_modificar_tarjeta(tarjeta) {
 
 function trigger_modal_modificar_cuenta_bancaria(cuenta) {
     d = datos.get_cuentas_bancarias[cuenta];
-    console.log('aaa',d.id);
     $("#modal_id_cuenta").val(d.id);
     $("#modal_entidad").val(d.entidad);
     $("#modal_codigo_cbu").val(d.cbu);

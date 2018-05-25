@@ -9,6 +9,7 @@
       </div>
       <div class="modal-body">
         <form id="id_form_modificar_tarjeta" method="POST" >{% csrf_token %}
+            <input hidden name="id_tarjeta" id="modal_id_tarjeta">
               <fieldset>
                 <div class="form-row">
                   <div class="form-group col-md-6">
@@ -28,8 +29,11 @@
                 </div>
               </fieldset>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button id="btn_update_credit_card" type="button" class="btn btn-primary" onclick="modificar_tarjeta()"> <i id="check_update_credit_card" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
-
+                 <button id="btn_update_credit_card" type="button" class="btn btn-primary" onclick="modificar_tarjeta()">
+                    <i id="check_update_credit_card" class="fa fa-check" style="display: none"></i>
+                    <i id="error_update_credit_card" class="fa fa-times" style="display: none"></i>
+                    Guardar cambios
+                </button>
               </fieldset>
         </form>
       </div>
@@ -43,13 +47,17 @@
 
     function modificar_tarjeta() {
         var data = getFormData($("#id_form_modificar_tarjeta"));
-        console.log(data);
         var url = " {% url 'actualizar_tarjeta' %}";
         successCallback = function (response) {
             loadUserData();
-            $("#check_update_credit_card").fadeIn(500);
-            $("#check_update_credit_card").fadeOut(500);
-            console.log('success tarjeta',response.data, response.error);
+             if (!response.error) {
+                $("#check_update_credit_card").fadeIn(500);
+                $("#check_update_credit_card").fadeOut(500);
+            }else {
+                $("#error_update_credit_card").fadeIn(500);
+                $("#error_update_credit_card").fadeOut(500);
+            }
+            console.log('success tarjeta',response.data, response.error, response.msg);
         }
         errorCallback = function (response) {
             console.log('error tarjeta', response.msg, response.error);
