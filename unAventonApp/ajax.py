@@ -238,7 +238,6 @@ def actualizar_auto(request):
             response['data'] = auto.asJson()
             response['error'] = False
             return JsonResponse(response)
-
         response['msg'] = 'El vehiculo se encuentra en uso, no se puede modificar'
         response['error'] = True
         return JsonResponse(response)

@@ -193,7 +193,7 @@ class Usuario(models.Model):
         return Auto.objects.filter(usuario=self)
 
     def tiene_el_auto_en_uso(self, unAuto):
-        return True if self.get_viajes_creados_activos().filter(auto=unAuto) else False
+        return len(self.get_viajes_creados_activos().filter(auto=unAuto)) > 0
 
     def elimiar_auto(self, unAuto):
         """ primero verifico que el usuario no tenga en uso el vehiculo,
