@@ -103,6 +103,8 @@ def datos_relacionados_al_usuario(request):
     return JsonResponse(data)
 
 
+#----------   Alta   --------------
+
 @login_required
 def crear_viaje_ajax(request):
     try:
@@ -186,7 +188,7 @@ def crear_cuenta_bancaria(request):
 def crear_tarjeta(request):
     response = {}
     r = request.POST
-
+    print ('entro',r['cardNumber'])
     try:
         tarjeta = Tarjeta.objects.get(
             numero=r['cardNumber'],
@@ -220,6 +222,10 @@ def crear_tarjeta(request):
             response['msg'] = 'tarjeta creada'
             print(tarjeta.usuario.all())
             return JsonResponse(response)
+
+
+
+#---------   Modificacion   ----------
 
 
 @login_required
@@ -264,20 +270,34 @@ def actualizar_datos_perfil(request):
 
 @login_required
 def actualizar_cuenta_bancaria(request):
-    #el cbu no lo puede cambiar  debe dar de baja y crear nuevamente
     response = {}
     r = request.POST
     try:
-        cuenta = CuentaBancaria.objects.get(cbu=r['cbu'])
-        cuenta.entidad = r['entity']
-        cuenta.save()
-        response['error'] = False
-        response['data'] = cuenta.asJson()
-        return JsonResponse(response)
+        cuenta = CuentaBancaria.objects.get(pk=r['id_cuenta'])
+
+        #si no existe el cbu ingresado, entonces lo agrego
+        try:
+            cbu = CuentaBancaria.objects.get(cbu=r['cbu'])
+            response['error'] = True
+            response['msg'] = 'Cuenta bancaria en uso'
+            return JsonResponse(response)
+        except CuentaBancaria.DoesNotExist:
+            cuenta.cbu = r['cbu']
+            cuenta.entidad = r['entity']
+            cuenta.save()
+            response['error'] = False
+            response['msg'] = 'Cuenta bancaria actualizada'
+            response['data'] = cuenta.asJson()
+            return JsonResponse(response)
+
     except CuentaBancaria.DoesNotExist:
         response['error'] = True
-        response['msg'] = 'no existe el cbu'
+        response['msg'] = 'No existe esa cuenta bancaria'
         return JsonResponse(response)
+
+
+
+#----------   Baja   ------------
 
 
 @login_required
@@ -301,6 +321,18 @@ def borrar_auto(request):
 def borrar_tarjeta(request):
     pass
 
+
 @login_required
 def borrar_cuenta_bancaria(request):
-    pass
+    response = {}
+    r = request.POST
+    try:
+        cuenta = CuentaBancaria.objects.get(pk=r['id_cuenta'])
+        cuenta.delete()
+        response['error'] = False
+        response['msg'] = 'cuenta borrada'
+        return  JsonResponse(response)
+    except CuentaBancaria.DoesNotExist:
+        response['error'] = True
+        response['msg'] = 'No existe esa cuenta'
+        return JsonResponse(response)

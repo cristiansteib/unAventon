@@ -9,7 +9,8 @@
       </div>
       <div class="modal-body">
         <form id="id_form_modificar_cuenta" method="POST" >{% csrf_token %}
-              <fieldset>
+            <input hidden name="id_cuenta" id="modal_id_cuenta">
+            <fieldset>
                 <div class="form-row">
                   <div class="form-group col-md-6">
                     <input id="modal_entidad" class="form-control" placeholder="Entidad" type="text" name="entity" required>
@@ -20,7 +21,11 @@
                 </div>
               </fieldset>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button id="btn_update_bank_account" type="button" class="btn btn-primary" onclick="modificar_cuenta()"> <i id="check_update_bank_account" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
+                <button id="btn_update_bank_account" type="button" class="btn btn-primary" onclick="modificar_cuenta()">
+                    <i id="check_update_bank_account" class="fa fa-check" style="display: none"></i>
+                    <i id="error_update_bank_account" class="fa fa-times" style="display: none"></i>
+                    Guardar cambios
+                </button>
 
               </fieldset>
         </form>
@@ -39,9 +44,14 @@
         var url = " {% url 'actualizar_cuenta_bancaria' %}";
         successCallback = function (response) {
             loadUserData();
-            $("#check_update_bank_account").fadeIn(500);
-            $("#check_update_bank_account").fadeOut(500);
-            console.log('success cuenta bancaria',response.data, response.error);
+            if (!response.error) {
+                $("#check_update_bank_account").fadeIn(500);
+                $("#check_update_bank_account").fadeOut(500);
+            }else {
+                $("#error_update_bank_account").fadeIn(500);
+                $("#error_update_bank_account").fadeOut(500);
+            }
+            console.log('success cuenta bancaria',response.data, response.error, response.msg);
         }
         errorCallback = function (response) {
             console.log('error cuenta bcancaria', response.msg, response.error);

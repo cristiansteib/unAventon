@@ -92,21 +92,26 @@ function insert_credit_card_data(data) {
 }
 
 function insert_cuenta_bancaria_data(data) {
-    var cbu = data.get_cuentas_bancarias;
-    if (cbu !== null){
-        for (i=0; i < cbu.length; i++){
+    var cuentas = data.get_cuentas_bancarias;
+    if (cuentas !== null){
+        for (i=0; i < cuentas.length; i++){
             output='';
-            output += '<div id="cbu_' + i +'"> Cuenta ' + i;
-            output += '<p> Entidad:  '+cbu[i].entidad+'</p>';
-            output += '<p> CBU:  '+cbu[i].cbu+'</p>';
+            output += '<div id="cuenta_' + i +'"> Cuenta ' + i;
+            output += '<p> Entidad:  '+cuentas[i].entidad+'</p>';
+            output += '<p> CBU:  '+cuentas[i].cbu+'</p>';
+            output += '<input hidden name="id_cuenta_'+ i +'" value="' + [i].id + '">';
             output += '</div>';
             output += '<button type="button" class="btn" onclick="trigger_modal_modificar_cuenta_bancaria('+i+')">Editar datos</button>';
-            output += '<button type="button" class="btn"  title="aun nada">Borrar Cuenta</button>';
+            output += '<button type="button" class="btn"  onclick="eliminar_cuenta_bancaria('+cuentas[i].id+')" >Borrar Cuenta</button>';
             output += '<hr>';
             $("#cuentas_bancarias").append(output);
         }
     }
 }
+
+
+
+
 
 //completar vehiculo
 function insert_vehicle_data(data) {
@@ -153,7 +158,8 @@ function trigger_modal_modificar_tarjeta(tarjeta) {
 
 function trigger_modal_modificar_cuenta_bancaria(cuenta) {
     d = datos.get_cuentas_bancarias[cuenta];
-    console.log(d.cbu);
+    console.log('aaa',d.id);
+    $("#modal_id_cuenta").val(d.id);
     $("#modal_entidad").val(d.entidad);
     $("#modal_codigo_cbu").val(d.cbu);
     $("#id_modal_modificar_cuenta").modal('show');

@@ -22,7 +22,17 @@
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="submit" class="btn btn-primary" onsubmit="agregar_cuenta_bancaria()">Agregar</button>
+                <button id="btn_update_bank_account" type="button" class="btn btn-primary" onclick="agregar_cuenta_bancaria()">
+                  <i id="check_create_bank_account" class="fa fa-check" style="display: none"></i>
+                  <i id="error_create_bank_account" class="fa fa-times" style="display: none"></i>
+                  Agregar
+                </button>
+
+
+
+
+
+
               </fieldset>
         </form>
       </div>
@@ -37,6 +47,13 @@
         console.log(data);
         var url = " {% url 'crear_cuenta_bancaria' %}";
         successCallback = function (response) {
+            if (!response.error) {
+                $("#check_create_bank_account").fadeIn(500);
+                $("#check_create_bank_account").fadeOut(500);
+            }else {
+                $("#error_create_bank_account").fadeIn(500);
+                $("#error_create_bank_account").fadeOut(500);
+            }
             console.log('cuenta',response.data,response.msg,'   :error',response.error);
         }
         errorCallback = function (response) {

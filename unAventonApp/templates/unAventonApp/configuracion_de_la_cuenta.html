@@ -61,7 +61,24 @@
         }
         getJson(url,{},succesCallback,errorCallback);
     }
-    
+
+
+    function eliminar_cuenta_bancaria(id) {
+        var url = '{% url "borrar_cuenta_bancaria" %}';
+        var data = {'id_cuenta': id};
+        successCallback = function (response) {
+            loadUserData();
+            console.log('success cuenta bancaria', response.error, response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('error cuenta bcancaria', response.msg, response.error);
+        }
+        postJson(url, data, successCallback, errorCallback);
+    }
+
+
+
+
     </script>
 
 {% endblock %}
