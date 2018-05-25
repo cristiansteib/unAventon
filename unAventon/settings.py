@@ -27,8 +27,8 @@ SECRET_KEY = '1+26k#$ve_weyn@4b%p56db+rx4yp)!$qgyqn#y82^a2olfhb2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-TEMPLATE_DEBUG = True   # development
-DEGUB_TEMPLATE = True
+TEMPLATE_DEBUG = False   # development
+DEGUB_TEMPLATE = False
 ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_TZ = False
