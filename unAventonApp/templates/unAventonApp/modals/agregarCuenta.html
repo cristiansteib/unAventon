@@ -28,11 +28,7 @@
                   Agregar
                 </button>
 
-
-
-
-
-
+               {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='AddAccErr' idSuccess='AddAccSucc' %}
               </fieldset>
         </form>
       </div>
@@ -44,21 +40,22 @@
 <script>
     function agregar_cuenta_bancaria() {
         var data = getFormData($("#id_form_add_cbu"));
-        console.log(data);
-        var url = " {% url 'crear_cuenta_bancaria' %}";
+        const url = " {% url 'crear_cuenta_bancaria' %}";
         successCallback = function (response) {
             if (!response.error) {
-                $("#check_create_bank_account").fadeIn(500);
-                $("#check_create_bank_account").fadeOut(500);
+                $("#check_create_bank_account").fadeIn(500).fadeOut();
+                mostrarMesajeCorrecto('AddAccSucc',"Cuenta creada correctamente");
             }else {
-                $("#error_create_bank_account").fadeIn(500);
-                $("#error_create_bank_account").fadeOut(500);
+                $("#error_create_bank_account").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('AddAccErr', [response.msg]);
             }
             console.log('cuenta',response.data,response.msg,'   :error',response.error);
-        }
+        };
+
         errorCallback = function (response) {
             console.log('ohoh cuenta  ',response.data,response.msg, ':  error ',response.error);
-        }
+        };
+
         postJson(url,data,successCallback,errorCallback);
     }
 </script>
