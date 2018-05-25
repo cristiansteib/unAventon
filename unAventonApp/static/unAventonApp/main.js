@@ -101,7 +101,7 @@ function insert_cuenta_bancaria_data(data) {
             output += '<div id="cuenta_' + i +'"> Cuenta ' + i;
             output += '<p> Entidad:  '+cuentas[i].entidad+'</p>';
             output += '<p> CBU:  '+cuentas[i].cbu+'</p>';
-            output += '<input hidden name="id_cuenta_'+ i +'" value="' + [i].id + '">';
+            output += '<input hidden name="id_cuenta_'+ i +'" value="' + cuentas[i].id + '">';
             output += '</div>';
             output += '<button type="button" class="btn" onclick="trigger_modal_modificar_cuenta_bancaria('+i+')">Editar datos</button>';
             output += '<button type="button" class="btn"  onclick="eliminar_cuenta_bancaria('+cuentas[i].id+')" >Borrar Cuenta</button>';
@@ -123,6 +123,7 @@ function insert_vehicle_data(data) {
         for (i=0; i < autos.length; i++){
             output='';
             output += '<div id="auto_' + i +'"> Auto ' + i;
+            output += '<input hidden name="id_auto_'+ i +'" value="' + autos[i].id + '">';
             output += '<p> Marca:  '+autos[i].marca+'</p>';
             output += '<p> Modelo:  '+autos[i].modelo+'</p>';
             output += '<p> Capacidad:  '+autos[i].capacidad+'</p>';
@@ -167,4 +168,13 @@ function trigger_modal_modificar_cuenta_bancaria(cuenta) {
     $("#id_modal_modificar_cuenta").modal('show');
 }
 
-
+function trigger_modal_modificar_vehiculo(auto) {
+    console.log('entra');
+    d = datos.get_vehiculos[auto];
+    $("#modal_id_auto").val(d.id);
+    $("#modal_marca").val(d.marca);
+    $("#modal_modelo").val(d.modelo);
+    $("#modal_capacidad").val(d.capacidad);
+    $("#modal_dominio").val(d.dominio);
+    $("#id_modal_modificar_auto").modal('show');
+}
