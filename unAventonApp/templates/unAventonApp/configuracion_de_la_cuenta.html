@@ -7,7 +7,8 @@
     {% include "unAventonApp/modals/agregarTarjeta.html" %}
     {% include "unAventonApp/modals/agregarCuenta.html" %}
     {% include "unAventonApp/modals/agregarVehiculo.html" %}
-
+    {% include "unAventonApp/modals/modificarTarjeta.html" %}
+    {% include "unAventonApp/modals/modificarCuenta.html" %}
 
     <button type="button" class="btn btn-primary" onclick="showElement('#user_data')">Cuenta de usuario</button>
     <div id="user_data" style="display: none">
@@ -51,7 +52,8 @@
             insert_user_data(data.usuario);
             insert_credit_card_data(data);
             insert_cuenta_bancaria_data(data);
-            console.log(data);
+            insert_vehicle_data(data);
+            console.log(data.get_cuentas_bancarias);
             datos = data;
         }
         errorCallback = function (data) {

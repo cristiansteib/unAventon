@@ -95,6 +95,9 @@ def datos_relacionados_al_usuario(request):
         data['viajes_en_espera_de_confirmacion'] = len(usuario.get_viajes_en_espera_como_copiloto())
         cuentas_bancarias = usuario.get_cuentas_bancarias()
         data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
+        autos = usuario.get_autos()
+        data['get_vehiculos'] = [obj.asJson() for obj in autos] if autos else None
+
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
@@ -129,21 +132,30 @@ def crear_viaje_ajax(request):
         }
     return JsonResponse(mensaje_json)
 
-
 @login_required
-def actualizar_datos_perfil(request):
+def crear_auto(request):
+    response = {}
+    r = request.POST
     try:
-        r = request.POST
-        usuario = Usuario.objects.get(user=request.user)
-        usuario.nombre = r['firstName']
-        usuario.apellido = r['lastName']
-        usuario.dni = r['dni']
-        usuario.fechaDeNacimiento = r['birthDay']
-        usuario.save()
+        Auto.objects.get(
+            dominio=r['dominio'].upper().replace(' ','')
+        )
+        response['error'] = True
+        response['msg'] = 'Ese auto ya esta en uso'
+        return JsonResponse(response)
 
-        return JsonResponse({'error': False, 'data': usuario.asJson()})
-    except:
-        return JsonResponse({'error': True})
+    except Auto.DoesNotExist:
+        auto = Auto.objects.create(
+            usuario=request.user.usuario,
+            marca=r['marca'],
+            modelo=r['modelo'],
+            capacidad=r['capacidad'],
+            dominio=r['dominio'].upper().replace(' ','')
+        )
+        response['data'] = auto.asJson()
+        response['error'] = False
+        response['msg'] = 'auto agregado'
+        return JsonResponse(response)
 
 
 @login_required
@@ -170,69 +182,125 @@ def crear_cuenta_bancaria(request):
         return JsonResponse(response)
 
 
-
-@login_required
-def actualizar_cuenta_bancaria(request):
-    try:
-        r = request.POST
-        CuentaBancaria.objects.create(
-            usuario=r.user,
-            cbu=r['cbu'],
-            entidad=r['entity']
-        )
-        return JsonResponse({'error': False})
-    except:
-        return JsonResponse({'error': True})
-
-
 @login_required
 def crear_tarjeta(request):
     response = {}
+    r = request.POST
+
     try:
-        r = request.POST
-        tarjeta = Tarjeta.objects.create(
-            numero=r['number'],
+        tarjeta = Tarjeta.objects.get(
+            numero=r['cardNumber'],
+            ccv=r['ccv'],
             fechaDeVencimiento=r['fechaVto'],
-            ccv=r['ccv']
+            fechaDeCreacion=r['fechaCreacion'],
         )
         tarjeta.usuario.add(request.user.usuario)
+        print(tarjeta.usuario.all())
         response['error'] = False
-        response['msg'] = 'creado exitosamente'
+        response['msg'] = 'usuario agregado a esa tarjeta'
         return JsonResponse(response)
-    except:
-        response['error'] = True
-        return JsonResponse(response)
+
+    except Tarjeta.DoesNotExist:
+        try:
+            Tarjeta.objects.get( numero=r['cardNumber'])
+            response['error'] = True
+            response['msg'] = 'Esa tarjeta ya se encuentra en uso, revise los datos'
+            return JsonResponse(response)
+
+        except Tarjeta.DoesNotExist:
+            tarjeta = Tarjeta.objects.create(
+                numero=r['cardNumber'],
+                ccv=r['ccv'],
+                fechaDeVencimiento=r['fechaVto'],
+                fechaDeCreacion=r['fechaCreacion'],
+            )
+            tarjeta.usuario.add(request.user.usuario)
+            response['data'] = tarjeta.asJson()
+            response['error'] = False
+            response['msg'] = 'tarjeta creada'
+            print(tarjeta.usuario.all())
+            return JsonResponse(response)
 
 
 @login_required
 def actualizar_tarjeta(request):
+    #el numero no se puede cambiar, para eso debe dar de baja la tarjeta
+    response = {}
     try:
         r = request.POST
-        usuario = Usuario.objects.get(user=request.user)
-        Tarjeta.objects.create(
-            usuario=r.user,
-            numero=r['number'],
-            fechaDeVencimiento=r['fechaVto'],
-            ccv=r['ccv']
-        )
-        return JsonResponse({'error': False})
-    except:
-        return JsonResponse({'error': True})
+        tarjeta = Tarjeta.objects.get(numero=r['cardNumber'])
+        tarjeta.ccv = r['ccv']
+        tarjeta.fechaDeCreacion = r['fechaCreacion']
+        tarjeta.fechaDeVencimiento = r['fechaVto']
+        tarjeta.save()
+        response['data'] = tarjeta.asJson()
+        response['error'] = False
+        return JsonResponse(response)
+    except Tarjeta.DoesNotExist:
+        response['error'] = True
+        response['msg'] = 'no existe!!!'
+        return JsonResponse(response)
 
 
 @login_required
-def crear_auto(request):
+def actualizar_datos_perfil(request):
+    response = {}
     try:
         r = request.POST
         usuario = Usuario.objects.get(user=request.user)
-        print(r['marca'], r['modelo'], r['capacidad'], r['dominio'])
-        auto = Auto.objects.create(
-            usuario=usuario,
-            marca=r['marca'],
-            modelo=r['modelo'],
-            capacidad=r['capacidad'],
-            dominio=r['dominio']
-        )
-        return JsonResponse({'error': False, 'data': auto.asJson(), 'msg': 'creado exitosamente'})
+        usuario.nombre = r['firstName']
+        usuario.apellido = r['lastName']
+        usuario.dni = r['dni']
+        usuario.fechaDeNacimiento = r['birthDay']
+        usuario.save()
+        response['data'] = usuario.asJson()
+        response['error'] = False
+        return JsonResponse(response)
     except:
-        return JsonResponse({'error': True})
+        response['error'] = True
+        response['msg'] = 'no se pudo actualizar el perfil'
+        return JsonResponse(response)
+
+
+@login_required
+def actualizar_cuenta_bancaria(request):
+    #el cbu no lo puede cambiar  debe dar de baja y crear nuevamente
+    response = {}
+    r = request.POST
+    try:
+        cuenta = CuentaBancaria.objects.get(cbu=r['cbu'])
+        cuenta.entidad = r['entity']
+        cuenta.save()
+        response['error'] = False
+        response['data'] = cuenta.asJson()
+        return JsonResponse(response)
+    except CuentaBancaria.DoesNotExist:
+        response['error'] = True
+        response['msg'] = 'no existe el cbu'
+        return JsonResponse(response)
+
+
+@login_required
+def borrar_auto(request):
+    response = {}
+    try:
+        r = request.POST
+        auto = Auto.objects.get(pk=r['id'])
+        res = auto.delete()
+        print(res)
+        response['data'] = res
+        response['error'] = False
+        return JsonResponse(response)
+    except:
+        response['error'] = True
+        response['msg'] = 'no se pudo borrar'
+        return JsonResponse(response)
+
+
+@login_required
+def borrar_tarjeta(request):
+    pass
+
+@login_required
+def borrar_cuenta_bancaria(request):
+    pass

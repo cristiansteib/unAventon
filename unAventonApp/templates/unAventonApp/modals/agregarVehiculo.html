@@ -28,7 +28,7 @@
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="agregar_auto()">Agregar</button>
+                <button type="submit" class="btn btn-primary" onsubmit="agregar_auto()">Agregar</button>
               </fieldset>
         </form>
       </div>
@@ -49,6 +49,7 @@
             console.log('ohoh auto ',response.error,response.msg);
         }
         postJson(url,data,successCallback,errorCallback);
-    }
+
+  }
 
     </script>

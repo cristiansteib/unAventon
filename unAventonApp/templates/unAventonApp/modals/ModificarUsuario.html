@@ -52,7 +52,7 @@
             $("#check_update_profile").fadeOut(500);
         }
         errorCallback = function (response) {
-            console.log(response.error);
+            console.log(response.error, response.msg);
         }
         postJson(url,data,successCallback,errorCallback);
 

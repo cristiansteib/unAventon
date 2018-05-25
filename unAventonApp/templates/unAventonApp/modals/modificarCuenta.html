@@ -1,0 +1,53 @@
+<div class="modal fade" id="id_modal_modificar_cuenta" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Editar datos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="id_form_modificar_cuenta" method="POST" >{% csrf_token %}
+              <fieldset>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_entidad" class="form-control" placeholder="Entidad" type="text" name="entity" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_codigo_cbu" class="form-control" placeholder="CBU" type="text" name="cbu" required>
+                  </div>
+                </div>
+              </fieldset>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button id="btn_update_bank_account" type="button" class="btn btn-primary" onclick="modificar_cuenta()"> <i id="check_update_bank_account" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
+
+              </fieldset>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+    function modificar_cuenta() {
+        var data = getFormData($("#id_form_modificar_cuenta"));
+        console.log(data);
+        var url = " {% url 'actualizar_cuenta_bancaria' %}";
+        successCallback = function (response) {
+            loadUserData();
+            $("#check_update_bank_account").fadeIn(500);
+            $("#check_update_bank_account").fadeOut(500);
+            console.log('success cuenta bancaria',response.data, response.error);
+        }
+        errorCallback = function (response) {
+            console.log('error cuenta bcancaria', response.msg, response.error);
+        }
+        postJson(url,data,successCallback,errorCallback);
+
+
+    };
+</script>

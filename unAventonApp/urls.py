@@ -24,7 +24,10 @@ from .ajax import (
     crear_tarjeta,
     actualizar_tarjeta,
     actualizar_cuenta_bancaria,
-    crear_auto
+    crear_auto,
+    borrar_auto,
+    borrar_cuenta_bancaria,
+    borrar_tarjeta
 )
 
 name = 'unAventonApp'
@@ -59,6 +62,9 @@ urlpatterns = [
     path('ajax/updateCreditCard',actualizar_tarjeta,name='actualizar_tarjeta'),
     path('ajax/updateBankAccount',actualizar_cuenta_bancaria,name='actualizar_cuenta_bancaria'),
     path('ajax/createCar',crear_auto,name='crear_auto'),
+    path('ajax/deleteCar',borrar_auto,name='borrar_auto'),
+    path('ajax/deleteBankAccount',borrar_cuenta_bancaria,name='borrar_cuenta_bancaria'),
+    path('ajax/deleteCreditCard',borrar_tarjeta,name='borrar_tarjeta'),
 
 
 ]

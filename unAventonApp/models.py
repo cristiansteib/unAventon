@@ -243,7 +243,8 @@ class Tarjeta(models.Model):
             'id': self.id,
             'numero': self.numero,
             'fecha_de_vencimiento': self.fechaDeVencimiento,
-            'fehca_de_creacion': self.fechaDeCreacion
+            'fecha_de_creacion': self.fechaDeCreacion,
+            'ccv': self.ccv
         }
 
 
@@ -274,7 +275,6 @@ class Auto(models.Model):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
-        # TODO: falta completar
         return {
             'id': self.id,
             'marca': self.marca,
