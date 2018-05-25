@@ -76,9 +76,15 @@ function insert_credit_card_data(data) {
     if (card !== null){
         for (i = 0; i < card.length; i++) {
             output = '';
-            output += '<div id="card_' + i + '"> Tarjeta ' + i + '</div>';
+            output += '<div id="tarjeta_' + i + '"> Tarjeta ' + i;
             output += '<p> Fecha de vencimiento:  ' + card[i].fecha_de_vencimiento + '</p>';
+            output += '<p> Fecha de creacion:  ' + card[i].fecha_de_creacion + '</p>';
             output += '<p> Numero de tarjeta:  ' + card[i].numero + '</p>';
+            output += '<p> CCV:  ' + card[i].ccv + '</p>';
+            output += '<input hidden name="id_tarjeta_'+ i +'" value="' + card[i].id + '">';
+            output += '</div>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_tarjeta('+i+')">Editar datos</button>';
+            output += '<button type="button" class="btn" onclick="eliminar_tarjeta_credito('+card[i].id+')">Borrar tarjeta</button>';
             output += '<hr>';
             $("#tarjetas").append(output);
         }
@@ -86,14 +92,43 @@ function insert_credit_card_data(data) {
 }
 
 function insert_cuenta_bancaria_data(data) {
-    var cbu = data.get_cuentas_bancarias;
-    if (cbu !== null){
-        for (i=0; i < cbu.length; i++){
+    var cuentas = data.get_cuentas_bancarias;
+    if (cuentas !== null){
+        for (i=0; i < cuentas.length; i++){
             output='';
-            output += '<div id="cbu_' + i +'"> Cuenta ' + i + '</div>';
-            output += '<p> Entidad:  '+cbu[i].entidad+'</p>';
-            output += '<p> CBU:  '+cbu[i].cbu+'</p>';
-            $("#cuentas_bancarias").append(output)
+            output += '<div id="cuenta_' + i +'"> Cuenta ' + i;
+            output += '<p> Entidad:  '+cuentas[i].entidad+'</p>';
+            output += '<p> CBU:  '+cuentas[i].cbu+'</p>';
+            output += '<input hidden name="id_cuenta_'+ i +'" value="' + [i].id + '">';
+            output += '</div>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_cuenta_bancaria('+i+')">Editar datos</button>';
+            output += '<button type="button" class="btn"  onclick="eliminar_cuenta_bancaria('+cuentas[i].id+')" >Borrar Cuenta</button>';
+            output += '<hr>';
+            $("#cuentas_bancarias").append(output);
+        }
+    }
+}
+
+
+
+
+
+//completar vehiculo
+function insert_vehicle_data(data) {
+    var autos = data.get_vehiculos;
+    if (autos !== null){
+        for (i=0; i < autos.length; i++){
+            output='';
+            output += '<div id="auto_' + i +'"> Auto ' + i;
+            output += '<p> Marca:  '+autos[i].marca+'</p>';
+            output += '<p> Modelo:  '+autos[i].modelo+'</p>';
+            output += '<p> Capacidad:  '+autos[i].capacidad+'</p>';
+            output += '<p> Dominio:  '+autos[i].dominio+'</p>';
+            output += '</div>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_vehiculo('+i+')">Editar datos</button>';
+            output += '<button type="button" class="btn"  title="aun nada">Borrar auto</button>';
+            output += '<hr>';
+            $("#autos").append(output);
         }
     }
 }
@@ -101,7 +136,6 @@ function insert_cuenta_bancaria_data(data) {
 function trigger_modal_agregar(id){
     $(id).modal('show');
 }
-
 
 function trigger_modal_modificar_usuario(datos) {
     $("#modal_fname").val(datos.usuario.nombre);
@@ -111,6 +145,25 @@ function trigger_modal_modificar_usuario(datos) {
     $("#modal_brithday").html('<input id="modal_brithday" class="form-control" type="date" required name="birthDay" value="'+datos.usuario.fecha_de_nacimiento+'">');
     $("#id_info_user").modal('show');
 }
+
+function trigger_modal_modificar_tarjeta(tarjeta) {
+    d = datos.get_tarjetas_de_credito[tarjeta];
+    $("#modal_id_tarjeta").val(d.id);
+    $("#modal_num_tarjeta").val(d.numero);
+    $("#modal_dateVto").val(d.fecha_de_vencimiento);
+    $("#modal_dateCreation").val(d.fecha_de_creacion);
+    $("#modal_ccv").val(d.ccv);
+    $("#id_modal_modificar_tarjeta").modal('show');
+}
+
+function trigger_modal_modificar_cuenta_bancaria(cuenta) {
+    d = datos.get_cuentas_bancarias[cuenta];
+    $("#modal_id_cuenta").val(d.id);
+    $("#modal_entidad").val(d.entidad);
+    $("#modal_codigo_cbu").val(d.cbu);
+    $("#id_modal_modificar_cuenta").modal('show');
+}
+
 
 function showElement(id) {
     $(id).toggle(300);

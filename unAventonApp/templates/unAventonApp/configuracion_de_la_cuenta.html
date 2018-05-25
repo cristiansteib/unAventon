@@ -7,7 +7,8 @@
     {% include "unAventonApp/modals/agregarTarjeta.html" %}
     {% include "unAventonApp/modals/agregarCuenta.html" %}
     {% include "unAventonApp/modals/agregarVehiculo.html" %}
-
+    {% include "unAventonApp/modals/modificarTarjeta.html" %}
+    {% include "unAventonApp/modals/modificarCuenta.html" %}
 
     <button type="button" class="btn btn-primary" onclick="showElement('#user_data')">Cuenta de usuario</button>
     <div id="user_data" style="display: none">
@@ -51,7 +52,8 @@
             insert_user_data(data.usuario);
             insert_credit_card_data(data);
             insert_cuenta_bancaria_data(data);
-            console.log(data);
+            insert_vehicle_data(data);
+            console.log(data.get_cuentas_bancarias);
             datos = data;
         }
         errorCallback = function (data) {
@@ -59,7 +61,36 @@
         }
         getJson(url,{},succesCallback,errorCallback);
     }
-    
+
+
+    function eliminar_cuenta_bancaria(id) {
+        var url = '{% url "borrar_cuenta_bancaria" %}';
+        var data = {'id_cuenta': id};
+        successCallback = function (response) {
+            loadUserData();
+            console.log('success cuenta bancaria', response.error, response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('error cuenta bcancaria', response.msg, response.error);
+        }
+        postJson(url, data, successCallback, errorCallback);
+    }
+
+     function eliminar_tarjeta_credito(id) {
+        var url = '{% url "borrar_tarjeta" %}';
+        var data = {'id_tarjeta': id};
+        successCallback = function (response) {
+            loadUserData();
+            console.log('success tarjeta de credito', response.error, response.msg);
+        }
+        errorCallback = function (response) {
+            console.log('error tarjeta credito', response.msg, response.error);
+        }
+        postJson(url, data, successCallback, errorCallback);
+    }
+
+
+
     </script>
 
 {% endblock %}

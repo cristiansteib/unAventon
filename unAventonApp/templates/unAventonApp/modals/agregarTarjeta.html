@@ -11,13 +11,15 @@
       <div class="modal-body">
            <form id="id_form_add_card" method="POST" >{% csrf_token %}
               <fieldset>
-
                 <div class="form-row">
                   <div class="form-group col-md-6">
-                    <input id="modal_numero_tarjeta" class="form-control" placeholder="Numero de tarjeta" type="text" name="number" required>
+                    <input id="modal_numero_tarjeta" class="form-control" placeholder="Numero de tarjeta" type="text" name="cardNumber" required>
                   </div>
                   <div class="form-group col-md-6">
-                    <input id="modal_fecha_vto_tarjeta" class="form-control" placeholder="fecha de vencimiento" type="date" name="fechaVto" required>
+                    <input id="modal_fecha_vto_tarjeta" class="form-control" placeholder="Fecha de vencimiento" type="text" name="fechaVto" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_fecha_creacion_tarjeta" class="form-control" placeholder="Fecha de creacion" type="text" name="fechaCreacion" required>
                   </div>
                     <div class="form-group col-md-6">
                     <input id="modal_ccv_tarjeta" class="form-control" placeholder="CCV" type="text" name="ccv" required>
@@ -25,7 +27,11 @@
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="agregar_tarjeta()">Agregar</button>
+                <button type="button" class="btn btn-primary" onclick="agregar_tarjeta()">
+                  <i id="check_create_credit_card" class="fa fa-check" style="display: none"></i>
+                  <i id="error_create_credit_card" class="fa fa-times" style="display: none"></i>
+                  Agregar
+                </button>
               </fieldset>
         </form>
       </div>
@@ -39,10 +45,19 @@
         console.log(data);
         var url = " {% url 'crear_tarjeta' %}";
         successCallback = function (response) {
-            console.log('ok tarjeta',response.error,response.msg);
+            console.log('ok tarjeta',response.error,response.msg,response.data);
+                if (!response.error) {
+                $("#check_create_credit_card").fadeIn(500);
+                $("#check_create_credit_card").fadeOut(500);
+            }else {
+                $("#error_create_credit_card").fadeIn(500);
+                $("#error_create_credit_card").fadeOut(500);
+            }
         }
         errorCallback = function (response) {
-            console.log('ohoh tarjeta  ',response.error,response.msg);
+            console.log('ohoh tarjeta  ',response.error,response.msg,response.data);
+            $("#error_create_credit_card").fadeIn(500);
+            $("#error_create_credit_card").fadeOut(500);
         }
         postJson(url,data,successCallback,errorCallback);
     }
