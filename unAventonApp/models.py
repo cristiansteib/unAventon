@@ -126,57 +126,26 @@ class Usuario(models.Model):
 
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
-        p1 = self.get_calificaciones_pendientes_para_piloto().filter(
-            viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
-        p2 = self.get_calificaciones_pendientes_para_copilotos().filter(
-            viaje__fecha_hora_salida__lte=timezone.now() - timezone.timedelta(days=maximo_dias))
-        return len(p1) + len(p2)
+        return 0
 
     def tiene_calificicaciones_pendientes(self):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
-        return Calificacion.objects.filter(
-            paraUsuario=self, viaje__in=Viaje.objects.filter(
-                auto__usuario=self
-            )
-        ).aggregate(
-            calificacion=Sum('calificacion')
-        )['calificacion']
+        pass
 
     def get_calificacion_como_copiloto(self):
-        return Calificacion.objects.filter(
-            paraUsuario=self,
-            viaje__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id')).aggregate(
-            calificacion=Sum('calificacion'))['calificacion']
+        pass
 
     def get_calificaciones_pendientes_para_piloto(self):
+        pass
 
-        viajes_confirmados_como_copiloto = self.get_viajes_confirmados_como_copiloto()
-        if not viajes_confirmados_como_copiloto:
-            return models.QuerySet(ViajeCopiloto)
-        return viajes_confirmados_como_copiloto.exclude(
-            viaje__in=Calificacion.objects.filter(
-                viaje__in=viajes_confirmados_como_copiloto.values_list('viaje'),
-                deUsuario=self).values_list('viaje'))
 
     def get_calificaciones_pendientes_para_copilotos(self):
-        viajes = Viaje.objects.filter(auto__usuario=self)  # todos mis viajes
-        if not viajes:
-            return models.QuerySet(ViajeCopiloto)
-        viajesCopiloto = ViajeCopiloto.objects.filter(viaje__in=viajes, estaConfirmado=True).exclude(
-            usuario__in=Calificacion.objects.filter(viaje__in=viajes, deUsuario=self).values_list('paraUsuario')
-        )
-        return viajesCopiloto
+        pass
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
-        c = Calificacion()
-        c.deUsuario = self
-        c.paraUsuario = aUsuario
-        c.comentario = comentario
-        c.viaje = enViaje
-        c.calificacion = calificacion
-        c.save()
+        pass
 
     def set_calificar_piloto(self, calificacion, aUsuario, enViaje, comentario):
         if self.es_copiloto_en_viaje(enViaje):
