@@ -120,7 +120,7 @@ def crear_viaje_ajax(request):
             'auto_id': request_data['auto_id'],
             'cuenta_bancaria_id': request_data['cuenta_bancaria'],
             'se_repite': (
-            request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
+                request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
         }
 
         mensaje_json = request.user.usuario.set_nuevo_viaje(datos_viaje)
@@ -132,30 +132,27 @@ def crear_viaje_ajax(request):
         }
     return JsonResponse(mensaje_json)
 
+
 @login_required
 def crear_auto(request):
-    response = {}
+    response = {
+        'error': True
+    }
     r = request.POST
-    try:
-        Auto.objects.get(
-            dominio=r['dominio'].upper().replace(' ','')
-        )
-        response['error'] = True
-        response['msg'] = 'Ese auto ya esta en uso'
-        return JsonResponse(response)
-
-    except Auto.DoesNotExist:
+    if r['capacidad'] > 1:
         auto = Auto.objects.create(
             usuario=request.user.usuario,
             marca=r['marca'],
             modelo=r['modelo'],
             capacidad=r['capacidad'],
-            dominio=r['dominio'].upper().replace(' ','')
+            dominio=r['dominio'].upper()
         )
         response['data'] = auto.asJson()
         response['error'] = False
         response['msg'] = 'auto agregado'
-        return JsonResponse(response)
+    else:
+        response['msg'] = 'La capacidad debe ser mayor o igual a 2'
+    return JsonResponse(response)
 
 
 @login_required
@@ -202,7 +199,7 @@ def crear_tarjeta(request):
 
     except Tarjeta.DoesNotExist:
         try:
-            Tarjeta.objects.get( numero=r['cardNumber'])
+            Tarjeta.objects.get(numero=r['cardNumber'])
             response['error'] = True
             response['msg'] = 'Esa tarjeta ya se encuentra en uso, revise los datos'
             return JsonResponse(response)
@@ -224,7 +221,7 @@ def crear_tarjeta(request):
 
 @login_required
 def actualizar_tarjeta(request):
-    #el numero no se puede cambiar, para eso debe dar de baja la tarjeta
+    # el numero no se puede cambiar, para eso debe dar de baja la tarjeta
     response = {}
     try:
         r = request.POST
@@ -264,7 +261,7 @@ def actualizar_datos_perfil(request):
 
 @login_required
 def actualizar_cuenta_bancaria(request):
-    #el cbu no lo puede cambiar  debe dar de baja y crear nuevamente
+    # el cbu no lo puede cambiar  debe dar de baja y crear nuevamente
     response = {}
     r = request.POST
     try:
@@ -300,6 +297,7 @@ def borrar_auto(request):
 @login_required
 def borrar_tarjeta(request):
     pass
+
 
 @login_required
 def borrar_cuenta_bancaria(request):
