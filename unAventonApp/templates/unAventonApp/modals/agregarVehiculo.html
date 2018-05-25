@@ -26,6 +26,7 @@
                     <input id="modal_entity" class="form-control" placeholder="dominio" type="text" name="dominio" required>
                   </div>
                 </div>
+                {% include 'unAventonApp/alerts/alertsGenericos.html' %}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 <button id="btn_agregar_auto" type="button" class="btn btn-primary" onclick="agregar_auto()">
                   <i id="check_create_add_car" class="fa fa-check" style="display: none"></i>
@@ -49,8 +50,10 @@
             console.log('ok auto',response.error,response.msg);
             if (!response.error) {
                 $("#check_create_add_car").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto("Auto agregado correctamente");
             }else {
                 $("#error_create_add_car").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores([response.msg]);
             }
 
         };
