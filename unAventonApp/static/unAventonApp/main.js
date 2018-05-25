@@ -74,6 +74,7 @@ function insert_credit_card_data(data) {
 
     var card = data.get_tarjetas_de_credito;
     if (card !== null){
+        $("#tarjetas").html('');
         for (i = 0; i < card.length; i++) {
             output = '';
             output += '<div id="tarjeta_' + i + '"> Tarjeta ' + i;
@@ -94,6 +95,7 @@ function insert_credit_card_data(data) {
 function insert_cuenta_bancaria_data(data) {
     var cuentas = data.get_cuentas_bancarias;
     if (cuentas !== null){
+        $("#cuentas_bancarias").html('');
         for (i=0; i < cuentas.length; i++){
             output='';
             output += '<div id="cuenta_' + i +'"> Cuenta ' + i;
@@ -116,6 +118,7 @@ function insert_cuenta_bancaria_data(data) {
 //completar vehiculo
 function insert_vehicle_data(data) {
     var autos = data.get_vehiculos;
+    $("#autos").html('');
     if (autos !== null){
         for (i=0; i < autos.length; i++){
             output='';
@@ -165,6 +168,3 @@ function trigger_modal_modificar_cuenta_bancaria(cuenta) {
 }
 
 
-function showElement(id) {
-    $(id).toggle(300);
-}

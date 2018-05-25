@@ -85,8 +85,8 @@ def datos_relacionados_al_usuario(request):
     try:
         usuario = Usuario.objects.get(user=request.user)
         data['usuario'] = usuario.asJson()
-        data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
-        data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+        #data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
+        #data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
         viajes_creados_activos = usuario.get_viajes_creados_activos()
         data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
@@ -276,13 +276,19 @@ def actualizar_cuenta_bancaria(request):
     response = {}
     r = request.POST
     try:
-        cuenta = CuentaBancaria.objects.get(pk=r['id_cuenta'])
+        cuenta = CuentaBancaria.objects.get(
+            pk=r['id_cuenta'],
+            usuario=request.user.usuario
+        )
 
         try:
-            cbu = CuentaBancaria.objects.get(cbu=r['cbu'])
-            response['error'] = True
-            response['msg'] = 'Cuenta bancaria en uso'
-            return JsonResponse(response)
+            cuentaBancaria = CuentaBancaria.objects.get(
+                cbu=r['cbu'])
+            if cuentaBancaria.usuario != request.user.usuario:
+                response['error'] = True
+                response['msg'] = 'Cuenta bancaria en uso'
+                return JsonResponse(response)
+            raise CuentaBancaria.DoesNotExist
         except CuentaBancaria.DoesNotExist:
             cuenta.cbu = r['cbu']
             cuenta.entidad = r['entity']

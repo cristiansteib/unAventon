@@ -51,12 +51,12 @@
                 $("#error_update_bank_account").fadeOut(500);
             }
             console.log('success cuenta bancaria',response.data, response.error, response.msg);
-        }
+        };
         errorCallback = function (response) {
             console.log('error cuenta bcancaria', response.msg, response.error);
-        }
+        };
         postJson(url,data,successCallback,errorCallback);
 
 
-    };
+    }
 </script>
