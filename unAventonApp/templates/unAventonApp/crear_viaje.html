@@ -9,7 +9,7 @@
       <div class="col-sm-12 col-md-6">
         {% if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos %}
             <h4>Posee calificaciones pendientes por realizar</h4>
-        {% else if get_autos and get_cuentas_bancarias %}
+        {% elif get_autos and get_cuentas_bancarias %}
           <form id="id_form_viaje" method="POST">
             {% csrf_token %}
             <fieldset>
