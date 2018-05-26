@@ -1,10 +1,9 @@
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect,Http404,redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
 from .models import Usuario
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-
 def baseContext():
     return {
         'footer': {}
@@ -93,3 +92,16 @@ def crear_viaje(request):
     context['get_autos'] = [auto.asJson() for auto in usuario.get_autos()]
     context['get_cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.get_cuentas_bancarias()]
     return render(request, 'unAventonApp/crear_viaje.html', context)
+
+
+@login_required
+def upload_foto(request):
+    if request.method == 'POST':
+        usuario = request.user.usuario
+        file = request.FILES['files']
+        if str(file).lower().endswith(('.jpg', '.png', '.jpeg', '.gif',)) == True:
+            usuario.foto_de_perfil = file
+            usuario.save()
+        return redirect('miPerfil')
+    else:
+        raise Http404

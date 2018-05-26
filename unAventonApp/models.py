@@ -6,7 +6,9 @@ from django.utils import timezone
 from django.conf import settings
 import datetime
 from collections import namedtuple
+from django.core.files.storage import FileSystemStorage
 
+fotoStorage = FileSystemStorage(location='media/')
 
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -14,6 +16,8 @@ class Usuario(models.Model):
     apellido = models.CharField(max_length=15)
     fechaDeNacimiento = models.DateField(default=None, null=True)
     dni = models.CharField(max_length=15, default=None, null=True)
+    foto_de_perfil = models.ImageField(storage=fotoStorage, default='assets/default-user.png')
+
 
     def asJsonMinified(self):
         return {
@@ -140,7 +144,6 @@ class Usuario(models.Model):
     def get_calificaciones_pendientes_para_piloto(self):
         pass
 
-
     def get_calificaciones_pendientes_para_copilotos(self):
         pass
 
@@ -193,6 +196,18 @@ class Usuario(models.Model):
     def get_autos(self):
         return Auto.objects.filter(usuario=self)
 
+    def tiene_el_auto_en_uso(self, unAuto):
+        return len(self.get_viajes_creados_activos().filter(auto=unAuto)) > 0
+
+    def elimiar_auto(self, unAuto):
+        """ primero verifico que el usuario no tenga en uso el vehiculo,
+        si lo tiene en uso no se podra eliminar"""
+        if self.tiene_el_auto_en_uso(unAuto):
+            return False
+        else:
+            unAuto.delete()
+            return True
+
     def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self)
 
@@ -202,6 +217,19 @@ class Usuario(models.Model):
 
     def get_viajes_unicos_activos(self):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
+
+    def tiene_la_cuenta_bancaria_en_uso(self, unaCuentaBancaria):
+        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria)) > 0
+
+    def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
+        """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
+        si lo tiene en uso no se podra eliminar"""
+
+        if self.tiene_la_cuenta_bancaria_en_uso(unaCuentaBancaria):
+            return False
+        else:
+            unaCuentaBancaria.delete()
+            return True
 
 
 class Tarjeta(models.Model):
@@ -216,7 +244,8 @@ class Tarjeta(models.Model):
             'id': self.id,
             'numero': self.numero,
             'fecha_de_vencimiento': self.fechaDeVencimiento,
-            'fehca_de_creacion': self.fechaDeCreacion
+            'fecha_de_creacion': self.fechaDeCreacion,
+            'ccv': self.ccv
         }
 
 
@@ -247,7 +276,6 @@ class Auto(models.Model):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
 
     def asJson(self):
-        # TODO: falta completar
         return {
             'id': self.id,
             'marca': self.marca,

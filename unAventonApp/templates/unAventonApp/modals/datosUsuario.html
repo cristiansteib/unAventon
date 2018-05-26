@@ -1,0 +1,46 @@
+{% load unAventonApp_extras %}
+<!-- Modal -->
+<div class="modal fade" id="id_datos_usuario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Datos personales</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"><i class="fas fa-times"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container margen">
+            <p><b>Nombre:</b>  {{ user.usuario.get_cuentas_bancarias }} </p>
+            <p><b>Apellido:</b>  {{ user.id | apellido }} </p>
+            <p><b>Correo:</b> {{ user.id | email }}  </p>
+            <p><b>Contraseña:</b> proximamente </p>
+            <p><b>DNI:</b>  {{ user.id | dni }} </p>
+            <p><b>Fecha de Nacimiento:</b>  {{ user.id | nacimiento }} </p>
+            <p><b>Tarjeta/s:</b> Presionar para agregar tarjeta <button type="button" class="btn btn-dark btn-sm" onclick="trigger_modal_agregar_tarjeta()">Agregar tarjeta</button> </p>
+            <p><b>Vehiculo/s:</b> proximamente.. <button type="button" class="btn btn-dark btn-sm" onclick="trigger_modal_agregar_vehiculo()">Agregar Vehiculo</button> </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fas fa-undo"></i> Volver</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function trigger_modal_datos_usuario(){
+        $("#id_datos_usuario").modal('show');
+    }
+
+    $(function(){
+        loadUserData();
+    });
+
+    function loadUserData(){
+        var url = '{% url "datos_del_usuario" %}';
+        getJson(url,{},function(data){insertData(data);},function(data){errorMessage(data);});
+    }
+</script>
+

@@ -20,7 +20,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <input id="modal_email" class="form-control" placeholder="E-mail" name="email" type="email" required>
+                  <input id="modal_email" class="form-control" placeholder="E-mail" name="email" type="email" required readonly>
                 </div>
                 <div class="form-row">
                   <div class="form-group col-md-6">
@@ -48,12 +48,15 @@
         var url = " {% url 'actualizar_perfil' %}";
         successCallback = function (response) {
             loadUserData();
-            $("#check_update_profile").fadeIn(500);
-            $("#check_update_profile").fadeOut(500);
-        }
+            $("#check_update_profile").fadeIn(500).fadeOut(500);
+            setTimeout(function(){
+                location.reload();
+            },500);
+
+        };
         errorCallback = function (response) {
-            console.log(response.error);
-        }
+            console.log(response.error, response.msg);
+        };
         postJson(url,data,successCallback,errorCallback);
 
 

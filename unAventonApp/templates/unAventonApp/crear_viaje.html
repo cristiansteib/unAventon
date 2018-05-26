@@ -7,8 +7,9 @@
     <div class="row">
       <div class="col-md-3"></div>
       <div class="col-sm-12 col-md-6">
-
-        {% if get_autos and get_cuentas_bancarias %}
+        {% if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos %}
+            <h4>Posee calificaciones pendientes por realizar</h4>
+        {% elif get_autos and get_cuentas_bancarias %}
           <form id="id_form_viaje" method="POST">
             {% csrf_token %}
             <fieldset>
@@ -106,22 +107,13 @@
                 </div>
 
               </div>
-              <div id="alert" class="alert alert-danger" style="margin-top: 15px; display: none">
-                <strong>Error!</strong>
-                <ul class="list-group" id="mensaje_error">
-                </ul>
-              </div>
-
-              <div id="alertSuccess" class="alert alert-success" style="margin-top: 15px; display: none">
-                <strong>Aceptado</strong>
-                <ul class="list-group" id="mensaje_ok">
-                </ul>
-              </div>
+            {% include 'unAventonApp/alerts/alertsGenericos.html' %}
               <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
             </fieldset>
           </form>
         {% else %}
           <h4> Debes registrar primero
+
             {% if not get_autos %}
               almenos un auto,
             {% endif %}
@@ -144,24 +136,10 @@
 
           successCallback = function (response) {
               if (response.creado === true) {
-                  out = "Creado exitosamente";
-                  $('#mensaje_ok').html(out);
-                  $('#alertSuccess').fadeIn(1000).delay(5000).fadeOut(1000);
+                  mostrarMesajeCorrecto("Creado exitosamente");
               } else {
-                  out = "";
-                  for (i = 0; i < response.error.length; i++) {
-                      var p = response.error[i];
-                      for (var key in p) {
-                          if (p.hasOwnProperty(key)) {
-                              out += '<li class="list-group-item">' + p[key] + '</li>';
-                          }
-                      }
-                  }
-              $('#mensaje_error').html(out);
-              $('#alert').fadeIn(1000).delay(5000).fadeOut(1000);
-
+                  mostrarMensajeDeErrores(response.error);
               }
-
           };
 
           errorCallback = function (response) {
