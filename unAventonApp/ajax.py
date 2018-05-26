@@ -347,6 +347,7 @@ def borrar_auto(request):
     except PermissionError:
         response['error'] = True
         response['msg'] = 'El vehiculo esta en uso en algun viaje'
+        return JsonResponse(response)
     except:
         response['error'] = True
         response['msg'] = 'No se pudo borrar'

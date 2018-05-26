@@ -26,6 +26,7 @@
                     <i id="error_update_bank_account" class="fa fa-times" style="display: none"></i>
                     Guardar cambios
                 </button>
+            {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_m_cuenta' idSuccess='ok_m_cuenta' %}
 
               </fieldset>
         </form>
@@ -44,11 +45,11 @@
         successCallback = function (response) {
             loadUserData();
             if (!response.error) {
-                $("#check_update_bank_account").fadeIn(500);
-                $("#check_update_bank_account").fadeOut(500);
+                $("#check_update_bank_account").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto('ok_m_cuenta','Cuenta bancaria modificada correctamente');
             }else {
-                $("#error_update_bank_account").fadeIn(500);
-                $("#error_update_bank_account").fadeOut(500);
+                $("#error_update_bank_account").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('error_m_cuenta',[response.msg]);
             }
             console.log('success cuenta bancaria',response.data, response.error, response.msg);
         };
