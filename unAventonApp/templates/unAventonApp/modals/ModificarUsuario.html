@@ -48,12 +48,15 @@
         var url = " {% url 'actualizar_perfil' %}";
         successCallback = function (response) {
             loadUserData();
-            $("#check_update_profile").fadeIn(500);
-            $("#check_update_profile").fadeOut(500);
-        }
+            $("#check_update_profile").fadeIn(500).fadeOut(500)
+            setTimeout(function(){
+                location.reload();
+            },500);
+
+        };
         errorCallback = function (response) {
             console.log(response.error, response.msg);
-        }
+        };
         postJson(url,data,successCallback,errorCallback);
 
 
