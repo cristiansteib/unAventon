@@ -43,6 +43,7 @@
         const url = " {% url 'crear_cuenta_bancaria' %}";
         successCallback = function (response) {
             if (!response.error) {
+                loadUserData();
                 $("#check_create_bank_account").fadeIn(500).fadeOut();
                 mostrarMesajeCorrecto('AddAccSucc',"Cuenta creada correctamente");
             }else {

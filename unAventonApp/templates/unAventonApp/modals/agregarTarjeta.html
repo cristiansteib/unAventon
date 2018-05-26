@@ -47,8 +47,8 @@
         console.log(data);
         var url = " {% url 'crear_tarjeta' %}";
         successCallback = function (response) {
-            console.log('ok tarjeta',response.error,response.msg,response.data);
-                if (!response.error) {
+            if (!response.error) {
+                loadUserData();
                 $("#check_create_credit_card").fadeIn(500).fadeOut(500);
                 mostrarMesajeCorrecto('msgSuccAddTarjeta', response.msg);
             }else {

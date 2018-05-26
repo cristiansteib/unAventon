@@ -54,56 +54,60 @@
             insert_credit_card_data(data);
             insert_cuenta_bancaria_data(data);
             insert_vehicle_data(data);
-            console.log(data.get_cuentas_bancarias);
+            console.log(data);
             datos = data;
-        }
+        };
         errorCallback = function (data) {
             console.log(data)
-        }
+        };
         getJson(url,{},succesCallback,errorCallback);
     }
 
 
-    function eliminar_cuenta_bancaria(id) {
+    function eliminar_cuenta_bancaria(id, elem) {
         var url = '{% url "borrar_cuenta_bancaria" %}';
         var data = {'id_cuenta': id};
+        var elementoCuenta = $('cuenta_' + id);
         successCallback = function (response) {
-            loadUserData();
             console.log('success cuenta bancaria', response.error, response.msg);
-        }
+            $(elem.parentElement).fadeOut(800).then().remove();
+        };
         errorCallback = function (response) {
             console.log('error cuenta bcancaria', response.msg, response.error);
-        }
+        };
         postJson(url, data, successCallback, errorCallback);
     }
 
-     function eliminar_tarjeta_credito(id) {
+     function eliminar_tarjeta_credito(id, elem) {
         var url = '{% url "borrar_tarjeta" %}';
         var data = {'id_tarjeta': id};
         successCallback = function (response) {
             loadUserData();
             console.log('success tarjeta de credito', response.error, response.msg);
-        }
+            $(elem.parentElement).fadeOut(800).then().remove();
+        };
         errorCallback = function (response) {
             console.log('error tarjeta credito', response.msg, response.error);
         }
         postJson(url, data, successCallback, errorCallback);
     }
 
-    function eliminar_auto(id) {
+    function eliminar_auto(id, elem) {
         var url = '{% url "borrar_auto" %}';
         var data = {'id': id};
         successCallback = function (response) {
             loadUserData();
             if (response.error){
                 mostrarMensajeDeErrores('error_b_auto',[response.msg]);
+            } else {
+            $(elem.parentElement).fadeOut(800).then().remove();
             }
             console.log('success auto', response.error, response.msg);
-        }
+        };
         errorCallback = function (response) {
 
             console.log('error auto', response.msg, response.error);
-        }
+        };
         postJson(url, data, successCallback, errorCallback);
     }
 
