@@ -6,7 +6,9 @@ from django.utils import timezone
 from django.conf import settings
 import datetime
 from collections import namedtuple
+from django.core.files.storage import FileSystemStorage
 
+fotoStorage = FileSystemStorage(location='media/')
 
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -14,6 +16,8 @@ class Usuario(models.Model):
     apellido = models.CharField(max_length=15)
     fechaDeNacimiento = models.DateField(default=None, null=True)
     dni = models.CharField(max_length=15, default=None, null=True)
+    foto_de_perfil = models.ImageField(storage=fotoStorage, default='default-user.png')
+
 
     def asJsonMinified(self):
         return {
@@ -218,7 +222,7 @@ class Usuario(models.Model):
         return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria)) > 0
 
     def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
-        """ primero verifico que el usuario no tenga en uso el vehiculo,
+        """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
         si lo tiene en uso no se podra eliminar"""
 
         if self.tiene_la_cuenta_bancaria_en_uso(unaCuentaBancaria):

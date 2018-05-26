@@ -48,7 +48,7 @@
         var url = " {% url 'actualizar_perfil' %}";
         successCallback = function (response) {
             loadUserData();
-            $("#check_update_profile").fadeIn(500).fadeOut(500)
+            $("#check_update_profile").fadeIn(500).fadeOut(500);
             setTimeout(function(){
                 location.reload();
             },500);

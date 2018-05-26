@@ -1,3 +1,18 @@
+certifi==2018.4.16
+chardet==3.0.4
 coverage==4.5.1
 Django==2.0.3
+django-coverage-plugin==1.5.0
+django-html-validator==0.4.8
+-e git://github.com/kmmbvnr/django-jenkins.git@f673c8ecded24eb56aeaef8d1c0caeb82208b595#egg=django_jenkins
+django-nose==1.4.5
+idna==2.6
+jslint==0.6.0
+nose==1.3.7
+pep8==1.7.1
+Pillow==5.1.0
+pyflakes==1.6.0
 pytz==2018.3
+requests==2.18.4
+six==1.11.0
+urllib3==1.22

@@ -12,44 +12,33 @@
   {% include "unAventonApp/modals/ModificarAuto.html" %}
   {% load static %}
 
-  <div class="container" xmlns="http://www.w3.org/1999/html">
+  <div class="container">
     <div class="row" style="text-align: left">
-      <div class="md-col-2">
-        <div class="card" style="width: 150px">
-          <img class="card-img-top" src="{% static 'unAventonApp/default-user.png' %}" height="auto" width="100%"
-               alt="Card image cap">
+      <div class="md-col-3">
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="{{ user.usuario.foto_de_perfil.url }}" alt="Card image cap">
           <div class="card-body">
-            <form id="formUploadFile" action="#">
-                <input style="display: none" type="file" id="uploadProfilePicture">
-            </form>
+
+            <h6><span id="fname"> </span> <span id="lname"> </span></h6>
+            <h6 id="email"></h6>
+            <h6 id="dni"></h6>
+            <h6 id="birthday"></h6>
+            <button type="button" class="btn btn-primary" onclick="trigger_modal_modificar_usuario(datos)">Editar
+              datos
+            </button>
             <a href="#" class="btn btn-primary" onclick="$('#uploadProfilePicture').click()">Cambiar foto</a>
           </div>
         </div>
+
       </div>
-
-
-      <div class=" md-col-2" style="margin: 0 0 0 20px">
-        <h6><span id="fname"> </span> <span id="lname"> </span></h6>
-        <h6 id="email"></h6>
-        <h6 id="dni"></h6>
-        <h6 id="birthday"></h6>
-        <button type="button" class="btn btn-default" onclick="trigger_modal_modificar_usuario(datos)">Editar datos
-        </button>
-      </div>
-
+      <form id="formUploadFile" action="{% url 'upload_foto' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input style="display: none" type="file" name="files" id="uploadProfilePicture">
+      </form>
 
     </div>
 
-  </div>
 
-
-  <div id="user_data" style="display: none">
-    <p id="fname"></p>
-    <p id="lname"></p>
-    <p id="email"></p>
-    <p id="dni"></p>
-    <p id="birthday"></p>
-  </div>
 
   <hr>
 
@@ -104,8 +93,8 @@
           var elementoCuenta = $('cuenta_' + id);
           successCallback = function (response) {
               console.log('success cuenta bancaria', response.error, response.msg);
-              if (!response.error){
-                $(elem.parentElement).fadeOut(800).remove();
+              if (!response.error) {
+                  $(elem.parentElement).fadeOut(800).remove();
               }
           };
           errorCallback = function (response) {
@@ -153,7 +142,7 @@
       }
 
       document.getElementById("uploadProfilePicture").onchange = function () {
-                document.getElementById("formUploadFile").submit();
+          document.getElementById("formUploadFile").submit();
       };
 
   </script>

@@ -9,7 +9,8 @@ from .views import (
     buscar_viajes,
     mis_viajes,
     crear_viaje,
-    mi_perfil
+    mi_perfil,
+    upload_foto
 )
 
 from .ajax import (
@@ -44,6 +45,8 @@ urlpatterns = [
     path('miPerfil', mi_perfil, name='miPerfil'),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
+    path('uploadFoto', upload_foto, name='upload_foto'),
+
 
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
          name='lista_espera'),
