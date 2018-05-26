@@ -104,7 +104,9 @@
           var elementoCuenta = $('cuenta_' + id);
           successCallback = function (response) {
               console.log('success cuenta bancaria', response.error, response.msg);
-              $(elem.parentElement).fadeOut(800).remove();
+              if (!response.error){
+                $(elem.parentElement).fadeOut(800).remove();
+              }
           };
           errorCallback = function (response) {
               console.log('error cuenta bcancaria', response.msg, response.error);
