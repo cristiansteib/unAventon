@@ -34,6 +34,7 @@
                     <i id="error_update_credit_card" class="fa fa-times" style="display: none"></i>
                     Guardar cambios
                 </button>
+            {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_t_cuenta' idSuccess='ok_t_cuenta' %}
               </fieldset>
         </form>
       </div>
@@ -51,11 +52,11 @@
         successCallback = function (response) {
             loadUserData();
              if (!response.error) {
-                $("#check_update_credit_card").fadeIn(500);
-                $("#check_update_credit_card").fadeOut(500);
+                $("#check_update_credit_card").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto('ok_t_cuenta','Tarjeta de credito actualizada');
             }else {
-                $("#error_update_credit_card").fadeIn(500);
-                $("#error_update_credit_card").fadeOut(500);
+                $("#error_update_credit_card").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('error_t_cuenta',[response.msg]);
             }
             console.log('success tarjeta',response.data, response.error, response.msg);
         }
