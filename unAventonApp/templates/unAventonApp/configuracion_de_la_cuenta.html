@@ -24,20 +24,22 @@
     <hr>
 
     <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Autos</button>
-    <div id="autos" style="display: none"></div>
-    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
+      <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
     {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
-    <hr>
+      <hr>
+
+    <div id="autos" style="display: none"></div>
+
 
     <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Tarjetas</button>
+      <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
     <div id="tarjetas" style="display: none"></div>
-    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
 
     <hr>
 
     <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Cuentas Bancarias</button>
-     <div id="cuentas_bancarias" style="display: none"></div>
-    <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta</button>
+  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta</button>
+  <div id="cuentas_bancarias" style="display: none"></div>
 
 
     <script>

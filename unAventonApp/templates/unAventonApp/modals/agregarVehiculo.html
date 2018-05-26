@@ -9,7 +9,7 @@
         </button>
       </div>
       <div class="modal-body">
-           <form id="id_form_add_car" method="POST" >{% csrf_token %}
+           <form id="id_form_add_car" method="POST"  onsubmit="return agregar_auto();">{% csrf_token %}
               <fieldset>
 
                 <div class="form-row">
@@ -20,14 +20,14 @@
                     <input id="modal_entity" class="form-control" placeholder="modelo" type="text" name="modelo" required>
                   </div>
                     <div class="form-group col-md-6">
-                    <input id="modal_entity" class="form-control" placeholder="capacidad" type="text" name="capacidad" required>
+                    <input id="modal_entity" class="form-control" placeholder="capacidad" type="text" name="capacidad" pattern="[0-9]+" required>
                   </div>
                     <div class="form-group col-md-6">
                     <input id="modal_entity" class="form-control" placeholder="dominio" type="text" name="dominio" required>
                   </div>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button id="btn_agregar_auto" type="button" class="btn btn-primary" onclick="agregar_auto()">
+                <button id="btn_agregar_auto" type="submit" class="btn btn-primary">
                   <i id="check_create_add_car" class="fa fa-check" style="display: none"></i>
                   <i id="error_create_add_car" class="fa fa-times" style="display: none"></i>
                   Agregar
@@ -60,11 +60,11 @@
 
         };
         errorCallback = function (response) {
-            console.log('ohoh auto ',response.error,response.msg);
+            mostrarMensajeDeErrores('msgErrorAuto',['Error interno: '+ response.status]);
         };
 
         postJson(url,data,successCallback,errorCallback);
-
+        return false;
   }
 
     </script>
