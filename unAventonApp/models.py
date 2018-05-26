@@ -16,7 +16,7 @@ class Usuario(models.Model):
     apellido = models.CharField(max_length=15)
     fechaDeNacimiento = models.DateField(default=None, null=True)
     dni = models.CharField(max_length=15, default=None, null=True)
-    foto_de_perfil = models.ImageField(storage=fotoStorage, default='default-user.png')
+    foto_de_perfil = models.ImageField(storage=fotoStorage, default='assets/default-user.png')
 
 
     def asJsonMinified(self):
