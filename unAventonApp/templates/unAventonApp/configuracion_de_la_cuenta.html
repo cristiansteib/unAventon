@@ -3,19 +3,21 @@
 {% block title %}Configuracion de la cuenta{% endblock %}
 
 {% block content %}
-  {% include "unAventonApp/modals/ModificarUsuario.html" %}
-  {% include "unAventonApp/modals/agregarTarjeta.html" %}
-  {% include "unAventonApp/modals/agregarCuenta.html" %}
-  {% include "unAventonApp/modals/agregarVehiculo.html" %}
-  {% include "unAventonApp/modals/modificarTarjeta.html" %}
-  {% include "unAventonApp/modals/modificarCuenta.html" %}
-  {% include "unAventonApp/modals/ModificarAuto.html" %}
-  {% load static %}
+  <style>
 
+  .card-custom {
+    box-shadow: 4px 4px 5px 0px #888888a3;
+    margin: 15px 0 10px 0;
+  }
+  .card-perfil {
+    box-shadow: 3px 3px 9px 3px #888888a3;
+  }
+
+  </style>
   <div class="container">
     <div class="row" style="text-align: left">
       <div class="md-col-3">
-        <div class="card" style="width: 18rem;">
+        <div class="card card-perfil" style="width: 18rem;">
           <img class="card-img-top" src="{{ user.usuario.foto_de_perfil.url }}" alt="Card image cap">
           <div class="card-body">
 
@@ -37,7 +39,7 @@
       </form>
 
 
-      <div class="offset-md-1 md-col-6">
+      <div class="offset-md-1 md-col-8">
 
         <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Ver autos</button>
         <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
@@ -69,6 +71,15 @@
     </div>
 
 
+
+
+  {% include "unAventonApp/modals/ModificarUsuario.html" %}
+  {% include "unAventonApp/modals/agregarTarjeta.html" %}
+  {% include "unAventonApp/modals/agregarCuenta.html" %}
+  {% include "unAventonApp/modals/agregarVehiculo.html" %}
+  {% include "unAventonApp/modals/modificarTarjeta.html" %}
+  {% include "unAventonApp/modals/modificarCuenta.html" %}
+  {% include "unAventonApp/modals/ModificarAuto.html" %}
   <script>
 
 

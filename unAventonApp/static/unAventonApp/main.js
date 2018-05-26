@@ -77,17 +77,15 @@ function insert_credit_card_data(data) {
         $("#tarjetas").html('');
         for (i = 0; i < card.length; i++) {
             output = '';
-            output += '<div id="tarjeta_' + i + '"> Tarjeta ' + i;
-            output += '<p> Fecha de vencimiento:  ' + card[i].fecha_de_vencimiento + '</p>';
-            output += '<p> Fecha de creacion:  ' + card[i].fecha_de_creacion + '</p>';
-            output += '<p> Numero de tarjeta:  ' + card[i].numero + '</p>';
-            output += '<p> CCV:  ' + card[i].ccv + '</p>';
+            output += '<div class="card card-custom" id="tarjeta_' + i + '"> <div class="card-body">';
+            output += '<h6> fecha de vencimiento:  ' + card[i].fecha_de_vencimiento + '</h6>';
+            output += '<h6> fecha de creacion:  ' + card[i].fecha_de_creacion + '</h6>';
+            output += '<h6> numero de tarjeta:  ' + card[i].numero + '</h6>';
+            output += '<h6> CCV:  ' + card[i].ccv + '</h6>';
             output += '<input hidden name="id_tarjeta_' + i + '" value="' + card[i].id + '">';
-            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_tarjeta(' + i + ')">Editar datos</button>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_tarjeta(' + i + ')">Editar datos</button> ';
             output += '<button type="button" class="btn" onclick="eliminar_tarjeta_credito(' + card[i].id + ', this)">Borrar tarjeta</button>';
-            output += '<hr>';
-
-            output += '</div>';
+            output += '</div></div>';
             $("#tarjetas").append(output);
         }
     }
@@ -99,14 +97,13 @@ function insert_cuenta_bancaria_data(data) {
         $("#cuentas_bancarias").html('');
         for (i = 0; i < cuentas.length; i++) {
             output = '';
-            output += '<div id="cuenta_' + i + '"> Cuenta ' + i;
-            output += '<p> Entidad:  ' + cuentas[i].entidad + '</p>';
-            output += '<p> CBU:  ' + cuentas[i].cbu + '</p>';
+            output += '<div class="card card-custom" id="cuenta_' + i + '"><div class="card-body">';
+            output += '<h6> entidad:  ' + cuentas[i].entidad + '</h6>';
+            output += '<h6> CBU:  ' + cuentas[i].cbu + '</h6>';
             output += '<input hidden name="id_cuenta_' + i + '" value="' + cuentas[i].id + '">';
-            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_cuenta_bancaria(' + i + ')">Editar datos</button>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_cuenta_bancaria(' + i + ')">Editar datos</button> ';
             output += '<button type="button" class="btn"  onclick="eliminar_cuenta_bancaria(' + cuentas[i].id +', this)" >Borrar Cuenta</button>';
-            output += '<hr>';
-            output += '</div>';
+            output += '</div></div>';
 
             $("#cuentas_bancarias").append(output);
         }
@@ -121,16 +118,15 @@ function insert_vehicle_data(data) {
     if (autos !== null) {
         for (i = 0; i < autos.length; i++) {
             output = '';
-            output += '<div id="auto_' + i + '"> Auto ' + i;
+            output += '<div class="card card-custom" id="auto_' + i + '"><div class="card-body">';
             output += '<input hidden name="id_auto_' + i + '" value="' + autos[i].id + '">';
-            output += '<p> Marca:  ' + autos[i].marca + '</p>';
-            output += '<p> Modelo:  ' + autos[i].modelo + '</p>';
-            output += '<p> Capacidad:  ' + autos[i].capacidad + '</p>';
-            output += '<p> Dominio:  ' + autos[i].dominio + '</p>';
-            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_vehiculo(' + i + ')">Editar datos</button>';
+            output += '<h6> marca:  ' + autos[i].marca + '</h6>';
+            output += '<h6> modelo:  ' + autos[i].modelo + '</h6>';
+            output += '<h6> capacidad:  ' + autos[i].capacidad + '</h6>';
+            output += '<h6> dominio:  ' + autos[i].dominio + '</h6>';
+            output += '<button type="button" class="btn" onclick="trigger_modal_modificar_vehiculo(' + i + ')">Editar datos</button> ';
             output += '<button type="button" class="btn" onclick="eliminar_auto(' + autos[i].id + ', this)">Borrar auto</button>';
-            output += '<hr>';
-            output += '</div>';
+            output += '</div></div>';
 
             $("#autos").append(output);
         }
