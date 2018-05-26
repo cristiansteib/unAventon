@@ -13,28 +13,35 @@
 {% load static %}
 
   <div class="container">
-    <div class="row">
-      <div class="offset-md-2 col-10">
-      <div class="card card-block bg-faded">
-        <img src="{% static 'unAventonApp/default-user.png' %}" height="150px" width="150px" style="border-radius: 50%;">
-        <
-                <h5>{{ user.usuario.nombre }} {{ user.usuario.apellido }}</h5>
+    <div class="row" style="text-align: left">
+      <div class="col-2">
+        <div class="card" style="width: 160px;">
+          <img class="card-img-top" src="{% static 'unAventonApp/default-user.png' %}" height="auto" width="150px" alt="Card image cap">
+          <div class="card-body">
+            <a href="#" class="btn btn-primary">Cambiar foto</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <h6> <span id="fname"> </span> <span id="lname"> </span></h6>
+        <h6 id="email"></h6>
+        <h6 id="dni"></h6>
+        <h6 id="birthday"></h6>
+        <button type="button" class="btn btn-default" onclick="trigger_modal_modificar_usuario(datos)">Editar datos</button>
+      </div>
 
 
-      </div>
-      </div>
     </div>
+
   </div>
 
 
-    <button type="button" class="btn btn-primary" onclick="showElement('#user_data')">Cuenta de usuario</button>
     <div id="user_data" style="display: none">
         <p id="fname"></p>
         <p id="lname"></p>
         <p id="email"></p>
         <p id="dni"></p>
         <p id="birthday"></p>
-        <button type="button" class="btn" onclick="trigger_modal_modificar_usuario(datos)">Editar datos</button>
     </div>
 
     <hr>
