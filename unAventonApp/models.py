@@ -240,7 +240,8 @@ class Usuario(models.Model):
     def elimiar_tarjeta(self, unaTarjeta):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
         si lo tiene en uso no se podra eliminar"""
-
+        #NO SE TIENE QUE USAR ESTE METODO, problema many to many
+        return None
         if self.tiene_la_tarjeta_en_uso(unaTarjeta):
             return False
         else:

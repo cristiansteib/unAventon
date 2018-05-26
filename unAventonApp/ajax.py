@@ -193,7 +193,6 @@ def crear_tarjeta(request):
             fechaDeCreacion=r['fechaCreacion'],
         )
         tarjeta.usuario.add(request.user.usuario)
-        print(tarjeta.usuario.all())
         response['error'] = False
         response['msg'] = 'usuario agregado a esa tarjeta'
         return JsonResponse(response)
@@ -359,10 +358,10 @@ def borrar_tarjeta(request):
     response = {}
     try:
         r = request.POST
-        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'])
-        result = request.user.usuario.elimiar_tarjeta(tarjeta)
-        if not result:
+        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'], usuario=request.user.usuario)
+        if request.user.usuario.tiene_la_tarjeta_en_uso(tarjeta):
             raise PermissionError
+        tarjeta.usuario.remove(request.user.usuario)
         response['error'] = False
         response['msg'] = 'Tarjeta borrada'
         return JsonResponse(response)
