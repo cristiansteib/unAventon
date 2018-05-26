@@ -3,7 +3,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Agregar CBU</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Agregar cuenta bancaria</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -14,10 +14,10 @@
 
                 <div class="form-row">
                   <div class="form-group col-md-6">
-                    <input id="modal_cbu" class="form-control" placeholder="CBU" type="text" name="cbu" pattern="[0-9]{22}"  title="22 digitos" required>
+                    <input id="modal_cbu" class="form-control" placeholder="CBU" type="text" name="cbu" pattern="[0-9]{22}" maxlength="22" title="El cbu tiene que ser de 22 digitos" required>
                   </div>
                   <div class="form-group col-md-6">
-                    <input id="modal_entity" class="form-control" placeholder="Entidad" type="text" name="entity" pattern="[a-zA-Z\s]+" required>
+                    <input id="modal_entity" class="form-control" placeholder="Entidad" type="text" name="entity" pattern="[a-zA-Z\s]+"  title="Solo se aceptan letras y espacios"  required>
                   </div>
                 </div>
 
