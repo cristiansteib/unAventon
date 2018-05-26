@@ -107,7 +107,7 @@
                 </div>
 
               </div>
-            {% include 'unAventonApp/alerts/alertsGenericos.html' %}
+            {% include 'unAventonApp/alerts/alertsGenericos.html'  with idError='viajeEr_' idSuccess='viajeSucc_'  %}
               <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
             </fieldset>
           </form>
@@ -136,9 +136,9 @@
 
           successCallback = function (response) {
               if (response.creado === true) {
-                  mostrarMesajeCorrecto("Creado exitosamente");
+                  mostrarMesajeCorrecto('viajeSucc_',"Creado exitosamente");
               } else {
-                  mostrarMensajeDeErrores(response.error);
+                  mostrarMensajeDeErroresAnidados('viajeEr_',response.error);
               }
           };
 
@@ -163,6 +163,7 @@
           auto_seleccionado = $("#auto option:selected")[0];
           insertar_opciones_de_capacidad(auto_seleccionado.dataset.capacidad - 1);
       });
+
 
       function insertar_opciones_de_capacidad(start) {
           output = '';
