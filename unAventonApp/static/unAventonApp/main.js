@@ -63,11 +63,11 @@ function toTimeUnix(date, hour) {
 
 
 function insert_user_data(data_user) {
-    $("#fname").html("Nombre:  " + data_user.nombre);
-    $("#lname").html("Apellido:  " + data_user.apellido);
-    $("#dni").html("DNI:  " + data_user.dni);
-    $("#email").html("E-mail:  " + data_user.mail);
-    $("#birthday").html("Fecha de nacimiento:  " + data_user.fecha_de_nacimiento);
+    $("#fname").html(data_user.nombre);
+    $("#lname").html(data_user.apellido);
+    $("#dni").html("dni:  " + data_user.dni);
+    $("#email").html( data_user.mail);
+    $("#birthday").html("Cumplea&ntilde;os:  " + data_user.fecha_de_nacimiento);
 }
 
 function insert_credit_card_data(data) {

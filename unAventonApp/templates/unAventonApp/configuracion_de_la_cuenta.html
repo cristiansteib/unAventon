@@ -3,141 +3,157 @@
 {% block title %}Configuracion de la cuenta{% endblock %}
 
 {% block content %}
-    {% include "unAventonApp/modals/ModificarUsuario.html" %}
-    {% include "unAventonApp/modals/agregarTarjeta.html" %}
-    {% include "unAventonApp/modals/agregarCuenta.html" %}
-    {% include "unAventonApp/modals/agregarVehiculo.html" %}
-    {% include "unAventonApp/modals/modificarTarjeta.html" %}
-    {% include "unAventonApp/modals/modificarCuenta.html" %}
-    {% include "unAventonApp/modals/ModificarAuto.html" %}
-{% load static %}
+  {% include "unAventonApp/modals/ModificarUsuario.html" %}
+  {% include "unAventonApp/modals/agregarTarjeta.html" %}
+  {% include "unAventonApp/modals/agregarCuenta.html" %}
+  {% include "unAventonApp/modals/agregarVehiculo.html" %}
+  {% include "unAventonApp/modals/modificarTarjeta.html" %}
+  {% include "unAventonApp/modals/modificarCuenta.html" %}
+  {% include "unAventonApp/modals/ModificarAuto.html" %}
+  {% load static %}
 
-  <div class="container">
-    <div class="row">
-      <div class="offset-md-2 col-10">
-      <div class="card card-block bg-faded">
-        <img src="{% static 'unAventonApp/default-user.png' %}" height="150px" width="150px" style="border-radius: 50%;">
-        <
-                <h5>{{ user.usuario.nombre }} {{ user.usuario.apellido }}</h5>
-
-
+  <div class="container" xmlns="http://www.w3.org/1999/html">
+    <div class="row" style="text-align: left">
+      <div class="md-col-2">
+        <div class="card" style="width: 150px">
+          <img class="card-img-top" src="{% static 'unAventonApp/default-user.png' %}" height="auto" width="100%"
+               alt="Card image cap">
+          <div class="card-body">
+            <form id="formUploadFile" action="#">
+                <input style="display: none" type="file" id="uploadProfilePicture">
+            </form>
+            <a href="#" class="btn btn-primary" onclick="$('#uploadProfilePicture').click()">Cambiar foto</a>
+          </div>
+        </div>
       </div>
+
+
+      <div class=" md-col-2" style="margin: 0 0 0 20px">
+        <h6><span id="fname"> </span> <span id="lname"> </span></h6>
+        <h6 id="email"></h6>
+        <h6 id="dni"></h6>
+        <h6 id="birthday"></h6>
+        <button type="button" class="btn btn-default" onclick="trigger_modal_modificar_usuario(datos)">Editar datos
+        </button>
       </div>
+
+
     </div>
+
   </div>
 
 
-    <button type="button" class="btn btn-primary" onclick="showElement('#user_data')">Cuenta de usuario</button>
-    <div id="user_data" style="display: none">
-        <p id="fname"></p>
-        <p id="lname"></p>
-        <p id="email"></p>
-        <p id="dni"></p>
-        <p id="birthday"></p>
-        <button type="button" class="btn" onclick="trigger_modal_modificar_usuario(datos)">Editar datos</button>
-    </div>
+  <div id="user_data" style="display: none">
+    <p id="fname"></p>
+    <p id="lname"></p>
+    <p id="email"></p>
+    <p id="dni"></p>
+    <p id="birthday"></p>
+  </div>
 
-    <hr>
+  <hr>
 
-    <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Ver autos</button>
-      <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
-    {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
-      <hr>
+  <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Ver autos</button>
+  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
+  {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
+  <hr>
 
-    <div id="autos" style="display: none"></div>
+  <div id="autos" style="display: none"></div>
 
 
-    <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Ver tarjetas</button>
-      <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
-    <div id="tarjetas" style="display: none"></div>
+  <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Ver tarjetas</button>
+  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
+  <div id="tarjetas" style="display: none"></div>
 
-    <hr>
+  <hr>
 
-    <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Ver cuentas bancarias</button>
-  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta bancaria</button>
+  <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Ver cuentas bancarias
+  </button>
+  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta bancaria
+  </button>
   <div id="cuentas_bancarias" style="display: none"></div>
 
 
-    <script>
+  <script>
 
 
-    $(function(){
-        loadUserData();
-    });
+      $(function () {
+          loadUserData();
+      });
 
-    function loadUserData(){
-        var url = '{% url "datos_del_usuario" %}';
-        succesCallback = function (data) {
-            insert_user_data(data.usuario);
-            insert_credit_card_data(data);
-            insert_cuenta_bancaria_data(data);
-            insert_vehicle_data(data);
-            console.log(data);
-            datos = data;
-        };
-        errorCallback = function (data) {
-            console.log(data)
-        };
-        getJson(url,{},succesCallback,errorCallback);
-    }
-
-
-    function eliminar_cuenta_bancaria(id, elem) {
-        var url = '{% url "borrar_cuenta_bancaria" %}';
-        var data = {'id_cuenta': id};
-        var elementoCuenta = $('cuenta_' + id);
-        successCallback = function (response) {
-            console.log('success cuenta bancaria', response.error, response.msg);
-            if(!response.error){
-                $(elem.parentElement).fadeOut(800).then().remove();
-            }
-
-        };
-        errorCallback = function (response) {
-            console.log('error cuenta bcancaria', response.msg, response.error);
-        };
-        postJson(url, data, successCallback, errorCallback);
-    }
-
-     function eliminar_tarjeta_credito(id, elem) {
-        var url = '{% url "borrar_tarjeta" %}';
-        var data = {'id_tarjeta': id};
-        successCallback = function (response) {
-            loadUserData();
-            console.log('success tarjeta de credito', response.error, response.msg);
-            $(elem.parentElement).fadeOut(800).then().remove();
-        };
-        errorCallback = function (response) {
-            console.log('error tarjeta credito', response.msg, response.error);
-        }
-        postJson(url, data, successCallback, errorCallback);
-    }
-
-    function eliminar_auto(id, elem) {
-        var url = '{% url "borrar_auto" %}';
-        var data = {'id': id};
-        successCallback = function (response) {
-            loadUserData();
-            if (response.error){
-                mostrarMensajeDeErrores('error_b_auto',[response.msg]);
-            } else {
-            $(elem.parentElement).fadeOut(800).then().remove();
-            }
-            console.log('success auto', response.error, response.msg);
-        };
-        errorCallback = function (response) {
-
-            console.log('error auto', response.msg, response.error);
-        };
-        postJson(url, data, successCallback, errorCallback);
-    }
-
-    function showElement(id) {
-    $(id).toggle(300);
-    loadUserData();
-    }
+      function loadUserData() {
+          var url = '{% url "datos_del_usuario" %}';
+          succesCallback = function (data) {
+              insert_user_data(data.usuario);
+              insert_credit_card_data(data);
+              insert_cuenta_bancaria_data(data);
+              insert_vehicle_data(data);
+              console.log(data);
+              datos = data;
+          };
+          errorCallback = function (data) {
+              console.log(data)
+          };
+          getJson(url, {}, succesCallback, errorCallback);
+      }
 
 
-    </script>
+      function eliminar_cuenta_bancaria(id, elem) {
+          var url = '{% url "borrar_cuenta_bancaria" %}';
+          var data = {'id_cuenta': id};
+          var elementoCuenta = $('cuenta_' + id);
+          successCallback = function (response) {
+              console.log('success cuenta bancaria', response.error, response.msg);
+              $(elem.parentElement).fadeOut(800).remove();
+          };
+          errorCallback = function (response) {
+              console.log('error cuenta bcancaria', response.msg, response.error);
+          };
+          postJson(url, data, successCallback, errorCallback);
+      }
+
+      function eliminar_tarjeta_credito(id, elem) {
+          var url = '{% url "borrar_tarjeta" %}';
+          var data = {'id_tarjeta': id};
+          successCallback = function (response) {
+              loadUserData();
+              console.log('success tarjeta de credito', response.error, response.msg);
+              $(elem.parentElement).fadeOut(800).remove();
+          };
+          errorCallback = function (response) {
+              console.log('error tarjeta credito', response.msg, response.error);
+          }
+          postJson(url, data, successCallback, errorCallback);
+      }
+
+      function eliminar_auto(id, elem) {
+          var url = '{% url "borrar_auto" %}';
+          var data = {'id': id};
+          successCallback = function (response) {
+              loadUserData();
+              if (response.error) {
+                  mostrarMensajeDeErrores('error_b_auto', [response.msg]);
+              } else {
+                  $(elem.parentElement).fadeOut(800).remove();
+              }
+              console.log('success auto', response.error, response.msg);
+          };
+          errorCallback = function (response) {
+
+              console.log('error auto', response.msg, response.error);
+          };
+          postJson(url, data, successCallback, errorCallback);
+      }
+
+      function showElement(id) {
+          $(id).toggle(300);
+          loadUserData();
+      }
+
+      document.getElementById("uploadProfilePicture").onchange = function () {
+                document.getElementById("formUploadFile").submit();
+      };
+
+  </script>
 
 {% endblock %}
