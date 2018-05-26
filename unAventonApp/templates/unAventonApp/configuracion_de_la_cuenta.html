@@ -36,31 +36,37 @@
         <input style="display: none" type="file" name="files" id="uploadProfilePicture">
       </form>
 
+
+      <div class="offset-md-1 md-col-6">
+
+        <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Ver autos</button>
+        <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
+        {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
+        <hr>
+
+        <div id="autos" style="display: none"></div>
+
+
+        <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Ver tarjetas</button>
+        <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
+        <div id="tarjetas" style="display: none"></div>
+
+        <hr>
+
+        <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Ver cuentas bancarias
+        </button>
+        <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta bancaria
+        </button>
+        <div id="cuentas_bancarias" style="display: none"></div>
+
+
+
+
+      </div>
+
     </div>
 
-
-
-  <hr>
-
-  <button type="button" class="btn btn-primary" onclick="showElement('#autos')">Ver autos</button>
-  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_auto')">Agregar auto</button>
-  {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
-  <hr>
-
-  <div id="autos" style="display: none"></div>
-
-
-  <button type="button" class="btn btn-primary" onclick="showElement('#tarjetas')">Ver tarjetas</button>
-  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_tarjeta')">Agregar tarjeta</button>
-  <div id="tarjetas" style="display: none"></div>
-
-  <hr>
-
-  <button type="button" class="btn btn-primary" onclick="showElement('#cuentas_bancarias')">Ver cuentas bancarias
-  </button>
-  <button type="button" class="btn" onclick="trigger_modal_agregar('#id_agregar_cuenta')">Agregar cuenta bancaria
-  </button>
-  <div id="cuentas_bancarias" style="display: none"></div>
+    </div>
 
 
   <script>
