@@ -388,6 +388,30 @@ class Viaje(models.Model):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
 
+    def proxima_fecha_de_salida(self):
+        #TODO: CALCULAR LA FECHA
+        if self.se_repite.count('nun'):
+            return self.fecha_hora_salida
+        if self.se_repite.count('sem'):
+            # es mayor a hoy la fecha, asique retorno de una el valor
+            if timezone.now() < self.fecha_hora_salida:
+                return self.fecha_hora_salida
+
+
+            # la fecha es menor que al dia de hoy, asique se calcula
+            # cual es la siguiente fecha
+            else:
+
+                proxima_fecha = self.fecha_hora_salida
+                return proxima_fecha
+
+        if self.se_repite.count('dia'):
+            return self.fecha_hora_salida
+
+        return "no calulado"
+
+
+
     def buscar_viaje(self, origen, destino, fecha):
         pass
 
