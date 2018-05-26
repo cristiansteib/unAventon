@@ -374,14 +374,20 @@ def borrar_tarjeta(request):
 @login_required
 def borrar_cuenta_bancaria(request):
     response = {}
-    r = request.POST
     try:
+        r = request.POST
         cuenta = CuentaBancaria.objects.get(pk=r['id_cuenta'])
-        cuenta.delete()
+        result = request.user.usuario.elimiar_cuenta_bancaria(cuenta)
+        if not result:
+            raise PermissionError
         response['error'] = False
         response['msg'] = 'cuenta borrada'
-        return  JsonResponse(response)
-    except CuentaBancaria.DoesNotExist:
+        return JsonResponse(response)
+    except PermissionError:
         response['error'] = True
-        response['msg'] = 'No existe esa cuenta'
+        response['msg'] = 'La cuenta esta en uso en algun viaje'
+        return JsonResponse(response)
+    except:
+        response['error'] = True
+        response['msg'] = 'No se pudo borrar la cuenta'
         return JsonResponse(response)

@@ -214,6 +214,19 @@ class Usuario(models.Model):
     def get_viajes_unicos_activos(self):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
 
+    def tiene_la_cuenta_bancaria_en_uso(self, unaCuentaBancaria):
+        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria)) > 0
+
+    def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
+        """ primero verifico que el usuario no tenga en uso el vehiculo,
+        si lo tiene en uso no se podra eliminar"""
+
+        if self.tiene_la_cuenta_bancaria_en_uso(unaCuentaBancaria):
+            return False
+        else:
+            unaCuentaBancaria.delete()
+            return True
+
 
 class Tarjeta(models.Model):
     usuario = models.ManyToManyField(Usuario)
