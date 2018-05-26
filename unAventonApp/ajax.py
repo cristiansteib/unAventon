@@ -193,7 +193,6 @@ def crear_tarjeta(request):
             fechaDeCreacion=r['fechaCreacion'],
         )
         tarjeta.usuario.add(request.user.usuario)
-        print(tarjeta.usuario.all())
         response['error'] = False
         response['msg'] = 'usuario agregado a esa tarjeta'
         return JsonResponse(response)
@@ -357,16 +356,24 @@ def borrar_auto(request):
 @login_required
 def borrar_tarjeta(request):
     response = {}
-    r = request.POST
     try:
-        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'])
-        tarjeta.delete()
+        r = request.POST
+        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'], usuario=request.user.usuario)
+        if request.user.usuario.tiene_la_tarjeta_en_uso(tarjeta):
+            raise PermissionError
+        tarjeta.usuario.remove(request.user.usuario)
         response['error'] = False
-        response['msg'] = 'tarjeta borrada'
+        response['msg'] = 'Tarjeta borrada'
         return JsonResponse(response)
-    except CuentaBancaria.DoesNotExist:
+    except PermissionError:
         response['error'] = True
-        response['msg'] = 'No existe esa tarjeta'
+        response['msg'] = 'La tarjeta esta en uso en algun viaje'
+        return JsonResponse(response)
+    except:
+        import sys
+        print (sys.exc_info())
+        response['error'] = True
+        response['msg'] = 'No se pudo borrar la tarjeta'
         return JsonResponse(response)
 
 

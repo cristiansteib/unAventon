@@ -191,10 +191,10 @@ class Usuario(models.Model):
             return False
 
     def get_tarjetas_de_credito(self):
-        return Tarjeta.objects.filter(usuario=self)
+        return Tarjeta.objects.filter(usuario=self, esta_activo=True)
 
     def get_autos(self):
-        return Auto.objects.filter(usuario=self)
+        return Auto.objects.filter(usuario=self,esta_activo=True)
 
     def tiene_el_auto_en_uso(self, unAuto):
         return len(self.get_viajes_creados_activos().filter(auto=unAuto)) > 0
@@ -205,11 +205,11 @@ class Usuario(models.Model):
         if self.tiene_el_auto_en_uso(unAuto):
             return False
         else:
-            unAuto.delete()
+            unAuto.desactivar()
             return True
 
     def get_cuentas_bancarias(self):
-        return CuentaBancaria.objects.filter(usuario=self)
+        return CuentaBancaria.objects.filter(usuario=self, esta_activo=True)
 
     def set_nuevo_viaje(self, datos):
         json_info = Viaje.objects.create_viaje(usuario=self, **datos)
@@ -219,7 +219,7 @@ class Usuario(models.Model):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
 
     def tiene_la_cuenta_bancaria_en_uso(self, unaCuentaBancaria):
-        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria)) > 0
+        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria,cuenta_bancaria__esta_activo=True )) > 0
 
     def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
@@ -228,8 +228,27 @@ class Usuario(models.Model):
         if self.tiene_la_cuenta_bancaria_en_uso(unaCuentaBancaria):
             return False
         else:
-            unaCuentaBancaria.delete()
+            unaCuentaBancaria.desactivar()
             return True
+
+    def tiene_la_tarjeta_en_uso(self, unaTarjeta):
+        x1 = len(self.get_viajes_confirmados_como_copiloto().filter(tarjeta=unaTarjeta, viaje__activo=True))
+        x2 = len(self.get_viajes_en_espera_como_copiloto().filter(tarjeta=unaTarjeta, viaje__activo=True))
+        return x1 + x2 > 0
+
+
+    def elimiar_tarjeta(self, unaTarjeta):
+        """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
+        si lo tiene en uso no se podra eliminar"""
+        #NO SE TIENE QUE USAR ESTE METODO, problema many to many
+        return None
+        if self.tiene_la_tarjeta_en_uso(unaTarjeta):
+            return False
+        else:
+            unaTarjeta.desactivar()
+            return True
+
+
 
 
 class Tarjeta(models.Model):
@@ -238,6 +257,11 @@ class Tarjeta(models.Model):
     fechaDeVencimiento = models.CharField(max_length=5, default=None, null=True)
     fechaDeCreacion = models.CharField(max_length=5, default=None, null=True)
     ccv = models.IntegerField()
+    esta_activo = models.BooleanField(default=True)
+
+    def desactivar(self):
+        self.esta_activo = False
+        self.save()
 
     def asJson(self):
         return {
@@ -253,6 +277,11 @@ class CuentaBancaria(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     cbu = models.CharField(max_length=25, unique=True)
     entidad = models.CharField(max_length=20, default=None, null=True)
+    esta_activo = models.BooleanField(default=True)
+
+    def desactivar(self):
+        self.esta_activo = False
+        self.save()
 
     def __str__(self):
         return '{0} ---> {1}'.format(self.usuario, self.cbu)
@@ -271,6 +300,11 @@ class Auto(models.Model):
     marca = models.CharField(max_length=15)
     modelo = models.CharField(max_length=15)
     capacidad = models.IntegerField()
+    esta_activo = models.BooleanField(default=True)
+
+    def desactivar(self):
+        self.esta_activo = False
+        self.save()
 
     def __str__(self):
         return '{0} ---> {1}'.format(self.usuario, self.dominio)
@@ -487,6 +521,7 @@ class ViajeCopiloto(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)  # el copiloto
     viaje = models.ForeignKey(Viaje, on_delete=models.CASCADE)
     fecha_del_viaje = models.DateTimeField()
+    tarjeta = models.ForeignKey(Tarjeta, on_delete=models.DO_NOTHING, null=True)  # el copiloto
     estaConfirmado = models.NullBooleanField(default=None, null=True)
     fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now())
     calificacion_a_piloto = models.IntegerField(default=None, null=True)
