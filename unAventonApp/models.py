@@ -194,7 +194,7 @@ class Usuario(models.Model):
         return Tarjeta.objects.filter(usuario=self, esta_activo=True)
 
     def get_autos(self):
-        return Auto.objects.filter(usuario=self)
+        return Auto.objects.filter(usuario=self,esta_activo=True)
 
     def tiene_el_auto_en_uso(self, unAuto):
         return len(self.get_viajes_creados_activos().filter(auto=unAuto)) > 0
