@@ -100,6 +100,7 @@ def upload_foto(request):
         usuario = request.user.usuario
         file = request.FILES['files']
         if str(file).lower().endswith(('.jpg', '.png', '.jpeg', '.gif',)) == True:
+            usuario.foto_de_perfil.delete()
             usuario.foto_de_perfil = file
             usuario.save()
         return redirect('miPerfil')
