@@ -6,7 +6,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-3"></div>
-      <div class="col-sm-12 col-md-6">
+      <div class="col-sm-12 col-md-6 fondo">
         {% if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos %}
             <h4>Posee calificaciones pendientes por realizar</h4>
         {% elif get_autos and get_cuentas_bancarias %}
@@ -14,7 +14,7 @@
             {% csrf_token %}
             <fieldset>
               {% csrf_token %}
-              <div class="form-row">
+              <div class="form-row" style="margin-top:20px;">
                 <div class="form-group col-md-6">
                   <input class="form-control" placeholder="Origen" type="text" name="origen"
                          required>
@@ -58,7 +58,7 @@
               </div>
 
               <div class="form-row">
-                <div class="form-group col-md-7">
+                <div class="form-group col-md-12">
                   <select class="form-control" name="auto" id="auto" required>
                     <option value="" selected disabled>Selecciona un auto</option>
                     {% for auto in get_autos %}
@@ -75,7 +75,7 @@
               </div>
 
               <div class="form-row">
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-12">
                   <label for="capacidad_restante">Asientos disponibles</label>
                   <select class="form-control" name="capacidad_restante" id="capacidad_restante"
                           required>
@@ -108,7 +108,7 @@
 
               </div>
             {% include 'unAventonApp/alerts/alertsGenericos.html'  with idError='viajeEr_' idSuccess='viajeSucc_'  %}
-              <button type="submit" class="btn btn-lg btn-success btn-block">Registrar viaje</button>
+              <button type="submit" class="btn btn-lg btn-dark btn-block" style="margin-bottom: 20px;">Registrar viaje</button>
             </fieldset>
           </form>
         {% else %}
