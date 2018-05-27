@@ -388,6 +388,49 @@ class Viaje(models.Model):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
 
+    def proxima_fecha_de_salida(self):
+        import ast
+        se_repite = ast.literal_eval(self.se_repite)
+        # se_repite una variable tipo tupla ej: ('semanal',3)
+        # donde el elemento [1] es el weekday, solo valido para tipo semanal
+
+        if self.se_repite.count('nun'):
+            return self.fecha_hora_salida
+
+
+        """ Calculo para viajes semanales"""
+
+        if self.se_repite.count('sem'):
+            # es mayor a hoy la fecha, asique retorno de una el valor
+            if timezone.now() < self.fecha_hora_salida:
+                print('fecha actual proxima')
+
+                return self.fecha_hora_salida
+
+            else:
+                # todo: implementar esto
+                # puede ser que sea en este dia, y la hora sea menor
+                # si la hora es mayor, entonces es para la semana que viene, en ese weekday
+                print('calcular proxima')
+                proxima_fecha = self.fecha_hora_salida
+                return proxima_fecha
+
+        """ Calculo para viajes diarios"""
+
+        if self.se_repite.count('dia'):
+            # es mayor a hoy la fecha, asique retorno de una el valor
+            if timezone.now() < self.fecha_hora_salida:
+                return self.fecha_hora_salida
+            else:
+                # todo: implementar esto
+                # puede ser que sea en este dia, y la hora sea menor
+                # si la hora es mayor, entonces es para mañana
+                return self.fecha_hora_salida
+
+        return "no calulado, no se contemplo alguna condicion."
+
+
+
     def buscar_viaje(self, origen, destino, fecha):
         pass
 
