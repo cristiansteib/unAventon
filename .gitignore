@@ -108,6 +108,6 @@ local_settings.py
 
 .idea/*
 venv/*
-db.sqlite3
+coverageTestHTML/*
 
 
