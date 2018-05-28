@@ -59,6 +59,7 @@
         </button>
         <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_cuenta')"><i class="fas fa-university"></i> Agregar cuenta bancaria
         </button>
+        {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_cuentabanc' idSuccess='ok_b_cuentabanc' %}
         <div id="cuentas_bancarias" style="display: none"></div>
 
 
@@ -110,9 +111,13 @@
           var elementoCuenta = $('cuenta_' + id);
           successCallback = function (response) {
               console.log('success cuenta bancaria', response.error, response.msg);
-              if (!response.error) {
+
+              if (response.error) {
+                  mostrarMensajeDeErrores('error_b_cuentabanc', [response.msg]);
+              } else {
                   $(elem.parentElement).fadeOut(800).remove();
               }
+
           };
           errorCallback = function (response) {
               console.log('error cuenta bcancaria', response.msg, response.error);
@@ -130,7 +135,7 @@
           };
           errorCallback = function (response) {
               console.log('error tarjeta credito', response.msg, response.error);
-          }
+          };
           postJson(url, data, successCallback, errorCallback);
       }
 
