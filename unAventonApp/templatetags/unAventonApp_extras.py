@@ -17,3 +17,9 @@ def currentuser(value):
 @register.filter(is_safe=True)
 def lastupdate(value):
     return Git(settings.BASE_DIR).git('log','-1','--pretty=format:Last commit %ar')
+
+@register.filter(is_safe=True)
+def foto_de_perfil(usuarioId):
+    usuario = Usuario.objects.get(pk=usuarioId)
+    return str(usuario.foto_de_perfil.url)
+

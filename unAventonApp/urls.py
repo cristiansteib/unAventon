@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from .views import (
     index,
     login,
@@ -10,7 +10,8 @@ from .views import (
     mis_viajes,
     crear_viaje,
     mi_perfil,
-    upload_foto
+    upload_foto,
+detalle_de_publicacion_del_viaje
 )
 
 from .ajax import (
@@ -43,6 +44,7 @@ urlpatterns = [
     path('viajesInscriptos', viajes_inscriptos, name='viajes_inscriptos'),
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
     path('miPerfil', mi_perfil, name='miPerfil'),
+    re_path(r'^publicacion/(?P<id>[0-9]+)/viaje/$', detalle_de_publicacion_del_viaje),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
     path('uploadFoto', upload_foto, name='upload_foto'),

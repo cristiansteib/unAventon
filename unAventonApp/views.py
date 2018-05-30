@@ -83,7 +83,15 @@ def mis_viajes(request):
 
 @login_required
 def mi_perfil(request):
-    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
+    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')\
+
+
+@login_required
+def detalle_de_publicacion_del_viaje(request, id):
+    if request.method == 'POST':
+        pass
+
+    return render(request, 'unAventonApp/detalle_de_publicacion_viaje.html')
 
 @login_required
 def crear_viaje(request):

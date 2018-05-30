@@ -322,7 +322,6 @@ def actualizar_cuenta_bancaria(request):
 
     try:
         r = request.POST
-
         cuenta_a_actualizar = CuentaBancaria.objects.get(pk=r['id_cuenta'], usuario=request.user.usuario)
         try:
             otra_cuenta = CuentaBancaria.objects.get(cbu=r['cbu'], usuario=request.user.usuario)
@@ -350,7 +349,6 @@ def actualizar_cuenta_bancaria(request):
         print("el peor error ", sys.exc_info()[1])
 
     return JsonResponse(data)
-
 
 
 # ----------   Baja   ------------
