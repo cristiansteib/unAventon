@@ -202,11 +202,8 @@ class Usuario(models.Model):
     def elimiar_auto(self, unAuto):
         """ primero verifico que el usuario no tenga en uso el vehiculo,
         si lo tiene en uso no se podra eliminar"""
-        if self.tiene_el_auto_en_uso(unAuto):
-            return False
-        else:
-            unAuto.desactivar()
-            return True
+        unAuto.desactivar()
+        return True
 
     def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self, esta_activo=True)
@@ -219,7 +216,7 @@ class Usuario(models.Model):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
 
     def tiene_la_cuenta_bancaria_en_uso(self, unaCuentaBancaria):
-        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria,cuenta_bancaria__esta_activo=True )) > 0
+        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria, cuenta_bancaria__esta_activo=True )) > 0
 
     def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
@@ -240,8 +237,6 @@ class Usuario(models.Model):
     def elimiar_tarjeta(self, unaTarjeta):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
         si lo tiene en uso no se podra eliminar"""
-        #NO SE TIENE QUE USAR ESTE METODO, problema many to many
-        return None
         if self.tiene_la_tarjeta_en_uso(unaTarjeta):
             return False
         else:
@@ -252,15 +247,22 @@ class Usuario(models.Model):
 
 
 class Tarjeta(models.Model):
-    usuario = models.ManyToManyField(Usuario)
-    numero = models.CharField(max_length=16, unique=True)
+    class Meta:
+        unique_together = (('usuario', 'numero'),)
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True)
+    numero = models.CharField(max_length=16, null=True)
     fechaDeVencimiento = models.CharField(max_length=5, default=None, null=True)
     fechaDeCreacion = models.CharField(max_length=5, default=None, null=True)
-    ccv = models.IntegerField()
+    ccv = models.IntegerField(null=True)
     esta_activo = models.BooleanField(default=True)
 
     def desactivar(self):
         self.esta_activo = False
+        self.save()
+
+    def activar(self):
+        self.esta_activo = True
         self.save()
 
     def asJson(self):
@@ -274,13 +276,20 @@ class Tarjeta(models.Model):
 
 
 class CuentaBancaria(models.Model):
+    class Meta:
+        unique_together = (('usuario', 'cbu'),)
+
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    cbu = models.CharField(max_length=25, unique=True)
+    cbu = models.CharField(max_length=25)
     entidad = models.CharField(max_length=20, default=None, null=True)
     esta_activo = models.BooleanField(default=True)
 
     def desactivar(self):
         self.esta_activo = False
+        self.save()
+
+    def activar(self):
+        self.esta_activo = True
         self.save()
 
     def __str__(self):

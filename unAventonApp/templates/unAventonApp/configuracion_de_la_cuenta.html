@@ -25,6 +25,10 @@
             <h6 id="email"></h6>
             <h6 id="dni"></h6>
             <h6 id="birthday"></h6>
+            <h6 id="reputacionPiloto">+3</h6>
+            <h6 id="reputacionCoPiloto">-2</h6>
+            <a href="#"> Ver detalle de calificaciones</a>
+            <p> </p>
             <button type="button" class="btn btn-dark" onclick="trigger_modal_modificar_usuario(datos)"><i class="fas fa-address-card"></i> Editar
               datos
             </button>
@@ -106,6 +110,7 @@
 
 
       function eliminar_cuenta_bancaria(id, elem) {
+          if (!window.confirm("Esta seguro que desea borrar la cuenta bancaria? ")) return;
           var url = '{% url "borrar_cuenta_bancaria" %}';
           var data = {'id_cuenta': id};
           var elementoCuenta = $('cuenta_' + id);
@@ -126,6 +131,7 @@
       }
 
       function eliminar_tarjeta_credito(id, elem) {
+          if (!window.confirm("Esta seguro que desea borrar la tarjeta de credito? ")) return;
           var url = '{% url "borrar_tarjeta" %}';
           var data = {'id_tarjeta': id};
           successCallback = function (response) {
@@ -140,6 +146,7 @@
       }
 
       function eliminar_auto(id, elem) {
+          if (!window.confirm("Esta seguro que desea borrar el auto? ")) return;
           var url = '{% url "borrar_auto" %}';
           var data = {'id': id};
           successCallback = function (response) {
