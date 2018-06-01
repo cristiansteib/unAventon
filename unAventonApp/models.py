@@ -45,7 +45,6 @@ class Usuario(models.Model):
         # tiene auto
         # tiene tarjeta de credito
         # no tiene otro viaje en el mismo horario
-
         mensaje = {'error': []}
         # esta tratando de hacer un viaje de un dia anterior?
         if fecha_hora_salida < timezone.datetime.now():
@@ -57,7 +56,6 @@ class Usuario(models.Model):
             plural = "es" if pendientes > 1 else ""
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
-
         ##check que no este en uso en otro viaje en el mismo rango horario como piloto
         viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
 
@@ -65,12 +63,10 @@ class Usuario(models.Model):
         week_day = datetime.datetime.fromtimestamp(fecha_hora_salida.timestamp()).weekday()
         viajes_semanales = self.get_viajes_semanales_activos_para_weekday(week_day).filter(
             fecha_hora_salida__lte=fecha_hora_salida)
-
         viajes_mismo_dia = viajes_activos.filter(
             fecha_hora_salida__year=fecha_hora_salida.year,
             fecha_hora_salida__month=fecha_hora_salida.month,
             fecha_hora_salida__day=fecha_hora_salida.day)
-
         sp = self.__se_superpone_rango_horario
         if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(
                 fecha_hora_salida, duracion, viajes_semanales):
@@ -79,6 +75,7 @@ class Usuario(models.Model):
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
         viajes_como_copiloto = Viaje.objects.filter(
             pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+
         if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto):
             mensaje['error'].append(
                 {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
@@ -150,15 +147,15 @@ class Usuario(models.Model):
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         pass
 
-    def set_calificar_piloto(self, calificacion, aUsuario, enViaje, comentario):
+    def set_calificar_piloto(self, enViaje, calificacion, comentario):
         if self.es_copiloto_en_viaje(enViaje):
-            self.__calificar(calificacion, aUsuario, enViaje, comentario)
+            self.__calificar(calificacion, enViaje.auto.usuario , enViaje, comentario)
             return True
         return False
 
-    def set_calificar_copiloto(self, calificacion, aUsuario, enViaje, comentario):
-        if self.es_piloto_en_viaje(enViaje):
-            self.__calificar(calificacion, aUsuario, enViaje, comentario)
+    def set_calificar_copiloto(self , viaje=None, calificacion=None, copiloto=None, comentario=None):
+        if self.es_piloto_en_viaje(viaje):
+            self.__calificar(calificacion, copiloto, viaje, comentario)
             return True
         return False
 
@@ -233,7 +230,6 @@ class Usuario(models.Model):
         x2 = len(self.get_viajes_en_espera_como_copiloto().filter(tarjeta=unaTarjeta, viaje__activo=True))
         return x1 + x2 > 0
 
-
     def elimiar_tarjeta(self, unaTarjeta):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
         si lo tiene en uso no se podra eliminar"""
@@ -242,8 +238,6 @@ class Usuario(models.Model):
         else:
             unaTarjeta.desactivar()
             return True
-
-
 
 
 class Tarjeta(models.Model):

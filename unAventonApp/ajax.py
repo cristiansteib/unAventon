@@ -1,5 +1,5 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
@@ -414,3 +414,103 @@ def borrar_cuenta_bancaria(request):
         response['error'] = True
         response['msg'] = 'No se pudo borrar la cuenta'
         return JsonResponse(response)
+
+
+"""
+ 
+ Metodos necesarios para los viajes 
+ 
+ 
+"""
+
+
+def solicitar_ir_en_viaje(request):
+    data = {}
+    r = request.POST
+
+    id = r['viaje_id']
+
+    viaje = Viaje.objects.get(pk=id)
+    viaje.set_agregar_copiloto_en_lista_de_espera(request.user.usuario)
+    return JsonResponse(data)
+
+
+def lista_de_copilotos_confirmados(request):
+    data = {}
+    r = request.POST
+
+    id = r['viaje_id']
+
+    viaje = Viaje.objects.get(pk=id)
+    viaje.get_copilotos_en_lista_de_espera()
+    return JsonResponse(data)
+
+
+def lista_de_copitolos_en_espera(request):
+    data = {}
+    r = request.POST
+
+    id = r['viaje_id']
+
+    viaje = Viaje.objects.get(pk=id)
+
+    viaje.get_copilotos_en_lista_de_espera()
+    return JsonResponse(data)
+
+
+def confirmar_copiloto(request):
+    data = {}
+    r = request.POST
+
+    id_viaje = r['viaje_id']
+    id_copilto = r['copiloto_id']
+
+    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+
+    if viaje_copiloto.confirmarCopiloto():
+        # se confirmo
+        pass
+    else:
+        # no hay lugar
+        pass
+    return JsonResponse(data)
+
+
+def calificar_piloto(request):
+    data = {}
+    r = request.POST
+
+    id_viaje = r['viaje_id']
+    calificacion = r['calificacion']
+    comentario = r['comentario']
+
+    viaje = Viaje.objects.get(pk=id_viaje)
+
+    if request.user.usuario.set_calificar_piloto(viaje, calificacion, comentario):
+        # calif ok
+        pass
+    else:
+        # algun dato esta mal
+        pass
+    return JsonResponse(data)
+
+
+def calificar_copiloto(request):
+    data = {}
+    r = request.POST
+
+    id_viaje = r['viaje_id']
+    id_copiloto = r['copiloto_id']
+    calificacion = r['calificacion']
+    comentario = r['comentario']
+
+    viaje = Viaje.objects.get(pk=id_viaje)
+    copiloto = Usuario.objects.get(pk=id_copiloto)
+
+    if request.user.usuario.set_calificar_copiloto(viaje=viaje, calificacion=calificacion, copiloto=copiloto, comentario=comentario):
+        # calif ok
+        pass
+    else:
+        # algun dato esta mal
+        pass
+    return JsonResponse(data)
