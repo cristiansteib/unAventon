@@ -15,7 +15,7 @@ class AppTest(TestCase):
         self.usuario = Usuario.objects.create(
             user=user,
             nombre='Cristian',
-            fechaDeNacimiento=datetime.datetime(day=10, month=6, year=1992),
+            fechaDeNacimiento=timezone.datetime(day=10, month=6, year=1992),
             apellido='Steib',
             dni='36698267')
 
@@ -42,7 +42,7 @@ class AppTest(TestCase):
 
         datos_viaje = {
             'comentario': '',
-            'fecha_hora_salida': fecha_y_hora_de_salida,
+            'fecha_hora_salida': timezone.datetime.fromtimestamp(fecha_y_hora_de_salida.timestamp()),
             'duracion': 1,
             'origen': 'La Plata',
             'gasto_total': 1000,
@@ -61,7 +61,7 @@ class AppTest(TestCase):
 
         datos_viaje = {
             'comentario': '',
-            'fecha_hora_salida': fecha_y_hora_de_salida,
+            'fecha_hora_salida': timezone.datetime.fromtimestamp(fecha_y_hora_de_salida.timestamp()),
             'duracion': 1,
             'origen': 'La Plata',
             'gasto_total': 1000,
@@ -81,7 +81,7 @@ class AppTest(TestCase):
 
         datos_viaje = {
             'comentario': '',
-            'fecha_hora_salida': fecha_y_hora_de_salida,
+            'fecha_hora_salida': timezone.datetime.fromtimestamp(fecha_y_hora_de_salida.timestamp()),
             'duracion': 1,
             'origen': 'La Plata',
             'gasto_total': 1000,
@@ -108,7 +108,7 @@ class AppTest(TestCase):
 
         datos_viaje = {
             'comentario': '',
-            'fecha_hora_salida': fecha_y_hora_de_salida,
+            'fecha_hora_salida': timezone.datetime.fromtimestamp(fecha_y_hora_de_salida.timestamp()),
             'duracion': 1,
             'origen': 'La Plata',
             'gasto_total': 1000,
