@@ -7,6 +7,8 @@ from django.conf import settings
 import datetime
 from collections import namedtuple
 from django.core.files.storage import FileSystemStorage
+from unAventon.unAventonApp import utils
+import datetime
 
 fotoStorage = FileSystemStorage(location='media/')
 
@@ -82,35 +84,31 @@ class Usuario(models.Model):
 
         return True if not len(mensaje['error']) else False, mensaje
 
+    def se_superpone_algun_viaje_como_copiloto(self):
+        pass
+
+    def se_superpone_algun_viaje_como_piloto(self):
+        pass
+
+    def se_superpone_algun_viaje(self):
+        return self.set_calificar_copiloto() or self.se_superpone_algun_viaje_como_piloto()
+
     @staticmethod
-    def __se_superpone_rango_horario(fecha_hora_salida, duracion, viajes):
+    def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):
         duracion = int(duracion)
 
-        def get_overlap(lowest_value, start1, end1, start2, end2):
-            Range = namedtuple('Range', ['start', 'end'])
-            r1 = Range(start=start1, end=end1)
-            r2 = Range(start=start2, end=end2)
-            latest_start = max(r1.start, r2.start)
-            earliest_end = min(r1.end, r2.end)
-            delta = (earliest_end - latest_start)
-            return max(lowest_value, delta)
 
-        def sumar_tiempo(hora, minutos, incremento):
-            delta = datetime.timedelta(hours=incremento)
-            hora_final = datetime.datetime(1, 1, 1, hora, minutos) + delta
-            return hora_final
-
-        import datetime
-        fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_salida.hour, fecha_hora_salida.minute)
-        fecha_hora_salida_end = sumar_tiempo(fecha_hora_salida.hour, fecha_hora_salida.minute, duracion)
+        fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_inicio.hour, fecha_hora_inicio.minute)
+        fecha_hora_salida_end = utils.sumar_horas(fecha_hora_inicio.hour, fecha_hora_inicio.minute, duracion, 0)
         slow_value = datetime.timedelta(0, 0)
-        for viaje in viajes:
+
+        for viaje in viajesCollection:
             viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour,
                                                      viaje.fecha_hora_salida.minute)
-            viaje_datetime_end = sumar_tiempo(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute,
-                                              viaje.duracion)
+            viaje_datetime_end = utils.sumar_horas(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute,
+                                              viaje.duracion, 0)
 
-            overlap = get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start,
+            overlap = utils.get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start,
                                   fecha_hora_salida_end)
             if overlap > datetime.timedelta(0, 0):
                 return True
