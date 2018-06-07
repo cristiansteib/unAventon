@@ -590,8 +590,11 @@ class ViajeCopiloto(models.Model):
 
     def cancelarCopiloto(self):
         """ el copiloto estuvo aceptado, entonces se cancela y se decrementa un punto"""
-        # todo: descontar punto en la calificacion, si esta habilitado
-        pass
+        self.estaConfirmado = False
+        self.calificacion_a_piloto = -1
+        self.calificacion_a_piloto_mensaje = "Penalidad por cancelacion a un copiloto confirmado."
+        self.save()
+
 
     def desconfirmarCopiloto(self):
         if self.viaje.hay_lugar():

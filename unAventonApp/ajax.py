@@ -468,17 +468,20 @@ def lista_de_copitolos_en_espera(request):
 def confirmar_copiloto(request):
     data = {}
     r = request.POST
-
     id_viaje = r['viaje_id']
     id_copilto = r['copiloto_id']
 
-    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
-
-    if viaje_copiloto.confirmarCopiloto():
-        # se confirmo
-        pass
+    usuario = Usuario.objects.get(pk=id_copilto)
+    if not usuario.se_superpone_algun_viaje():
+        viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+        if viaje_copiloto.confirmarCopiloto():
+            # se confirmo
+            pass
+        else:
+            # no hay lugar
+            pass
     else:
-        # no hay lugar
+        #se superpone con algun viaje
         pass
     return JsonResponse(data)
 
@@ -489,6 +492,15 @@ def rechazar_copiloto(request):
     id_copilto = r['copiloto_id']
     viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
     viaje_copiloto.rechazarCopiloto()
+    return JsonResponse(data)
+
+def cancelar_copiloto(request):
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    id_copilto = r['copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    viaje_copiloto.cancelarCopiloto()
     return JsonResponse(data)
 
 
