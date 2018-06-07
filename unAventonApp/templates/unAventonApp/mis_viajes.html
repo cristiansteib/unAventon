@@ -31,11 +31,11 @@
                 <li> Gasto total: ${{ viaje.gasto_total }}</li>
                 <li> Monto a retener por la aplicacion: ${{ viaje.get_comision_a_cobrar }}</li>
                 <li> Total depositado en cuenta: ${{ viaje.get_total_a_reintegrar_al_conductor }}</li>
-                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
-                <li> Copilotos en espera: {{ viaje.get_count_copilotos_confirmados }}</li>
+                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados  }}</li>
+                <li> Copilotos en espera: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
                 <li> Lugares disponibles: {{ viaje.get_asientos_disponibles }}</li>
                 <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})" disabled title="No implementado">Lista de solicitudes
+                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})" title="No implementado">Lista de solicitudes
                   pendientes
                 </button>
                 <button type="button" class="btn"
@@ -54,4 +54,15 @@
     {% endfor %}
 
   </div>
+  {% include 'unAventonApp/modals/listaPasajerosSinConfirmar.html' %}
+
+  <script>
+  var viaje_seleccionado = null;
+
+  function openModalForViajeId(idSelector, idViaje) {
+      $(idSelector).modal('show');
+      viaje_seleccionado = idViaje;
+  }
+
+  </script>
 {% endblock %}

@@ -534,13 +534,13 @@ class Viaje(models.Model):
         return True if self.get_asientos_disponibles() else False
 
     def get_copilotos_en_lista_de_espera(self):
-        return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False)
+        return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None)
 
     def get_copilotos_en_lista_de_espera_siguiente_fecha(self):
         pass
 
     def get_count_copilotos_en_lista_de_espera(self):
-        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False))
+        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None))
 
     def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
         pass
@@ -574,12 +574,24 @@ class ViajeCopiloto(models.Model):
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True)
 
     def confirmarCopiloto(self):
+        #todo: chequear que no este en otro viaje
         if self.viaje.hay_lugar():
             self.estaConfirmado = True
             self.save()
             return True
         else:
             return False
+
+    def rechazarCopiloto(self):
+        """ se supone que el copiloto nunca estuvo confirmado, simplemente rechaza
+        la solicitud"""
+        self.estaConfirmado = False
+        self.save()
+
+    def cancelarCopiloto(self):
+        """ el copiloto estuvo aceptado, entonces se cancela y se decrementa un punto"""
+        # todo: descontar punto en la calificacion, si esta habilitado
+        pass
 
     def desconfirmarCopiloto(self):
         if self.viaje.hay_lugar():
