@@ -59,6 +59,25 @@ class Usuario(models.Model):
             plural = "es" if pendientes > 1 else ""
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
+
+
+        if (self.se_superpone_algun_viaje_como_piloto(fecha_hora_salida, duracion)):
+            mensaje['error'].append(
+                {102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
+
+        if (self.se_superpone_algun_viaje_como_copiloto(fecha_hora_salida, duracion)):
+            mensaje['error'].append(
+                {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
+
+        return True if not len(mensaje['error']) else False, mensaje
+
+    def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
+        ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
+        viajes_como_copiloto = Viaje.objects.filter(
+            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+        return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
+
+    def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como piloto
         viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
 
@@ -71,28 +90,12 @@ class Usuario(models.Model):
             fecha_hora_salida__month=fecha_hora_salida.month,
             fecha_hora_salida__day=fecha_hora_salida.day)
         sp = self.__se_superpone_rango_horario
-        if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(
-                fecha_hora_salida, duracion, viajes_semanales):
-            mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
+        return sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion,viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales)
 
-        ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
-        viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
-
-        if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto):
-            mensaje['error'].append(
-                {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
-
-        return True if not len(mensaje['error']) else False, mensaje
-
-    def se_superpone_algun_viaje_como_copiloto(self):
-        pass
-
-    def se_superpone_algun_viaje_como_piloto(self):
-        pass
-
-    def se_superpone_algun_viaje(self):
-        return self.se_superpone_algun_viaje_como_copiloto() or self.se_superpone_algun_viaje_como_piloto()
+    def se_superpone_algun_viaje(self, fecha_hora_salida, duracion):
+        return self.se_superpone_algun_viaje_como_copiloto(fecha_hora_salida, duracion) \
+               or \
+               self.se_superpone_algun_viaje_como_piloto(fecha_hora_salida, duracion)
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):

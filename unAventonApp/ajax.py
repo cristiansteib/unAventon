@@ -431,7 +431,6 @@ def solicitar_ir_en_viaje(request):
     #r = request.POST
     r = request.GET
     id = r['viaje_id']
-    viaje = Viaje.objects.get(pk=id)
 
     try:
         '''Reglas de negocio para inscribirse a un viaje
@@ -439,6 +438,8 @@ def solicitar_ir_en_viaje(request):
             - no deber calif de mas de 30 dias
             - no estar en otro viaje en el mismo horario 
         '''
+        viaje = Viaje.objects.get(pk=id)
+
         if not (request.user.usuario.get_tarjetas_de_credito()):
             data['error'] = True
             data['msg'] = 'No tiene tarjeta, registre una para inscribirse'
@@ -449,13 +450,11 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Debe calificaciones de mas de 30 dias'
             return JsonResponse(data)
 
-        # TODO implementar se_superpone_algun_viaje
-        '''
-        if request.user.usuario.se_superpone_algun_viaje():
+        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida,viaje.duracion):
             data['error'] = True
             data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
             return JsonResponse(data)
-        '''
+
         fecha_salida = viaje.proxima_fecha_de_salida() #o recibirlo via request para un dia particular???
         rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
         data['error'] = False
@@ -468,7 +467,6 @@ def solicitar_ir_en_viaje(request):
     except:
         print('a la mierda todo')
 
-
 def lista_de_copilotos_confirmados(request):
     data = {}
     r = request.POST
@@ -478,7 +476,6 @@ def lista_de_copilotos_confirmados(request):
     viaje = Viaje.objects.get(pk=id)
     viaje.get_copilotos_en_lista_de_espera()
     return JsonResponse(data)
-
 
 def lista_de_copitolos_en_espera(request):
     data = {}
@@ -495,7 +492,6 @@ def lista_de_copitolos_en_espera(request):
         data.setdefault('data', []).append(current_data)
 
     return JsonResponse(data)
-
 
 def confirmar_copiloto(request):
     data = {}
@@ -534,7 +530,6 @@ def cancelar_copiloto(request):
     viaje_copiloto.cancelarCopiloto()
     return JsonResponse(data)
 
-
 def calificar_piloto(request):
     data = {}
     r = request.POST
@@ -552,7 +547,6 @@ def calificar_piloto(request):
         # algun dato esta mal
         pass
     return JsonResponse(data)
-
 
 def calificar_copiloto(request):
     data = {}
