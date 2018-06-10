@@ -7,8 +7,9 @@ from django.conf import settings
 import datetime
 from collections import namedtuple
 from django.core.files.storage import FileSystemStorage
-from unAventon.unAventonApp import utils
+from . import utils
 import datetime
+
 
 fotoStorage = FileSystemStorage(location='media/')
 
@@ -91,7 +92,7 @@ class Usuario(models.Model):
         pass
 
     def se_superpone_algun_viaje(self):
-        return self.set_calificar_copiloto() or self.se_superpone_algun_viaje_como_piloto()
+        return self.se_superpone_algun_viaje_como_copiloto() or self.se_superpone_algun_viaje_como_piloto()
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):
@@ -405,15 +406,16 @@ class Viaje(models.Model):
             # es mayor a hoy la fecha, asique retorno de una el valor
             if timezone.now() < self.fecha_hora_salida:
                 print('fecha actual proxima')
-
                 return self.fecha_hora_salida
 
             else:
-                # todo: implementar esto
+                # todo: checkear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para la semana que viene, en ese weekday
-                print('calcular proxima')
-                proxima_fecha = self.fecha_hora_salida
+                print('calculo la proxima')
+                diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
+                multiplicador_de_semanas = (diferencia_en_dias // 7) + 1
+                proxima_fecha = self.fecha_hora_salida + timezone.timedelta(weeks=multiplicador_de_semanas)
                 return proxima_fecha
 
         """ Calculo para viajes diarios"""
@@ -423,10 +425,13 @@ class Viaje(models.Model):
             if timezone.now() < self.fecha_hora_salida:
                 return self.fecha_hora_salida
             else:
-                # todo: implementar esto
+                # todo: chekear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para mañana
-                return self.fecha_hora_salida
+                diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
+                multiplicador_de_dias = (diferencia_en_dias) + 1
+                proxima_fecha = self.fecha_hora_salida + timezone.timedelta(days=multiplicador_de_dias)
+                return proxima_fecha
 
         return "no calulado, no se contemplo alguna condicion."
 
@@ -545,10 +550,11 @@ class Viaje(models.Model):
     def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
         pass
 
-    def set_agregar_copiloto_en_lista_de_espera(self, usuario):
+    def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha):
         return ViajeCopiloto.objects.create(
             viaje=self,
-            usuario=usuario
+            usuario=usuario,
+            fecha_del_viaje=fecha
         )
 
     def get_conversacion_publica(self):

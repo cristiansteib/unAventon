@@ -428,13 +428,45 @@ def borrar_cuenta_bancaria(request):
 
 def solicitar_ir_en_viaje(request):
     data = {}
-    r = request.POST
-
+    #r = request.POST
+    r = request.GET
     id = r['viaje_id']
-
     viaje = Viaje.objects.get(pk=id)
-    viaje.set_agregar_copiloto_en_lista_de_espera(request.user.usuario)
-    return JsonResponse(data)
+
+    try:
+        '''Reglas de negocio para inscribirse a un viaje
+            - tener tarjeta
+            - no deber calif de mas de 30 dias
+            - no estar en otro viaje en el mismo horario 
+        '''
+        if not (request.user.usuario.get_tarjetas_de_credito()):
+            data['error'] = True
+            data['msg'] = 'No tiene tarjeta, registre una para inscribirse'
+            return JsonResponse(data)
+
+        if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
+            data['error'] = True
+            data['msg'] = 'Debe calificaciones de mas de 30 dias'
+            return JsonResponse(data)
+
+        # TODO implementar se_superpone_algun_viaje
+        '''
+        if request.user.usuario.se_superpone_algun_viaje():
+            data['error'] = True
+            data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
+            return JsonResponse(data)
+        '''
+        fecha_salida = viaje.proxima_fecha_de_salida() #o recibirlo via request para un dia particular???
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
+        data['error'] = False
+        data['msg'] = str(rta)
+        return JsonResponse(data)
+    except IntegrityError:
+        data['error'] = True
+        data['msg'] = 'Ya envio solicitud'
+        return JsonResponse(data)
+    except:
+        print('a la mierda todo')
 
 
 def lista_de_copilotos_confirmados(request):
@@ -470,7 +502,6 @@ def confirmar_copiloto(request):
     r = request.POST
     id_viaje = r['viaje_id']
     id_copilto = r['copiloto_id']
-
     usuario = Usuario.objects.get(pk=id_copilto)
     if not usuario.se_superpone_algun_viaje():
         viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
