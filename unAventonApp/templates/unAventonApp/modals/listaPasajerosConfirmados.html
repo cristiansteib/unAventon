@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal_solicitudesDeCopilotos" tabindex="-1" role="dialog"
+<div class="modal fade" id="modal_CopilotosConfirmados" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -28,24 +28,13 @@
   </div>
 </div>
 <script>
-    function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
-        console.log('confirmar');
-        var data = {
-            viaje_id:idViaje,
-            copiloto_id:idCopiloto,
-            viaje_copiloto_id: idViajeCopiloto
-        };
-        postJson('{% url 'confirmar_copiloto' %}',data);
-        //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
-    }
-
-    function rechazarCopiloto(idCopiloto, idViaje) {
+    function cancelarCopiloto(idCopiloto, viajeCopiloto) {
         console.log('rechazar');
         var data = {
             viaje_id:idViaje,
             copiloto_id:idCopiloto
         };
-        postJson('{% url 'rechazar_copiloto' %}',data);
+        postJson('{% url 'cancelar_copiloto' %}',data);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 

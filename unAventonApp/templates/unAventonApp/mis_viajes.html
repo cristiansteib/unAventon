@@ -35,13 +35,9 @@
                 <li> Copilotos en espera: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
                 <li> Lugares disponibles: {{ viaje.get_asientos_disponibles }}</li>
                 <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})" title="No implementado">Lista de solicitudes
-                  pendientes
-                </button>
+                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})">Lista de solicitudes pendientes          </button>
                 <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" disabled title="No implementado">Lista de copilotos
-                  confirmados
-                </button>
+                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" >Lista de copilotos    confirmados           </button>
                 <button type="button" class="btn btn-danger"
                         onclick="openModalForViajeId('#modal_deleteViaje',{{ viaje.pk }})" disabled
                         title="No implementado">Eliminar viaje
@@ -55,6 +51,7 @@
 
   </div>
   {% include 'unAventonApp/modals/listaPasajerosSinConfirmar.html' %}
+  {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
 
   <script>
   var viaje_seleccionado = null;
@@ -63,6 +60,7 @@
       $(idSelector).modal('show');
       viaje_seleccionado = idViaje;
   }
+
 
   </script>
 {% endblock %}
