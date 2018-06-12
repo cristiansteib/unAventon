@@ -40,7 +40,7 @@
               <div class="form-row">
 
                 <div id="fecha" class="form-group col-md-6">
-                  <label for="fecha"><b>Hora de salida</b></label>
+                  <label for="fecha"><b>Fecha de salida</b></label>
                   <input id="fecha" class="form-control" placeholder="Fecha" type="date" name="fecha" required>
                 </div>
 
@@ -54,7 +54,7 @@
 
               <div class="form-group">
                 <label for="cuenta"><b>Seleccione cuenta</b></label>
-                <select id="cuenta" class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
+                <select id="cuenta" class="form-control" name="cuenta_bancaria" required>
 
                   <option value="" selected disabled>Selecciona una cuenta bancaria</option>
                   {% for cuenta in get_cuentas_bancarias %}
@@ -131,20 +131,19 @@
         $('#destino').val(viajeData.destino);
         $('#duracion').val(viajeData.duracion);
         $('#costo').val(viajeData.gasto_total);
-        fechaHora = new Date(viajeData.fecha_hora_salida)
-        $('#fecha').val(fechaHora)
+        $('#fecha');
         $('#hora');
-        $('#cuenta select').val(viajeData.cuenta_bancaria);
+        $('#cuenta').val(viajeData.cuenta_bancaria);
         $("#autoEdit select").val(viajeData.auto);
         actualizar_capacidad_del_auto_seleccionado();
-        if (viajeData.se_repite.indexOf('nunca')){
-            $('#repeticion select').val('nunca');
+        if (viajeData.se_repite.indexOf('nunca') >0 ) {
+            $('#repeticion').val('nunca');
         }
-        else if (viajeData.se_repite.indexOf('diario')){
-            $('#repeticion select').val('diario');
+        else if (viajeData.se_repite.indexOf('diario') > 0){
+            $('#repeticion').val('diario');
         }
         else{
-            $('#repeticion select').val('semanal');
+            $('#repeticion').val('semanal');
         }
 
         $('#comentario').val(viajeData.comentario);
