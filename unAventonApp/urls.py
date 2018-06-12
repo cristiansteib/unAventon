@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,re_path
 from .views import (
     index,
     login,
@@ -10,27 +10,11 @@ from .views import (
     mis_viajes,
     crear_viaje,
     mi_perfil,
-    upload_foto
+    upload_foto,
+detalle_de_publicacion_del_viaje
 )
 
-from .ajax import (
-    lista_de_espera_de_copilotos_para_un_viaje,
-    viajes_activos,
-    lista_de_calificaciones_pendientes_a_copilotos,
-    lista_de_calificaciones_pendientes_a_pilotos,
-    datos_relacionados_al_usuario,
-    crear_viaje_ajax,
-    actualizar_datos_perfil,
-    crear_cuenta_bancaria,
-    crear_tarjeta,
-    actualizar_tarjeta,
-    actualizar_cuenta_bancaria,
-    crear_auto,
-    borrar_auto,
-    borrar_cuenta_bancaria,
-    borrar_tarjeta,
-    actualizar_auto
-)
+from .ajax import *
 
 name = 'unAventonApp'
 
@@ -43,6 +27,7 @@ urlpatterns = [
     path('viajesInscriptos', viajes_inscriptos, name='viajes_inscriptos'),
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
     path('miPerfil', mi_perfil, name='miPerfil'),
+    re_path(r'^publicacion/(?P<id>[0-9]+)/viaje/$', detalle_de_publicacion_del_viaje),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
     path('uploadFoto', upload_foto, name='upload_foto'),
@@ -69,5 +54,20 @@ urlpatterns = [
     path('ajax/deleteCar', borrar_auto, name='borrar_auto'),
     path('ajax/deleteBankAccount', borrar_cuenta_bancaria, name='borrar_cuenta_bancaria'),
     path('ajax/deleteCreditCard', borrar_tarjeta, name='borrar_tarjeta'),
+
+
+    path('ajax/getListaCalificacionesPendientesCopilotos', lista_de_calificaciones_pendientes_a_copilotos, name='calificaciones_pendients_cop'),
+    path('ajax/getListaCalificacionesPendientesPilotos', lista_de_calificaciones_pendientes_a_pilotos, name='calificaciones_pendients_pi'),
+    path('ajax/getListaCopilotosConfirmados', lista_de_copilotos_confirmados, name='copilotos_confirmados'),
+    path('ajax/getListaCopilotosEnEspera', lista_de_copitolos_en_espera, name='copilotos_en_espera'),
+    path('ajax/solicitarIrEnViaje', solicitar_ir_en_viaje, name='solicitar_ir_a_viaje'),
+    path('ajax/confirmarCopiloto', confirmar_copiloto, name='confirmar_copiloto'),
+    path('ajax/rechazarCopiloto', rechazar_copiloto, name='rechazar_copiloto'),
+    path('ajax/cancelarCopiloto', cancelar_copiloto, name='cancelar_copiloto'),
+
+    path('ajax/eliminarViaje', elimiar_viaje, name='eliminar_viaje'),
+    path('ajax/viajeDatos', datos_del_viaje, name='datos_viaje'),
+
+
 
 ]

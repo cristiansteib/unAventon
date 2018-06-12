@@ -1,5 +1,6 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
@@ -7,6 +8,9 @@ import json
 from django.utils import timezone
 import datetime
 from django.db import IntegrityError
+from django.contrib.auth import logout
+
+from django.forms.models import model_to_dict
 
 
 def neededParams(method_list, *args):
@@ -85,8 +89,8 @@ def datos_relacionados_al_usuario(request):
     try:
         usuario = Usuario.objects.get(user=request.user)
         data['usuario'] = usuario.asJson()
-        #data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
-        #data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+        # data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
+        # data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
         viajes_creados_activos = usuario.get_viajes_creados_activos()
         data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
@@ -103,7 +107,7 @@ def datos_relacionados_al_usuario(request):
     return JsonResponse(data)
 
 
-#----------   Alta   --------------
+# ----------   Alta   --------------
 
 @login_required
 def crear_viaje_ajax(request):
@@ -142,16 +146,20 @@ def crear_auto(request):
     }
     r = request.POST
     if int(r['capacidad']) > 1:
-        auto = Auto.objects.create(
-            usuario=request.user.usuario,
-            marca=r['marca'],
-            modelo=r['modelo'],
-            capacidad=r['capacidad'],
-            dominio=r['dominio'].upper()
-        )
-        response['data'] = auto.asJson()
-        response['error'] = False
-        response['msg'] = 'auto agregado'
+        try:
+            auto = Auto.objects.create(
+                usuario=request.user.usuario,
+                marca=r['marca'],
+                modelo=r['modelo'],
+                capacidad=r['capacidad'],
+                dominio=r['dominio'].upper()
+            )
+            response['data'] = auto.asJson()
+            response['error'] = False
+            response['msg'] = 'auto agregado'
+        except IntegrityError:
+            response['error'] = True
+            response['msg'] = 'Ya tenes este auto registrado'
     else:
         response['msg'] = 'La capacidad debe ser mayor o igual a 2'
     return JsonResponse(response)
@@ -159,68 +167,71 @@ def crear_auto(request):
 
 @login_required
 def crear_cuenta_bancaria(request):
-    response = {}
+    response = {
+        'error': True
+    }
     r = request.POST
-
     try:
-        CuentaBancaria.objects.get(
-            cbu=r['cbu'],
-        )
-        response['error'] = True
-        response['msg'] = 'Esa cuenta ya esta en uso'
-        return JsonResponse(response)
-    except CuentaBancaria.DoesNotExist:
         cuenta = CuentaBancaria.objects.create(
             usuario=request.user.usuario,
             cbu=r['cbu'],
             entidad=r['entity']
         )
-        response['error'] = False
-        response['msg'] = 'Creado ok'
-        response['data'] = cuenta.asJson()
-        return JsonResponse(response)
+
+    except IntegrityError:
+        cuenta = CuentaBancaria.objects.get(usuario=request.user.usuario, cbu=r['cbu'])
+        if cuenta.esta_activo:
+            response['msg'] = 'Ya tenes esta cuenta registrada'
+            return JsonResponse(response)
+
+    cuenta.activar()
+    cuenta.cbu = r['cbu']
+    cuenta.entidad = r['entity']
+    cuenta.save()
+
+    response['data'] = cuenta.asJson()
+    response['error'] = False
+    response['msg'] = 'Cuenta creada'
+
+    return JsonResponse(response)
 
 
 @login_required
 def crear_tarjeta(request):
-    response = {}
+    response = {
+        'error': True
+    }
     r = request.POST
     try:
-        tarjeta = Tarjeta.objects.get(
-            numero=r['cardNumber'],
-            ccv=r['ccv'],
-            fechaDeVencimiento=r['fechaVto'],
-            fechaDeCreacion=r['fechaCreacion'],
+        tarjeta = Tarjeta.objects.create(
+            usuario=request.user.usuario,
+            numero=r['cardNumber']
         )
-        tarjeta.usuario.add(request.user.usuario)
-        response['error'] = False
-        response['msg'] = 'usuario agregado a esa tarjeta'
-        return JsonResponse(response)
+        print('no exploto')
 
-    except Tarjeta.DoesNotExist:
-        try:
-            Tarjeta.objects.get(numero=r['cardNumber'])
-            response['error'] = True
-            response['msg'] = 'Esa tarjeta ya se encuentra en uso, revise los datos'
+    except IntegrityError:
+        print('0exploto')
+        tarjeta = Tarjeta.objects.get(usuario=request.user.usuario, numero=r['cardNumber'])
+        print(tarjeta)
+
+        if tarjeta.esta_activo:
+            response['msg'] = 'Ya tenes esta tarjeta registrada'
             return JsonResponse(response)
 
-        except Tarjeta.DoesNotExist:
-            tarjeta = Tarjeta.objects.create(
-                numero=r['cardNumber'],
-                ccv=r['ccv'],
-                fechaDeVencimiento=r['fechaVto'],
-                fechaDeCreacion=r['fechaCreacion'],
-            )
-            tarjeta.usuario.add(request.user.usuario)
-            response['data'] = tarjeta.asJson()
-            response['error'] = False
-            response['msg'] = 'tarjeta creada'
-            print(tarjeta.usuario.all())
-            return JsonResponse(response)
+    tarjeta.esta_activo = True
+    tarjeta.ccv = r['ccv']
+    tarjeta.fechaDeVencimiento = r['fechaVto']
+    tarjeta.fechaDeCreacion = r['fechaCreacion']
+    tarjeta.save()
+
+    response['data'] = tarjeta.asJson()
+    response['error'] = False
+    response['msg'] = 'tarjeta creada'
+
+    return JsonResponse(response)
 
 
-
-#---------   Modificacion   ----------
+# ---------   Modificacion   ----------
 
 @login_required
 def actualizar_auto(request):
@@ -249,28 +260,42 @@ def actualizar_auto(request):
 
 @login_required
 def actualizar_tarjeta(request):
-    response = {}
+    data = {
+        'error': True
+    }
+
     try:
         r = request.POST
-        tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'])
-        try:
-            tarjeta.numero = r['cardNumber']
-            tarjeta.ccv = r['ccv']
-            tarjeta.fechaDeCreacion = r['fechaCreacion']
-            tarjeta.fechaDeVencimiento = r['fechaVto']
-            tarjeta.save()
-            response['data'] = tarjeta.asJson()
-            response['error'] = False
-            return JsonResponse(response)
-        except IntegrityError:
-            response['msg'] = 'Tarjeta en uso por otro usuario'
-            response['error'] = True
-            return JsonResponse(response)
 
-    except Tarjeta.DoesNotExist:
-        response['error'] = True
-        response['msg'] = 'no existe esa tarjeta!!!'
-        return JsonResponse(response)
+        tarjeta_a_actualizar = Tarjeta.objects.get(pk=r['id_tarjeta'], usuario=request.user.usuario)
+        try:
+            otra_tarjeta = Tarjeta.objects.get(numero=r['cardNumber'], usuario=request.user.usuario)
+        except Tarjeta.DoesNotExist:
+            otra_tarjeta = None
+
+        tarjeta = tarjeta_a_actualizar
+
+        if otra_tarjeta and tarjeta_a_actualizar.pk != otra_tarjeta.pk:
+            if otra_tarjeta.esta_activo:
+                data['msg'] = 'Ya tenes esta tarjeta registrada'
+                return JsonResponse(data)
+            else:
+                tarjeta_a_actualizar.desactivar()
+                otra_tarjeta.activar()
+                tarjeta = otra_tarjeta
+
+        tarjeta.numero = r['cardNumber']
+        tarjeta.ccv = r['ccv']
+        tarjeta.fechaDeCreacion = r['fechaCreacion']
+        tarjeta.fechaDeVencimiento = r['fechaVto']
+        tarjeta.save()
+        data['error'] = False
+        data['msg'] = 'Datos actualizados correctamente'
+    except:
+        import sys
+        print("el peor error ", sys.exc_info()[1])
+
+    return JsonResponse(data)
 
 
 @login_required
@@ -283,6 +308,12 @@ def actualizar_datos_perfil(request):
         usuario.apellido = r['lastName']
         usuario.dni = r['dni']
         usuario.fechaDeNacimiento = r['birthDay']
+        password = r['password']
+        usuario.user.username = r['email']
+        usuario.user.email = r['email']
+        if len(password) >= 8:
+            usuario.user.set_password(password)
+        usuario.user.save()
         usuario.save()
         response['data'] = usuario.asJson()
         response['error'] = False
@@ -295,40 +326,42 @@ def actualizar_datos_perfil(request):
 
 @login_required
 def actualizar_cuenta_bancaria(request):
+    data = {
+        'error': True
+    }
 
-    response = {}
-    r = request.POST
     try:
-        cuenta = CuentaBancaria.objects.get(
-            pk=r['id_cuenta'],
-            usuario=request.user.usuario
-        )
-
+        r = request.POST
+        cuenta_a_actualizar = CuentaBancaria.objects.get(pk=r['id_cuenta'], usuario=request.user.usuario)
         try:
-            cuentaBancaria = CuentaBancaria.objects.get(
-                cbu=r['cbu'])
-            if cuentaBancaria.usuario != request.user.usuario:
-                response['error'] = True
-                response['msg'] = 'Cuenta bancaria en uso'
-                return JsonResponse(response)
-            raise CuentaBancaria.DoesNotExist
+            otra_cuenta = CuentaBancaria.objects.get(cbu=r['cbu'], usuario=request.user.usuario)
         except CuentaBancaria.DoesNotExist:
-            cuenta.cbu = r['cbu']
-            cuenta.entidad = r['entity']
-            cuenta.save()
-            response['error'] = False
-            response['msg'] = 'Cuenta bancaria actualizada'
-            response['data'] = cuenta.asJson()
-            return JsonResponse(response)
+            otra_cuenta = None
 
-    except CuentaBancaria.DoesNotExist:
-        response['error'] = True
-        response['msg'] = 'No existe esa cuenta bancaria'
-        return JsonResponse(response)
+        cuenta = cuenta_a_actualizar
+
+        if otra_cuenta and cuenta_a_actualizar.pk != otra_cuenta.pk:
+            if otra_cuenta.esta_activo:
+                data['msg'] = 'Ya tenes esta cuenta bancaria registrada'
+                return JsonResponse(data)
+            else:
+                cuenta_a_actualizar.desactivar()
+                otra_cuenta.activar()
+                cuenta = otra_cuenta
+
+        cuenta.cbu = r['cbu']
+        cuenta.entidad = r['entity']
+        cuenta.save()
+        data['error'] = False
+        data['msg'] = 'Datos actualizados correctamente'
+    except:
+        import sys
+        print("el peor error ", sys.exc_info()[1])
+
+    return JsonResponse(data)
 
 
-
-#----------   Baja   ------------
+# ----------   Baja   ------------
 
 
 @login_required
@@ -337,15 +370,9 @@ def borrar_auto(request):
     try:
         r = request.POST
         auto = Auto.objects.get(pk=r['id'])
-        res = request.user.usuario.elimiar_auto(auto)
-        if not res:
-            raise PermissionError
+        request.user.usuario.elimiar_auto(auto)
         response['data'] = True
         response['error'] = False
-        return JsonResponse(response)
-    except PermissionError:
-        response['error'] = True
-        response['msg'] = 'El vehiculo esta en uso en algun viaje'
         return JsonResponse(response)
     except:
         response['error'] = True
@@ -359,7 +386,7 @@ def borrar_tarjeta(request):
     try:
         r = request.POST
         tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'], usuario=request.user.usuario)
-        if request.user.usuario.tiene_la_tarjeta_en_uso(tarjeta):
+        if request.user.usuario.elimiar_tarjeta(tarjeta):
             raise PermissionError
         tarjeta.usuario.remove(request.user.usuario)
         response['error'] = False
@@ -371,11 +398,10 @@ def borrar_tarjeta(request):
         return JsonResponse(response)
     except:
         import sys
-        print (sys.exc_info())
+        print(sys.exc_info())
         response['error'] = True
         response['msg'] = 'No se pudo borrar la tarjeta'
         return JsonResponse(response)
-
 
 
 @login_required
@@ -398,3 +424,185 @@ def borrar_cuenta_bancaria(request):
         response['error'] = True
         response['msg'] = 'No se pudo borrar la cuenta'
         return JsonResponse(response)
+
+
+"""
+ 
+ Metodos necesarios para los viajes 
+ 
+ 
+"""
+
+
+def solicitar_ir_en_viaje(request):
+    data = {}
+    #r = request.POST
+    r = request.GET
+    id = r['viaje_id']
+
+    try:
+        '''Reglas de negocio para inscribirse a un viaje
+            - tener tarjeta
+            - no deber calif de mas de 30 dias
+            - no estar en otro viaje en el mismo horario 
+        '''
+        viaje = Viaje.objects.get(pk=id)
+
+        if not (request.user.usuario.get_tarjetas_de_credito()):
+            data['error'] = True
+            data['msg'] = 'No tiene tarjeta, registre una para inscribirse'
+            return JsonResponse(data)
+
+        if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
+            data['error'] = True
+            data['msg'] = 'Debe calificaciones de mas de 30 dias'
+            return JsonResponse(data)
+
+        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida,viaje.duracion):
+            data['error'] = True
+            data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
+            return JsonResponse(data)
+
+        fecha_salida = viaje.proxima_fecha_de_salida() #o recibirlo via request para un dia particular???
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
+        data['error'] = False
+        data['msg'] = str(rta)
+        return JsonResponse(data)
+    except IntegrityError:
+        data['error'] = True
+        data['msg'] = 'Ya envio solicitud'
+        return JsonResponse(data)
+    except:
+        print('a la mierda todo')
+
+def lista_de_copilotos_confirmados(request):
+    print("copilotos confirmados")
+    data = {'data':[]}
+    r = request.POST
+    id = r['viaje_id']
+    viaje = Viaje.objects.get(pk=id)
+    print("sadf")
+    viajeCopiloto = viaje.get_copilotos_confirmados()
+    print(viajeCopiloto)
+
+    for obj in viajeCopiloto:
+        current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
+        current_data.update(model_to_dict(obj))
+        current_data.update(model_to_dict(obj.usuario.user, fields='username'))
+        current_data.update({'viajeCopiloto_id' : obj.pk})
+        data['data'].append(current_data)
+
+    return JsonResponse(data)
+
+
+def lista_de_copitolos_en_espera(request):
+    data = { 'data' : []}
+    r = request.POST
+    id = r['viaje_id']
+    viaje = Viaje.objects.get(pk=id)
+    viajeCopiloto = viaje.get_copilotos_en_lista_de_espera()
+    print(viajeCopiloto)
+
+    for obj in viajeCopiloto:
+        current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
+        current_data.update(model_to_dict(obj))
+        current_data.update(model_to_dict(obj.usuario.user, fields='username'))
+        current_data.update({'viajeCopiloto_id' : obj.pk})
+        data['data'].append(current_data)
+
+    return JsonResponse(data)
+
+def confirmar_copiloto(request):
+    data = {}
+    r = request.POST
+    print(r)
+    id_viaje = r['viaje_id']
+    id_viajeCopiloto = r['viaje_copiloto_id']
+    id_copilto = r['copiloto_id']
+
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
+    copiloto = Usuario.objects.get(pk=id_copilto)
+
+    if request.user.usuario.pk != copiloto.pk:
+        if not copiloto.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
+
+            if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+                viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+                if viaje_copiloto.confirmarCopiloto():
+                    print('se confirmo')
+                else:
+                    print('no se confirmo')
+            else:
+                print("se superpone guacho")
+        else:
+            print("el copiloto tiene calificacione pendientes")
+    return JsonResponse(data)
+
+def rechazar_copiloto(request):
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    id_copilto = r['copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    viaje_copiloto.rechazarCopiloto()
+    return JsonResponse(data)
+
+def cancelar_copiloto(request):
+    data = {}
+    r = request.POST
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
+    viaje_copiloto.cancelarCopiloto()
+    return JsonResponse(data)
+
+def calificar_piloto(request):
+    data = {}
+    r = request.POST
+
+    id_viaje = r['viaje_id']
+    calificacion = r['calificacion']
+    comentario = r['comentario']
+
+    viaje = Viaje.objects.get(pk=id_viaje)
+
+    if request.user.usuario.set_calificar_piloto(viaje, calificacion, comentario):
+        # calif ok
+        pass
+    else:
+        # algun dato esta mal
+        pass
+    return JsonResponse(data)
+
+def calificar_copiloto(request):
+    data = {}
+    r = request.POST
+
+    id_viaje = r['viaje_id']
+    id_copiloto = r['copiloto_id']
+    calificacion = r['calificacion']
+    comentario = r['comentario']
+
+    viaje = Viaje.objects.get(pk=id_viaje)
+    copiloto = Usuario.objects.get(pk=id_copiloto)
+
+    if request.user.usuario.set_calificar_copiloto(viaje=viaje, calificacion=calificacion, copiloto=copiloto,
+                                                   comentario=comentario):
+        # calif ok
+        pass
+    else:
+        # algun dato esta mal
+        pass
+    return JsonResponse(data)
+
+def elimiar_viaje(request):
+    # elimina absolutamente el viaje
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    viaje = Viaje.objects.get(pk=id_viaje)
+    viaje.eliminar()
+    return JsonResponse(data)
+
+def datos_del_viaje(request):
+    viaje = Viaje.objects.get(pk=request.POST['viaje_id'])
+    return JsonResponse(model_to_dict(viaje))

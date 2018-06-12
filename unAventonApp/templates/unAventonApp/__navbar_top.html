@@ -35,7 +35,8 @@
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
             <a class="dropdown-item" href="{% url 'miPerfil' %}"><i class="fas fa-user-circle"></i> Mi perfil</a>
-            <a class="dropdown-item" href="{% url 'mis_viajes' %}"><i class="fas fa-car"></i> Viajes creados</a>
+            <a class="dropdown-item" href="{% url 'mis_viajes' %}"><i class="fas fa-car"></i> Viajes creados activos</a>
+            <a class="dropdown-item" href="{% url 'mis_viajes' %}"><i class="fas fa-car"></i> Viajes creados finalizados</a>
             <a class="dropdown-item" href="{% url 'viajes_inscriptos' %}"><i class="fas fa-bell"></i> Viajes solicitados</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar sesi&oacute;n</a>

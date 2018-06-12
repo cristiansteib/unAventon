@@ -1,0 +1,93 @@
+<div class="modal fade" id="modal_solicitudesDeCopilotos" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Solicitudes de pasajeros</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+            <tr>
+              <th>Email</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody id="bodyTableListaCopilotosEnEspera">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
+        console.log('confirmar');
+        var data = {
+            viaje_id: idViaje,
+            copiloto_id: idCopiloto,
+            viaje_copiloto_id: idViajeCopiloto
+        };
+        postJson('{% url 'confirmar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
+        //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
+    }
+
+    function rechazarCopiloto(idCopiloto, idViaje) {
+        console.log('rechazar');
+        if (!window.confirm("Estas seguro que vas a rechazar al copiloto?")){
+            return;
+        }
+        var data = {
+            viaje_id: idViaje,
+            copiloto_id: idCopiloto
+        };
+        postJson('{% url 'rechazar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
+        //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
+    }
+
+    var cargarListaDeCopilotosEnEspera = function (datos) {
+        console.log(datos);
+        var tableBody = $('#bodyTableListaCopilotosEnEspera');
+        tableBody.html('');
+        if (datos['data'].length == 0) {
+            tableBody.append("<tr><td>No hay copilotos en la lista de espera</td></tr>");
+        }
+        for (var i = 0; i < datos['data'].length; i++) {
+            var actual = datos['data'][i];
+            var row;
+            row = '<tr id=' + actual.usuario + '>';
+            row += '<td>' + actual.username + '</td>';
+            row += '<td>' + actual.nombre + '</td>';
+            row += '<td>' + actual.apellido + '</td>';
+            row += '<td><button type="button" class="btn btn-success" onclick="aceptarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ',' + actual.viajeCopiloto_id + ')">Aceptar</button> <button type="button" class="btn btn-danger"  onclick="rechazarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ')">Rechazar</button></td>';
+            row += '</tr>';
+            tableBody.append(row);
+        }
+    };
+
+    function loadListaDePasajerosSinConfirmar() {
+        const url = "{% url 'copilotos_en_espera' %}";
+        var data = {
+            viaje_id: viaje_seleccionado
+        };
+        postJson(url, data, cargarListaDeCopilotosEnEspera);
+    }
+
+    $('#modal_solicitudesDeCopilotos').on('shown.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+        loadListaDePasajerosSinConfirmar();
+    });
+
+    $('#modal_solicitudesDeCopilotos').on('hide.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+      location.reload();
+    })
+
+</script>

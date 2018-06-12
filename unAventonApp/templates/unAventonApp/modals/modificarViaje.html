@@ -1,16 +1,15 @@
-<!-- lista de los viajes en el que el usuario esta inscripto -->
-{% extends "unAventonApp/base.html" %}
-{% block title %}Crear nuevo  viaje{% endblock %}
-
-{% block content %}
-  <div class="container">
-    <div class="row">
-      <div class="col-md-2"></div>
-      <div class="col-sm-12 col-md-8 fondo fondo-color">
-        {% if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos %}
-            <h4>Posee calificaciones pendientes por realizar</h4>
-        {% elif get_autos and get_cuentas_bancarias %}
-          <form id="id_form_viaje" method="POST">
+<div class="modal fade" id="modal_editarViaje" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Editar viaje</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+<form id="id_form_viaje" method="POST">
             {% csrf_token %}
             <fieldset>
               {% csrf_token %}
@@ -68,8 +67,7 @@
               <div class="form-row">
                 <div class="form-group col-md-12">
                   <label for="auto"><b>Seleccione vehiculo</b></label>
-                  <select class="form-control" name="auto" id="auto" required>
-                    <option value="" selected disabled>Selecciona un auto</option>
+                  <select class="form-control" name="auto" id="autoEdit" required>
                     {% for auto in get_autos %}
                       <option
                           data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }} {{ auto.modelo }}
@@ -86,12 +84,10 @@
               <div class="form-row">
                 <div class="form-group col-md-12">
                   <label for="capacidad_restante"><b>Asientos disponibles</b></label>
-                  <select class="form-control" name="capacidad_restante" id="capacidad_restante"
+                  <select class="form-control" name="capacidad_restante" id="capacidad_restanteEdit"
                           required>
                     <option value="" selected disabled> -</option>
-
                   </select>
-
                 </div>
               </div>
 
@@ -121,70 +117,44 @@
               <button type="submit" class="btn btn-lg btn-dark btn-block" style="margin-bottom: 20px;">Registrar viaje</button>
             </fieldset>
           </form>
-        {% else %}
-          <h4> Debes registrar primero
-
-            {% if not get_autos %}
-              al menos un auto,
-            {% endif %}
-            {% if not get_cuentas_bancarias %}
-              al menos una cuenta bancaria,
-            {% endif %} para poder continuar
-          </h4> <p>Accede a <a href="{% url 'miPerfil' %}">Mi Perfil</a> para continuar</p>
-        {% endif %}
 
 
       </div>
     </div>
-
   </div>
+</div>
+<script>
 
-  <script>
+    function cargarDatosEnElForm(viajesData){
+        console.log(viajesData);
+        console.log("vvv");
+    }
 
-      $('#id_form_viaje').on('submit', function (e) {
-          e.preventDefault();
+    $('#modal_editarViaje').on('shown.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+        postJson("{% url 'datos_viaje' %}",{viaje_id:viaje_seleccionado},cargarDatosEnElForm);
 
-          successCallback = function (response) {
-              if (response.creado === true) {
-                  mostrarMesajeCorrecto('viajeSucc_',"Creado exitosamente");
-              } else {
-                  mostrarMensajeDeErroresAnidados('viajeEr_',response.error);
-              }
-          };
+    });
 
-          errorCallback = function (response) {
-              console.log(response);
-          };
-
-
-          $data = getFormData($(this));
-
-          $unix_time = toTimeUnix($data['fecha'], $data['hora']);
-          $data['auto_id'] = $("#auto option:selected")[0].dataset.id;
-          $data['fecha_hora_unix'] = $unix_time;
-          $url = " {% url 'crear_viaje_ajax' %}";
-          postJson($url, $data, successCallback, errorCallback);
+    $('#modal_editarViaje').on('hide.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+      location.reload();
+    });
 
 
+      $("#autoEdit").change(function () {
+          auto_seleccionado = $("#autoEdit option:selected")[0];
+          insertar_opciones_de_capacidadEdit(auto_seleccionado.dataset.capacidad - 1);
       });
 
 
-      $("#auto").change(function () {
-          auto_seleccionado = $("#auto option:selected")[0];
-          insertar_opciones_de_capacidad(auto_seleccionado.dataset.capacidad - 1);
-      });
-
-
-      function insertar_opciones_de_capacidad(start) {
+      function insertar_opciones_de_capacidadEdit(start) {
           output = '';
           for (i = start; i > 0; i--) {
               output += '<option value="' + i + '">' + i + '</option>';
 
           }
-          $('#capacidad_restante').html(output);
+          $('#capacidad_restanteEdit').html(output);
       }
 
-  </script>
-
-
-{% endblock %}
+</script>

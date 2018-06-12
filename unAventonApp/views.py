@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect,Http404,redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario
+from .models import Usuario, ViajeCopiloto
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 def baseContext():
@@ -57,7 +57,11 @@ def logout(request):
 
 @login_required
 def viajes_inscriptos(request):
-    return render(request, 'unAventonApp/viajes_inscriptos.html')
+    context = {
+        'viajes' :  ViajeCopiloto.objects.filter(usuario=request.user.usuario)
+    }
+    print(context)
+    return render(request, 'unAventonApp/viajes_inscriptos.html', context)
 
 @login_required
 def buscar_viajes(request):
@@ -76,14 +80,23 @@ def mis_viajes(request):
     context['viajes']['semanales'] = request.user.usuario.get_viajes_semanales_activos()
     context['viajes']['diarios'] = request.user.usuario.get_viajes_diarios_activos()
     context['viajes']['unicos'] = request.user.usuario.get_viajes_unicos_activos()
-
-
+    usuario = request.user.usuario
+    context['get_autos'] = [auto.asJson() for auto in usuario.get_autos()]
+    context['get_cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.get_cuentas_bancarias()]
 
     return render(request, 'unAventonApp/mis_viajes.html', context)
 
 @login_required
 def mi_perfil(request):
     return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
+
+
+@login_required
+def detalle_de_publicacion_del_viaje(request, id):
+    if request.method == 'POST':
+        pass
+
+    return render(request, 'unAventonApp/detalle_de_publicacion_viaje.html')
 
 @login_required
 def crear_viaje(request):
