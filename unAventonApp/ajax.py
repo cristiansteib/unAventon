@@ -114,6 +114,7 @@ def crear_viaje_ajax(request):
     try:
         metodo = 'POST'
         request_data = getattr(request, metodo)
+        print(request_data)
         fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
             hours=21)
         datos_viaje = {
