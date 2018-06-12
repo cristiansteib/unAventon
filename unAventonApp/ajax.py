@@ -516,15 +516,18 @@ def confirmar_copiloto(request):
     copiloto = Usuario.objects.get(pk=id_copilto)
 
     if request.user.usuario.pk != copiloto.pk:
-        if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
-            viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
-            if viaje_copiloto.confirmarCopiloto():
-                print('se confirmo')
-            else:
-                print('no se confirmo')
+        if not copiloto.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
 
+            if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+                viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+                if viaje_copiloto.confirmarCopiloto():
+                    print('se confirmo')
+                else:
+                    print('no se confirmo')
+            else:
+                print("se superpone guacho")
         else:
-            print("se superpone guacho")
+            print("el copiloto tiene calificacione pendientes")
     return JsonResponse(data)
 
 def rechazar_copiloto(request):

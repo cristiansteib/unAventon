@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect,Http404,redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario
+from .models import Usuario, ViajeCopiloto
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 def baseContext():
@@ -57,7 +57,11 @@ def logout(request):
 
 @login_required
 def viajes_inscriptos(request):
-    return render(request, 'unAventonApp/viajes_inscriptos.html')
+    context = {
+        'viajes' :  ViajeCopiloto.objects.filter(usuario=request.user.usuario)
+    }
+    print(context)
+    return render(request, 'unAventonApp/viajes_inscriptos.html', context)
 
 @login_required
 def buscar_viajes(request):
