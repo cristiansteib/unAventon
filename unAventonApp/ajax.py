@@ -488,7 +488,8 @@ def lista_de_copitolos_en_espera(request):
     for obj in viajeCopiloto:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
-        current_data.update(model_to_dict(obj.usuario.user,fields='username'))
+        current_data.update(model_to_dict(obj.usuario.user, fields='username'))
+        current_data.update({'viajeCopiloto_id' : obj.pk})
         data.setdefault('data', []).append(current_data)
 
     return JsonResponse(data)
@@ -496,20 +497,24 @@ def lista_de_copitolos_en_espera(request):
 def confirmar_copiloto(request):
     data = {}
     r = request.POST
+    print(r)
     id_viaje = r['viaje_id']
+    id_viajeCopiloto = r['viaje_copiloto_id']
     id_copilto = r['copiloto_id']
-    usuario = Usuario.objects.get(pk=id_copilto)
-    if not usuario.se_superpone_algun_viaje():
-        viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
-        if viaje_copiloto.confirmarCopiloto():
-            # se confirmo
-            pass
+
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
+    copiloto = Usuario.objects.get(pk=id_copilto)
+
+    if request.user.usuario.pk != copiloto.pk:
+        if copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+            viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+            if viaje_copiloto.confirmarCopiloto():
+                print('se confirmo')
+            else:
+                print('no se confirmo')
+
         else:
-            # no hay lugar
-            pass
-    else:
-        #se superpone con algun viaje
-        pass
+            print("se superpone guacho")
     return JsonResponse(data)
 
 def rechazar_copiloto(request):

@@ -99,9 +99,8 @@ class Usuario(models.Model):
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):
+        #FIXME: para viajes semanales, y diarios, si la fecha es anterior a otro viaje creado, no chequea el solapamiento
         duracion = int(duracion)
-
-
         fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_inicio.hour, fecha_hora_inicio.minute)
         fecha_hora_salida_end = utils.sumar_horas(fecha_hora_inicio.hour, fecha_hora_inicio.minute, duracion, 0)
         slow_value = datetime.timedelta(0, 0)
@@ -576,11 +575,11 @@ class ViajeCopiloto(models.Model):
     fecha_del_viaje = models.DateTimeField()
     tarjeta = models.ForeignKey(Tarjeta, on_delete=models.DO_NOTHING, null=True)  # el copiloto
     estaConfirmado = models.NullBooleanField(default=None, null=True)
-    fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now())
-    calificacion_a_piloto = models.IntegerField(default=None, null=True)
-    calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True)
-    calificacion_a_copiloto = models.IntegerField(default=None, null=True)
-    calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True)
+    fecha_hora_de_solicitud = models.DateTimeField(auto_created=True, default=timezone.now)
+    calificacion_a_piloto = models.IntegerField(default=None, null=True, blank=True)
+    calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
+    calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
+    calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
 
     def confirmarCopiloto(self):
         #todo: chequear que no este en otro viaje
@@ -603,15 +602,6 @@ class ViajeCopiloto(models.Model):
         self.calificacion_a_piloto = -1
         self.calificacion_a_piloto_mensaje = "Penalidad por cancelacion a un copiloto confirmado."
         self.save()
-
-
-    def desconfirmarCopiloto(self):
-        if self.viaje.hay_lugar():
-            self.estaConfirmado = False
-            self.save()
-            return True
-        else:
-            return False
 
     def __str__(self):
         return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
