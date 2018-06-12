@@ -2,6 +2,7 @@ from unAventonApp.modules.Git import Git
 from django.conf import settings
 from django import template
 from unAventonApp.models import Usuario, ViajeCopiloto
+from django.utils import timezone
 register = template.Library()
 
 
@@ -29,7 +30,14 @@ def foto_de_perfil(usuarioId):
 
 def getEstado(viajeCopiloto):
     estados = ("esperando", "confirmado", "rechazado", "finalizado")
-    return estados[1]
+    if viajeCopiloto.estaConfirmado == None:
+        return estados[0]
+    if viajeCopiloto.estaConfirmado == False:
+        return estados[2]
+    if (viajeCopiloto.fecha_del_viaje < timezone.now()) and (viajeCopiloto.estaConfirmado == True):
+        return estados[3]
+    if viajeCopiloto.estaConfirmado == True:
+        return estados[1]
 
 
 @register.filter(is_safe=True)
@@ -66,3 +74,13 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
         return "<button class='btn btn-default' onclick=calificarPiloto({0})>Calificar</button>".format(viajeCopilotoId)
     return "<button class='btn btn-default' disabled>Calificar</button>"
 
+
+
+@register.filter(is_safe=True)
+def copilotoCancelarInscripcion(viajeCopilotoId):
+    # el estado del viaje tiene que estar finalizado para poder calificar al piloto
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
+    estado = getEstado(viajeCopiloto)
+    if estado == "finalizado":
+        return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"
+    return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(viajeCopilotoId)

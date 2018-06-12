@@ -37,7 +37,8 @@
           <td>{{ viaje.viaje.auto.usuario.get_calificacion_como_piloto }}</td>
           <td>{{ viaje.id | estadoCopilotoViaje}}</td>
           <td>{{ viaje.id | copilotoViajeCalificarPiloto | safe}}</td>
-          <td><button class="btn btn-danger" onclick="cancelarInscripcion({{ viaje.id }})">Eliminar</button></td>
+
+          <td>{{ viaje.id | copilotoCancelarInscripcion | safe }}</td>
         </tr>
       {% endfor %}
 
