@@ -39,11 +39,11 @@
               </div>
               <div class="form-row">
 
-                <div class="form-group col-md-6">
-                  <label for="fecha"><b>Fecha de salida</b></label>
-                  <input id="fecha" class="form-control" placeholder="Fecha" type="date"
-                         name="fecha" required>
+                <div id="fecha" class="form-group col-md-6">
+                  <label for="fecha"><b>Hora de salida</b></label>
+                  <input id="fecha" class="form-control" placeholder="Fecha" type="date" name="fecha" required>
                 </div>
+
                 <div class="form-group col-md-6">
                   <label for="hora"><b>Hora de salida</b></label>
                   <input id="hora" class="form-control" placeholder="Hora" type="time"
@@ -125,10 +125,36 @@
 </div>
 <script>
 
-    function cargarDatosEnElForm(viajesData){
-        console.log(viajesData);
+    function cargarDatosEnElForm(viajeData){
+        fechaSalida = viajeData.fecha_hora_salida;
+        $('#origen').val(viajeData.origen);
+        $('#destino').val(viajeData.destino);
+        $('#duracion').val(viajeData.duracion);
+        $('#costo').val(viajeData.gasto_total);
+        fechaHora = new Date(viajeData.fecha_hora_salida)
+        $('#fecha').val(fechaHora)
+        $('#hora');
+        $('#cuenta select').val(viajeData.cuenta_bancaria);
+        $("#autoEdit select").val(viajeData.auto);
+        actualizar_capacidad_del_auto_seleccionado();
+        if (viajeData.se_repite.indexOf('nunca')){
+            $('#repeticion select').val('nunca');
+        }
+        else if (viajeData.se_repite.indexOf('diario')){
+            $('#repeticion select').val('diario');
+        }
+        else{
+            $('#repeticion select').val('semanal');
+        }
+
+        $('#comentario').val(viajeData.comentario);
+
+
+        console.log(viajeData);
         console.log("vvv");
     }
+
+
 
     $('#modal_editarViaje').on('shown.bs.modal', function (e) {
         // esta funcion se ejecuta automaticamente al abrir el modal.
@@ -141,10 +167,14 @@
       location.reload();
     });
 
+    function actualizar_capacidad_del_auto_seleccionado() {
+        auto_seleccionado = $("#autoEdit option:selected")[0];
+        insertar_opciones_de_capacidadEdit(auto_seleccionado.dataset.capacidad - 1);
+
+    }
 
       $("#autoEdit").change(function () {
-          auto_seleccionado = $("#autoEdit option:selected")[0];
-          insertar_opciones_de_capacidadEdit(auto_seleccionado.dataset.capacidad - 1);
+        actualizar_capacidad_del_auto_seleccionado();
       });
 
 
