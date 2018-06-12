@@ -1,6 +1,6 @@
 <div class="modal fade" id="modal_solicitudesDeCopilotos" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Solicitudes de pasajeros</h5>
@@ -9,20 +9,20 @@
         </button>
       </div>
       <div class="modal-body">
-         <div class="table-responsive">
-        <table class="table table-bordered">
-          <thead>
-          <tr>
-            <th>Email</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody id="bodyTableListaCopilotosEnEspera">
-          </tbody>
-        </table>
-         </div>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+            <tr>
+              <th>Email</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody id="bodyTableListaCopilotosEnEspera">
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -31,21 +31,24 @@
     function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
         console.log('confirmar');
         var data = {
-            viaje_id:idViaje,
-            copiloto_id:idCopiloto,
+            viaje_id: idViaje,
+            copiloto_id: idCopiloto,
             viaje_copiloto_id: idViajeCopiloto
         };
-        postJson('{% url 'confirmar_copiloto' %}',data);
+        postJson('{% url 'confirmar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
     function rechazarCopiloto(idCopiloto, idViaje) {
         console.log('rechazar');
+        if (!window.confirm("Estas seguro que vas a rechazar al copiloto?")){
+            return;
+        }
         var data = {
-            viaje_id:idViaje,
-            copiloto_id:idCopiloto
+            viaje_id: idViaje,
+            copiloto_id: idCopiloto
         };
-        postJson('{% url 'rechazar_copiloto' %}',data);
+        postJson('{% url 'rechazar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
@@ -53,6 +56,9 @@
         console.log(datos);
         var tableBody = $('#bodyTableListaCopilotosEnEspera');
         tableBody.html('');
+        if (datos['data'].length == 0) {
+            tableBody.append("<tr><td>No hay copilotos en la lista de espera</td></tr>");
+        }
         for (var i = 0; i < datos['data'].length; i++) {
             var actual = datos['data'][i];
             var row;
@@ -66,14 +72,22 @@
         }
     };
 
-    $('#modal_solicitudesDeCopilotos').on('shown.bs.modal', function (e) {
-        // esta funcion se ejecuta automaticamente al abrir el modal.
+    function loadListaDePasajerosSinConfirmar() {
         const url = "{% url 'copilotos_en_espera' %}";
         var data = {
             viaje_id: viaje_seleccionado
         };
         postJson(url, data, cargarListaDeCopilotosEnEspera);
-    })
+    }
 
+    $('#modal_solicitudesDeCopilotos').on('shown.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+        loadListaDePasajerosSinConfirmar();
+    });
+
+    $('#modal_solicitudesDeCopilotos').on('hide.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+      location.reload();
+    })
 
 </script>

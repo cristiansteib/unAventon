@@ -468,17 +468,27 @@ def solicitar_ir_en_viaje(request):
         print('a la mierda todo')
 
 def lista_de_copilotos_confirmados(request):
-    data = {}
+    print("copilotos confirmados")
+    data = {'data':[]}
     r = request.POST
-
     id = r['viaje_id']
-
     viaje = Viaje.objects.get(pk=id)
-    viaje.get_copilotos_en_lista_de_espera()
+    print("sadf")
+    viajeCopiloto = viaje.get_copilotos_confirmados()
+    print(viajeCopiloto)
+
+    for obj in viajeCopiloto:
+        current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
+        current_data.update(model_to_dict(obj))
+        current_data.update(model_to_dict(obj.usuario.user, fields='username'))
+        current_data.update({'viajeCopiloto_id' : obj.pk})
+        data['data'].append(current_data)
+
     return JsonResponse(data)
 
+
 def lista_de_copitolos_en_espera(request):
-    data = {}
+    data = { 'data' : []}
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
@@ -490,7 +500,7 @@ def lista_de_copitolos_en_espera(request):
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
         current_data.update({'viajeCopiloto_id' : obj.pk})
-        data.setdefault('data', []).append(current_data)
+        data['data'].append(current_data)
 
     return JsonResponse(data)
 
@@ -506,7 +516,7 @@ def confirmar_copiloto(request):
     copiloto = Usuario.objects.get(pk=id_copilto)
 
     if request.user.usuario.pk != copiloto.pk:
-        if copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+        if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
             viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
             if viaje_copiloto.confirmarCopiloto():
                 print('se confirmo')
@@ -529,9 +539,8 @@ def rechazar_copiloto(request):
 def cancelar_copiloto(request):
     data = {}
     r = request.POST
-    id_viaje = r['viaje_id']
-    id_copilto = r['copiloto_id']
-    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viaje_copiloto.cancelarCopiloto()
     return JsonResponse(data)
 
@@ -572,4 +581,13 @@ def calificar_copiloto(request):
     else:
         # algun dato esta mal
         pass
+    return JsonResponse(data)
+
+def elimiar_viaje(request):
+    # elimina absolutamente el viaje
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    viaje = Viaje.objects.get(pk=id_viaje)
+    viaje.eliminar()
     return JsonResponse(data)

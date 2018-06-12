@@ -391,6 +391,19 @@ class Viaje(models.Model):
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
+    def eliminar(self):
+        self.activo = False
+        conjunto = set()
+
+        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=True)
+        for viajCop in viajeCopilotos:
+            if viajCop.fecha_del_viaje not in conjunto:
+                viajCop.cancelarCopiloto()
+            else:
+                viajCop.rechazarCopiloto()
+            conjunto.add(viajCop.fecha_del_viaje)
+
+        self.save()
 
     def proxima_fecha_de_salida(self):
         import ast
@@ -512,12 +525,10 @@ class Viaje(models.Model):
         }
 
     def get_copilotos_confirmados(self):
-        return Usuario.objects.filter(
-            pk__in=ViajeCopiloto.objects.filter(
+        return ViajeCopiloto.objects.filter(
                 viaje=self,
                 estaConfirmado=True
-            ).values('usuario__pk')
-        )
+            )
 
     def get_count_copilotos_confirmados(self):
         return len(Usuario.objects.filter(

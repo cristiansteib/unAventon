@@ -39,9 +39,7 @@
                 <button type="button" class="btn"
                         onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" >Lista de copilotos    confirmados           </button>
                 <button type="button" class="btn btn-danger"
-                        onclick="openModalForViajeId('#modal_deleteViaje',{{ viaje.pk }})" disabled
-                        title="No implementado">Eliminar viaje
-                </button>
+                        onclick="deleteViaje({{ viaje.pk }})">Eliminar viaje </button>
               </ul>
             </div>
           {% endfor %}
@@ -59,6 +57,22 @@
   function openModalForViajeId(idSelector, idViaje) {
       $(idSelector).modal('show');
       viaje_seleccionado = idViaje;
+  }
+
+  function deleteViaje(id) {
+      if (!window.confirm("Estas seguro que deseas eliminar el viaje? (se calificara negativamente por cada fecha que tenga un copiloto confirmado")){
+          return;
+      }
+      
+      data = {
+          viaje_id:id
+      };
+
+      postJson("{% url 'eliminar_viaje' %}",data, reloadPage);
+  }
+
+  function reloadPage(){
+      location.reload();
   }
 
 
