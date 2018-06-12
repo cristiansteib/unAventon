@@ -7,8 +7,9 @@ from django.conf import settings
 import datetime
 from collections import namedtuple
 from django.core.files.storage import FileSystemStorage
-from unAventon.unAventonApp import utils
+from . import utils
 import datetime
+
 
 fotoStorage = FileSystemStorage(location='media/')
 
@@ -58,6 +59,25 @@ class Usuario(models.Model):
             plural = "es" if pendientes > 1 else ""
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
+
+
+        if (self.se_superpone_algun_viaje_como_piloto(fecha_hora_salida, duracion)):
+            mensaje['error'].append(
+                {102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
+
+        if (self.se_superpone_algun_viaje_como_copiloto(fecha_hora_salida, duracion)):
+            mensaje['error'].append(
+                {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
+
+        return True if not len(mensaje['error']) else False, mensaje
+
+    def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
+        ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
+        viajes_como_copiloto = Viaje.objects.filter(
+            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+        return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
+
+    def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como piloto
         viajes_activos = self.get_viajes_creados_activos().filter(fecha_hora_salida__lte=fecha_hora_salida)
 
@@ -70,28 +90,12 @@ class Usuario(models.Model):
             fecha_hora_salida__month=fecha_hora_salida.month,
             fecha_hora_salida__day=fecha_hora_salida.day)
         sp = self.__se_superpone_rango_horario
-        if sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion, viajes_diarios) or sp(
-                fecha_hora_salida, duracion, viajes_semanales):
-            mensaje['error'].append({102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
+        return sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion,viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales)
 
-        ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
-        viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
-
-        if self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto):
-            mensaje['error'].append(
-                {103: 'Tenes algun viaje aceptado como copiloto en el mismo rango horario ingresado.'})
-
-        return True if not len(mensaje['error']) else False, mensaje
-
-    def se_superpone_algun_viaje_como_copiloto(self):
-        pass
-
-    def se_superpone_algun_viaje_como_piloto(self):
-        pass
-
-    def se_superpone_algun_viaje(self):
-        return self.set_calificar_copiloto() or self.se_superpone_algun_viaje_como_piloto()
+    def se_superpone_algun_viaje(self, fecha_hora_salida, duracion):
+        return self.se_superpone_algun_viaje_como_copiloto(fecha_hora_salida, duracion) \
+               or \
+               self.se_superpone_algun_viaje_como_piloto(fecha_hora_salida, duracion)
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):
@@ -405,15 +409,16 @@ class Viaje(models.Model):
             # es mayor a hoy la fecha, asique retorno de una el valor
             if timezone.now() < self.fecha_hora_salida:
                 print('fecha actual proxima')
-
                 return self.fecha_hora_salida
 
             else:
-                # todo: implementar esto
+                # todo: checkear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para la semana que viene, en ese weekday
-                print('calcular proxima')
-                proxima_fecha = self.fecha_hora_salida
+                print('calculo la proxima')
+                diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
+                multiplicador_de_semanas = (diferencia_en_dias // 7) + 1
+                proxima_fecha = self.fecha_hora_salida + timezone.timedelta(weeks=multiplicador_de_semanas)
                 return proxima_fecha
 
         """ Calculo para viajes diarios"""
@@ -423,10 +428,13 @@ class Viaje(models.Model):
             if timezone.now() < self.fecha_hora_salida:
                 return self.fecha_hora_salida
             else:
-                # todo: implementar esto
+                # todo: chekear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para mañana
-                return self.fecha_hora_salida
+                diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
+                multiplicador_de_dias = (diferencia_en_dias) + 1
+                proxima_fecha = self.fecha_hora_salida + timezone.timedelta(days=multiplicador_de_dias)
+                return proxima_fecha
 
         return "no calulado, no se contemplo alguna condicion."
 
@@ -545,10 +553,11 @@ class Viaje(models.Model):
     def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
         pass
 
-    def set_agregar_copiloto_en_lista_de_espera(self, usuario):
+    def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha):
         return ViajeCopiloto.objects.create(
             viaje=self,
-            usuario=usuario
+            usuario=usuario,
+            fecha_del_viaje=fecha
         )
 
     def get_conversacion_publica(self):
