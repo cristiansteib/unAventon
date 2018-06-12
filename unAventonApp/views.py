@@ -88,7 +88,7 @@ def mis_viajes(request):
 
 @login_required
 def mi_perfil(request):
-    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')\
+    return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
 
 
 @login_required
