@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Solicitudes de pasajeros</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Copilotos confirmados</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -13,13 +13,17 @@
         <table class="table table-bordered">
           <thead>
           <tr>
+            <th>Fecha  del viaje</th>
             <th>Email</th>
             <th>Nombre</th>
             <th>Apellido</th>
             <th></th>
           </tr>
           </thead>
-          <tbody id="bodyTableListaCopilotosEnEspera">
+          <tbody id="bodyTableListaCopilotosConfirmados">
+          <tr>
+            <td>No hay copilotos confirmados</td>
+          </tr>
           </tbody>
         </table>
          </div>
@@ -28,40 +32,44 @@
   </div>
 </div>
 <script>
-    function cancelarCopiloto(idCopiloto, viajeCopiloto) {
-        console.log('rechazar');
+    function cancelarCopiloto(viajeCopiloto) {
+        console.log('cancelar copiloto');
         var data = {
-            viaje_id:idViaje,
-            copiloto_id:idCopiloto
+            viaje_copiloto_id:viajeCopiloto
         };
         postJson('{% url 'cancelar_copiloto' %}',data);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
-    var cargarListaDeCopilotosEnEspera = function (datos) {
+    var cargarListaDeCopilotosConfirmados = function (datos) {
         console.log(datos);
-        var tableBody = $('#bodyTableListaCopilotosEnEspera');
+        var tableBody = $('#bodyTableListaCopilotosConfirmados');
         tableBody.html('');
+        if (datos['data'].length == 0){
+            tableBody.append("<tr><td>No hay copilotos confirmados</td></tr>");
+        }
+
         for (var i = 0; i < datos['data'].length; i++) {
             var actual = datos['data'][i];
             var row;
-            row = '<tr id=' + actual.usuario + '>';
+            row = '<tr id=confirm_' + actual.usuario + i +'>';
+            row += '<td>' + Date(actual.fecha_del_viaje).toLocaleString() + '</td>';
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';
-            row += '<td><button type="button" class="btn btn-success" onclick="aceptarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ',' + actual.viajeCopiloto_id + ')">Aceptar</button> <button type="button" class="btn btn-danger"  onclick="rechazarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ')">Rechazar</button></td>';
+            row += '<td> <button type="button" class="btn btn-danger"  onclick="cancelarCopiloto(' + actual.viajeCopiloto_id +')">Cancelar</button></td>';
             row += '</tr>';
             tableBody.append(row);
         }
     };
 
-    $('#modal_solicitudesDeCopilotos').on('shown.bs.modal', function (e) {
+    $('#modal_CopilotosConfirmados').on('shown.bs.modal', function (e) {
         // esta funcion se ejecuta automaticamente al abrir el modal.
-        const url = "{% url 'copilotos_en_espera' %}";
+        const url = "{% url 'copilotos_confirmados' %}";
         var data = {
             viaje_id: viaje_seleccionado
         };
-        postJson(url, data, cargarListaDeCopilotosEnEspera);
+        postJson(url, data, cargarListaDeCopilotosConfirmados);
     })
 
 

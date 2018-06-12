@@ -53,6 +53,9 @@
         console.log(datos);
         var tableBody = $('#bodyTableListaCopilotosEnEspera');
         tableBody.html('');
+        if (datos['data'].length == 0){
+            tableBody.append("<tr><td>No hay copilotos confirmados</td></tr>");
+        }
         for (var i = 0; i < datos['data'].length; i++) {
             var actual = datos['data'][i];
             var row;
