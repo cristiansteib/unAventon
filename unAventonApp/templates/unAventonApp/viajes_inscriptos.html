@@ -1,5 +1,7 @@
 <!-- lista de los viajes en el que el usuario esta inscripto -->
 {% extends "unAventonApp/base.html" %}
+{% load unAventonApp_extras %}
+
 {% block title %}Viajes inscriptos{% endblock %}
 
 {% block content %}
@@ -17,42 +19,27 @@
         <th>Fecha y Hora de salida</th>
         <th>Precio</th>
         <th>Conductor</th>
-        <th>Calificaci&oacute;n</th>
+        <th>Calificaci&oacute;n del piloto</th>
         <th>Estado</th>
         <th>Calificar piloto</th>
+        <th>Cancelar</th>
       </tr>
       </thead>
       <tbody>
 
-      <tr class="table-warning">
-        <td>La Plata</td>
-        <td>Tandil</td>
-        <td>20/1/2019 20:30</td>
-        <td>200</td>
-        <td>Mariano G.</td>
-        <td>Muy buena</td>
-        <td>Esperando confirmacion</td>
-      </tr>
-
-      <tr class="table-success">
-        <td>La Plata</td>
-        <td>Tandil</td>
-        <td>20/1/2020 20:30</td>
-        <td>200</td>
-        <td>Mariano G.</td>
-        <td>Muy buena</td>
-        <td>Confirmado</td>
-
-      <tr class="table-info">
-        <td>La Plata</td>
-        <td>Tandil</td>
-        <td>20/1/2020 20:30</td>
-        <td>200</td>
-        <td>Mariano G.</td>
-        <td>Muy buena</td>
-        <td>Finalizado</td>
-      </tr>
-
+      {% for viaje in viajes %}
+        <tr class="{{ viaje.id | estadoCopilotoViajeClass }}">
+          <td>{{ viaje.viaje.origen }}</td>
+          <td>{{ viaje.viaje.destino }}</td>
+          <td>{{ viaje.fecha_del_viaje }}</td>
+          <td>{{ viaje.viaje.get_costo_por_pasajero }}</td>
+          <td>{{ viaje.viaje.auto.usuario }}</td>
+          <td>{{ viaje.viaje.auto.usuario.get_calificacion_como_piloto }}</td>
+          <td>{{ viaje.id | estadoCopilotoViaje}}</td>
+          <td>{{ viaje.id | copilotoViajeCalificarPiloto | safe}}</td>
+          <td><button class="btn btn-danger" onclick="cancelarInscripcion({{ viaje.id }})">Eliminar</button></td>
+        </tr>
+      {% endfor %}
 
       </tbody>
     </table>
@@ -61,12 +48,21 @@
   <script>
       function mostrar_solo(clase) {
           $("tr").hide();
-          if (clase == 'tr'){
+          if (clase == 'tr') {
               $("tr").show();
-          }else {
+          } else {
               $("." + clase).show();
           }
       }
+
+      function calificarPiloto(viajeCopilotoId) {
+
+      }
+
+      function cancelarInscripcion(viajeCopilotoId) {
+
+      }
+
   </script>
 
 {% endblock %}
