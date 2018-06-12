@@ -582,3 +582,12 @@ def calificar_copiloto(request):
         # algun dato esta mal
         pass
     return JsonResponse(data)
+
+def elimiar_viaje(request):
+    # elimina absolutamente el viaje
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    viaje = Viaje.objects.get(pk=id_viaje)
+    viaje.eliminar()
+    return JsonResponse(data)
