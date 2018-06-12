@@ -114,6 +114,7 @@ def crear_viaje_ajax(request):
     try:
         metodo = 'POST'
         request_data = getattr(request, metodo)
+        print(request_data)
         fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
             hours=21)
         datos_viaje = {
@@ -605,4 +606,5 @@ def elimiar_viaje(request):
 
 def datos_del_viaje(request):
     viaje = Viaje.objects.get(pk=request.POST['viaje_id'])
-    return JsonResponse(model_to_dict(viaje))
+    data = model_to_dict(viaje)
+    return JsonResponse(data)
