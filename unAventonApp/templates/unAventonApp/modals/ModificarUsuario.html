@@ -8,7 +8,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form id="id_form_user_data" method="POST" >{% csrf_token %}
+        <form id="id_form_user_data" action="#" method="POST" onsubmit="return update_user_data()">{% csrf_token %}
               <fieldset>
 
                 <div class="form-row">
@@ -19,9 +19,6 @@
                     <input id="modal_lname" class="form-control" placeholder="Apellido" type="text" name="lastName" required>
                   </div>
                 </div>
-                <div class="form-group">
-                  <input id="modal_email" class="form-control" placeholder="E-mail" name="email" type="email" required readonly>
-                </div>
                 <div class="form-row">
                   <div class="form-group col-md-6">
                     <input id="modal_dni" class="form-control" placeholder="DNI" name="dni" type="text" required>
@@ -29,9 +26,16 @@
                   <div class="form-group col-md-6">
                       <p id="modal_brithday"></p>
                   </div>
+                  <div class="form-group">
+                    <input id="modal_email" class="form-control" placeholder="E-mail" name="email" type="email" required >
+                </div>
+                  <div class="form-group">
+                    <label for="modal_password">Deje en blanco para mantener la clave actual: </label>
+                    <input id="modal_password" class="form-control" placeholder="Contrase&ntilde;a" name="password" type="password"  pattern=".{8,}" title="La contrase&ntilde;a debe ser mayor a 8 caracteres.">
+                </div>
                 </div>
                 <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
-                <button id="btn_update_profile_ok" type="button" class="btn btn-warning fondo-color" onclick="update_user_data()"> <i id="check_update_profile" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
+                <button id="btn_update_profile_ok" type="submit"  class="btn btn-warning fondo-color"> <i id="check_update_profile" class="fa fa-check" style="display: none"></i>  Guardar cambios</button>
               </fieldset>
         </form>
       </div>
@@ -46,19 +50,18 @@
     function update_user_data() {
         var data = getFormData($("#id_form_user_data"));
         var url = " {% url 'actualizar_perfil' %}";
-        successCallback = function (response) {
-            loadUserData();
-            $("#check_update_profile").fadeIn(500).fadeOut(500);
-            setTimeout(function(){
-                location.reload();
-            },500);
 
+        successCallback = function (response) {
+            $("#check_update_profile").fadeIn(500).fadeOut(500);
+            window.location.href = "{% url 'miPerfil' %}";
+            console.log("redirect 2");
+            loadUserData();
         };
         errorCallback = function (response) {
             console.log(response.error, response.msg);
         };
         postJson(url,data,successCallback,errorCallback);
-
+      return false;
 
     };
 </script>

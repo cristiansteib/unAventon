@@ -1,5 +1,6 @@
 """ Call ajax in this module """
 from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.core import serializers
@@ -7,6 +8,7 @@ import json
 from django.utils import timezone
 import datetime
 from django.db import IntegrityError
+from django.contrib.auth import logout
 
 from django.forms.models import model_to_dict
 
@@ -306,6 +308,12 @@ def actualizar_datos_perfil(request):
         usuario.apellido = r['lastName']
         usuario.dni = r['dni']
         usuario.fechaDeNacimiento = r['birthDay']
+        password = r['password']
+        usuario.user.username = r['email']
+        usuario.user.email = r['email']
+        if len(password) >= 8:
+            usuario.user.set_password(password)
+        usuario.user.save()
         usuario.save()
         response['data'] = usuario.asJson()
         response['error'] = False
