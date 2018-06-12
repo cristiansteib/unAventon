@@ -33,11 +33,12 @@
 </div>
 <script>
     function cancelarCopiloto(viajeCopiloto) {
-        console.log('cancelar copiloto');
-        var data = {
+      if (!window.confirm("Estas seguro que vas a cancelar al copiloto? Se le descontara un punto en la calificacion")){
+            return;
+        }        var data = {
             viaje_copiloto_id:viajeCopiloto
         };
-        postJson('{% url 'cancelar_copiloto' %}',data);
+        postJson('{% url 'cancelar_copiloto' %}',data,loadListaDeCopilotosConfirmados);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
@@ -63,13 +64,22 @@
         }
     };
 
-    $('#modal_CopilotosConfirmados').on('shown.bs.modal', function (e) {
-        // esta funcion se ejecuta automaticamente al abrir el modal.
+    function loadListaDeCopilotosConfirmados() {
         const url = "{% url 'copilotos_confirmados' %}";
         var data = {
             viaje_id: viaje_seleccionado
         };
         postJson(url, data, cargarListaDeCopilotosConfirmados);
+    }
+
+    $('#modal_CopilotosConfirmados').on('shown.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+        loadListaDeCopilotosConfirmados();
+    });
+
+    $('#modal_CopilotosConfirmados').on('hide.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+      location.reload();
     })
 
 

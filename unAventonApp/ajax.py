@@ -488,7 +488,7 @@ def lista_de_copilotos_confirmados(request):
 
 
 def lista_de_copitolos_en_espera(request):
-    data = {}
+    data = { 'data' : []}
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
@@ -500,7 +500,7 @@ def lista_de_copitolos_en_espera(request):
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
         current_data.update({'viajeCopiloto_id' : obj.pk})
-        data.setdefault('data', []).append(current_data)
+        data['data'].append(current_data)
 
     return JsonResponse(data)
 
