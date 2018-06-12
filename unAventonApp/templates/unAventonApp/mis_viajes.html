@@ -38,7 +38,8 @@
                         onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})">Lista de solicitudes pendientes          </button>
                 <button type="button" class="btn"
                         onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" >Lista de copilotos    confirmados           </button>
-                <button type="button" class="btn btn-danger"
+                <button type="button"  class="btn" onclick="{% if viaje.get_count_copilotos_confirmados or viaje.get_count_copilotos_en_lista_de_espera %}viajeNoEditable(){% else %}openModalForViajeId('#modal_editarViaje',{{ viaje.pk }}){% endif %}">Editar viaje</button>
+                             <button type="button" class="btn btn-danger"
                         onclick="deleteViaje({{ viaje.pk }})">Eliminar viaje </button>
               </ul>
             </div>
@@ -50,6 +51,7 @@
   </div>
   {% include 'unAventonApp/modals/listaPasajerosSinConfirmar.html' %}
   {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
+  {% include 'unAventonApp/modals/modificarViaje.html' %}
 
   <script>
   var viaje_seleccionado = null;
@@ -75,6 +77,9 @@
       location.reload();
   }
 
+  function viajeNoEditable() {
+      alert("El viaje no puede ser editado, tiene solicitud de copilotos, o copilotos confirmados");
+  }
 
   </script>
 {% endblock %}

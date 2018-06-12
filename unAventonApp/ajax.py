@@ -594,3 +594,7 @@ def elimiar_viaje(request):
     viaje = Viaje.objects.get(pk=id_viaje)
     viaje.eliminar()
     return JsonResponse(data)
+
+def datos_del_viaje(request):
+    viaje = Viaje.objects.get(pk=request.POST['viaje_id'])
+    return JsonResponse(model_to_dict(viaje))

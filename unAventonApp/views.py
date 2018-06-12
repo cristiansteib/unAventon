@@ -80,8 +80,9 @@ def mis_viajes(request):
     context['viajes']['semanales'] = request.user.usuario.get_viajes_semanales_activos()
     context['viajes']['diarios'] = request.user.usuario.get_viajes_diarios_activos()
     context['viajes']['unicos'] = request.user.usuario.get_viajes_unicos_activos()
-
-
+    usuario = request.user.usuario
+    context['get_autos'] = [auto.asJson() for auto in usuario.get_autos()]
+    context['get_cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.get_cuentas_bancarias()]
 
     return render(request, 'unAventonApp/mis_viajes.html', context)
 

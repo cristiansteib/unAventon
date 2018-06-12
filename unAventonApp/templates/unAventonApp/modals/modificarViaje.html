@@ -1,0 +1,160 @@
+<div class="modal fade" id="modal_editarViaje" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Editar viaje</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+<form id="id_form_viaje" method="POST">
+            {% csrf_token %}
+            <fieldset>
+              {% csrf_token %}
+              <div class="form-row" style="margin-top:20px;">
+                <div class="form-group col-md-6">
+                  <label for="origen"><b>Origen</b></label>
+                  <input id="origen" class="form-control" placeholder="Origen" type="text" name="origen"
+                         required>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="destino"><b>Destino</b></label>
+                  <input id="destino" class="form-control" placeholder="Destino" type="text" name="destino"
+                         required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="duracion"><b>Duracion en horas</b></label>
+                  <input id="duracion" class="form-control" placeholder="Duracion (hs)" type="number" name="duracion"
+                         required>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="costo"><b>Costo Total $</b></label>
+                  <input id="costo" name="costo" class="form-control" placeholder="Costo Total $" type="number"
+                         required>
+                </div>
+              </div>
+              <div class="form-row">
+
+                <div class="form-group col-md-6">
+                  <label for="fecha"><b>Fecha de salida</b></label>
+                  <input id="fecha" class="form-control" placeholder="Fecha" type="date"
+                         name="fecha" required>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="hora"><b>Hora de salida</b></label>
+                  <input id="hora" class="form-control" placeholder="Hora" type="time"
+                         name="hora" required>
+                </div>
+              </div>
+
+
+              <div class="form-group">
+                <label for="cuenta"><b>Seleccione cuenta</b></label>
+                <select id="cuenta" class="form-control" name="cuenta_bancaria" id="cuenta_bancaria" required>
+
+                  <option value="" selected disabled>Selecciona una cuenta bancaria</option>
+                  {% for cuenta in get_cuentas_bancarias %}
+                    <option value="{{ cuenta.id }}">{{ cuenta.entidad }} - {{ cuenta.cbu }}</option>
+                  {% endfor %}
+
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="auto"><b>Seleccione vehiculo</b></label>
+                  <select class="form-control" name="auto" id="autoEdit" required>
+                    {% for auto in get_autos %}
+                      <option
+                          data-id={{ auto.id }} data-capacidad={{ auto.capacidad }}>{{ auto.marca }} {{ auto.modelo }}
+                        ({{ auto.dominio | upper }})
+                      </option>
+                    {% endfor %}
+
+                  </select>
+
+                </div>
+
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="capacidad_restante"><b>Asientos disponibles</b></label>
+                  <select class="form-control" name="capacidad_restante" id="capacidad_restanteEdit"
+                          required>
+                    <option value="" selected disabled> -</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="repeticion"><b>Tipo de viaje</b></label>
+                  <select class="form-control" name="repeticion" id="repeticion"
+                          required>
+                    <option value="nunca" selected> No se repite</option>
+                    <option value="diario">Se repite todos los dias</option>
+                    <option value="semanal">Se repite todas las semanas</option>
+                  </select>
+
+                </div>
+              </div>
+              <div class="form-row">
+
+
+                <div class="form-group col-md-12">
+
+                  <label for="comment"><b>Descripci&oacute;n</b></label>
+                  <textarea name="comentario" class="form-control" rows="5" id="comentario"></textarea>
+                </div>
+
+              </div>
+            {% include 'unAventonApp/alerts/alertsGenericos.html'  with idError='viajeEr_' idSuccess='viajeSucc_'  %}
+              <button type="submit" class="btn btn-lg btn-dark btn-block" style="margin-bottom: 20px;">Registrar viaje</button>
+            </fieldset>
+          </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+    function cargarDatosEnElForm(viajesData){
+        console.log(viajesData);
+        console.log("vvv");
+    }
+
+    $('#modal_editarViaje').on('shown.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+        postJson("{% url 'datos_viaje' %}",{viaje_id:viaje_seleccionado},cargarDatosEnElForm);
+
+    });
+
+    $('#modal_editarViaje').on('hide.bs.modal', function (e) {
+        // esta funcion se ejecuta automaticamente al abrir el modal.
+      location.reload();
+    });
+
+
+      $("#autoEdit").change(function () {
+          auto_seleccionado = $("#autoEdit option:selected")[0];
+          insertar_opciones_de_capacidadEdit(auto_seleccionado.dataset.capacidad - 1);
+      });
+
+
+      function insertar_opciones_de_capacidadEdit(start) {
+          output = '';
+          for (i = start; i > 0; i--) {
+              output += '<option value="' + i + '">' + i + '</option>';
+
+          }
+          $('#capacidad_restanteEdit').html(output);
+      }
+
+</script>

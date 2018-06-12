@@ -22,5 +22,4 @@ Now go to [127.0.0.1:8000](127.0.0.1:8000)
 
 #### Credits
 * Muiña, Sebastian Gabriel
-* Morales, Cesar Luis
 * Steib, Cristian
