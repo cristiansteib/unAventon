@@ -428,14 +428,44 @@ def borrar_cuenta_bancaria(request):
 
 def solicitar_ir_en_viaje(request):
     data = {}
-    r = request.POST
-
+    #r = request.POST
+    r = request.GET
     id = r['viaje_id']
 
-    viaje = Viaje.objects.get(pk=id)
-    viaje.set_agregar_copiloto_en_lista_de_espera(request.user.usuario)
-    return JsonResponse(data)
+    try:
+        '''Reglas de negocio para inscribirse a un viaje
+            - tener tarjeta
+            - no deber calif de mas de 30 dias
+            - no estar en otro viaje en el mismo horario 
+        '''
+        viaje = Viaje.objects.get(pk=id)
 
+        if not (request.user.usuario.get_tarjetas_de_credito()):
+            data['error'] = True
+            data['msg'] = 'No tiene tarjeta, registre una para inscribirse'
+            return JsonResponse(data)
+
+        if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
+            data['error'] = True
+            data['msg'] = 'Debe calificaciones de mas de 30 dias'
+            return JsonResponse(data)
+
+        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida,viaje.duracion):
+            data['error'] = True
+            data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
+            return JsonResponse(data)
+
+        fecha_salida = viaje.proxima_fecha_de_salida() #o recibirlo via request para un dia particular???
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
+        data['error'] = False
+        data['msg'] = str(rta)
+        return JsonResponse(data)
+    except IntegrityError:
+        data['error'] = True
+        data['msg'] = 'Ya envio solicitud'
+        return JsonResponse(data)
+    except:
+        print('a la mierda todo')
 
 def lista_de_copilotos_confirmados(request):
     data = {}
@@ -446,7 +476,6 @@ def lista_de_copilotos_confirmados(request):
     viaje = Viaje.objects.get(pk=id)
     viaje.get_copilotos_en_lista_de_espera()
     return JsonResponse(data)
-
 
 def lista_de_copitolos_en_espera(request):
     data = {}
@@ -459,30 +488,33 @@ def lista_de_copitolos_en_espera(request):
     for obj in viajeCopiloto:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
-        current_data.update(model_to_dict(obj.usuario.user,fields='username'))
+        current_data.update(model_to_dict(obj.usuario.user, fields='username'))
+        current_data.update({'viajeCopiloto_id' : obj.pk})
         data.setdefault('data', []).append(current_data)
 
     return JsonResponse(data)
 
-
 def confirmar_copiloto(request):
     data = {}
     r = request.POST
+    print(r)
     id_viaje = r['viaje_id']
+    id_viajeCopiloto = r['viaje_copiloto_id']
     id_copilto = r['copiloto_id']
 
-    usuario = Usuario.objects.get(pk=id_copilto)
-    if not usuario.se_superpone_algun_viaje():
-        viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
-        if viaje_copiloto.confirmarCopiloto():
-            # se confirmo
-            pass
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
+    copiloto = Usuario.objects.get(pk=id_copilto)
+
+    if request.user.usuario.pk != copiloto.pk:
+        if copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+            viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+            if viaje_copiloto.confirmarCopiloto():
+                print('se confirmo')
+            else:
+                print('no se confirmo')
+
         else:
-            # no hay lugar
-            pass
-    else:
-        #se superpone con algun viaje
-        pass
+            print("se superpone guacho")
     return JsonResponse(data)
 
 def rechazar_copiloto(request):
@@ -503,7 +535,6 @@ def cancelar_copiloto(request):
     viaje_copiloto.cancelarCopiloto()
     return JsonResponse(data)
 
-
 def calificar_piloto(request):
     data = {}
     r = request.POST
@@ -521,7 +552,6 @@ def calificar_piloto(request):
         # algun dato esta mal
         pass
     return JsonResponse(data)
-
 
 def calificar_copiloto(request):
     data = {}
