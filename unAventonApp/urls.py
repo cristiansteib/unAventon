@@ -63,6 +63,7 @@ urlpatterns = [
     path('ajax/solicitarIrEnViaje', solicitar_ir_en_viaje, name='solicitar_ir_a_viaje'),
     path('ajax/confirmarCopiloto', confirmar_copiloto, name='confirmar_copiloto'),
     path('ajax/rechazarCopiloto', rechazar_copiloto, name='rechazar_copiloto'),
+    path('ajax/cancelarCopiloto', cancelar_copiloto, name='cancelar_copiloto'),
 
 
 
