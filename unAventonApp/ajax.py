@@ -91,8 +91,7 @@ def datos_relacionados_al_usuario(request):
         data['usuario'] = usuario.asJson()
         # data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
         # data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
-        viajes_creados_activos = usuario.get_viajes_creados_activos()
-        data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
+
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
         data['get_tarjetas_de_credito'] = [obj.asJson() for obj in
                                            tarjetas_de_creditos] if tarjetas_de_creditos else None
@@ -628,3 +627,28 @@ def datos_del_viaje(request):
     viaje = Viaje.objects.get(pk=request.POST['viaje_id'])
     data = model_to_dict(viaje)
     return JsonResponse(data)
+
+
+def buscar_viajes_ajax(request):
+    data = {
+        'viajes':[]
+    }
+
+    origen = request.POST.get('origen', None)
+    destino = request.POST.get('destino', None)
+    print('safasdf',request.POST.get('precio_max', None))
+    precio_minimo = int(request.POST['precio_min']) if request.POST.get('precio_min', None) else 0
+    precio_maximo = int(request.POST['precio_max']) if request.POST.get('precio_max', None) else 9999999
+
+    viajes = Viaje.objects.filter(
+        origen__icontains=origen,
+        destino__icontains=destino,
+        activo=True
+    )
+
+    # chequea si hay que filtrar por costo
+    viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
+    viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
+
+    print(viajes)
+    return JsonResponse({})
