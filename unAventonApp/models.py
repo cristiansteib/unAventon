@@ -142,10 +142,9 @@ class Usuario(models.Model):
         pass
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(estaConfirmado=True, viaje__auto__usuario=self).exclude(calificacion_a_copiloto=None)
+        viajes_realizados = ViajeCopiloto.objects.filter(estaConfirmado=True, viaje__auto__usuario=self)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
         print('calif como piloto', puntaje)
-        puntaje = 0
         return puntaje
 
     def get_puntaje_como_copiloto(self):
@@ -407,6 +406,8 @@ class Viaje(models.Model):
 
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
+        #viaje semanal
+        self.fecha_hora_salida.weekday() == unaFecha.weekday()
         #TODO: @seba
         return True
 
