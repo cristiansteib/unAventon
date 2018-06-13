@@ -650,5 +650,6 @@ def buscar_viajes_ajax(request):
     viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
     viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
 
-    print(viajes)
-    return JsonResponse({})
+
+    data['viajes']=list(map(lambda x: model_to_dict(x), viajes))
+    return JsonResponse(data)
