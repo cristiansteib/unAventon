@@ -406,10 +406,27 @@ class Viaje(models.Model):
 
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
-        #viaje semanal
-        self.fecha_hora_salida.weekday() == unaFecha.weekday()
+
+        fecha = timezone.datetime(unaFecha)
+        # viaje semanal
+
+        if self.se_repite.__contains__('sem'):
+            if self.fecha_hora_salida.weekday() == fecha.weekday():
+                print('weekday', fecha, fecha.weekday())
+                return True
+            else:
+                return False
+        # viaje diario
+        if self.se_repite.__contains__('dia'):
+            if self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month:
+                print('fecha', fecha.day, fecha.month)
+                return True
+            else:
+                return False
+        # viaje unico
+
         #TODO: @seba
-        return True
+
 
     def caeEnLaHora(self, unaHora):
         # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
