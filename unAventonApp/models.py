@@ -516,8 +516,8 @@ class Viaje(models.Model):
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fechaHoraSalida,
-            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'fecha_hora_salida': self.fecha_hora_salida,
+            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson()

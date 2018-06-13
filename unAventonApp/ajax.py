@@ -114,7 +114,6 @@ def crear_viaje_ajax(request):
         metodo = 'POST'
         request_data = getattr(request, metodo)
 
-
         fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
             hours=21)
         print(request_data)
@@ -126,7 +125,8 @@ def crear_viaje_ajax(request):
             'gasto_total': request_data['costo'],
             'destino': request_data['destino'],
             'auto_id': request_data['auto_id'],
-            'auto_lugares_ocupados_de_antemano' : Auto.objects.get(pk=request_data['auto_id']).capacidad - int(request_data['capacidad_restante']) ,
+            'auto_lugares_ocupados_de_antemano': Auto.objects.get(pk=request_data['auto_id']).capacidad - int(
+                request_data['capacidad_restante']),
             'cuenta_bancaria_id': request_data['cuenta_bancaria'],
             'se_repite': (
                 request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
@@ -148,7 +148,6 @@ def crear_viaje_ajax(request):
             else:
                 # restatura el viaje anterior, ya que el nuevo no se pudo crear
                 viaje_anterior.activar()
-
 
         print(mensaje_json)
     except ValueError:
@@ -456,7 +455,7 @@ def borrar_cuenta_bancaria(request):
 
 def solicitar_ir_en_viaje(request):
     data = {}
-    #r = request.POST
+    # r = request.POST
     r = request.GET
     id = r['viaje_id']
 
@@ -478,12 +477,12 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Debe calificaciones de mas de 30 dias'
             return JsonResponse(data)
 
-        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida,viaje.duracion):
+        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida, viaje.duracion):
             data['error'] = True
             data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
             return JsonResponse(data)
 
-        fecha_salida = viaje.proxima_fecha_de_salida() #o recibirlo via request para un dia particular???
+        fecha_salida = viaje.proxima_fecha_de_salida()  # o recibirlo via request para un dia particular???
         rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
         data['error'] = False
         data['msg'] = str(rta)
@@ -495,9 +494,10 @@ def solicitar_ir_en_viaje(request):
     except:
         print('a la mierda todo')
 
+
 def lista_de_copilotos_confirmados(request):
     print("copilotos confirmados")
-    data = {'data':[]}
+    data = {'data': []}
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
@@ -509,14 +509,14 @@ def lista_de_copilotos_confirmados(request):
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
-        current_data.update({'viajeCopiloto_id' : obj.pk})
+        current_data.update({'viajeCopiloto_id': obj.pk})
         data['data'].append(current_data)
 
     return JsonResponse(data)
 
 
 def lista_de_copitolos_en_espera(request):
-    data = { 'data' : []}
+    data = {'data': []}
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
@@ -527,10 +527,11 @@ def lista_de_copitolos_en_espera(request):
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
-        current_data.update({'viajeCopiloto_id' : obj.pk})
+        current_data.update({'viajeCopiloto_id': obj.pk})
         data['data'].append(current_data)
 
     return JsonResponse(data)
+
 
 def confirmar_copiloto(request):
     data = {}
@@ -558,6 +559,7 @@ def confirmar_copiloto(request):
             print("el copiloto tiene calificacione pendientes")
     return JsonResponse(data)
 
+
 def rechazar_copiloto(request):
     data = {}
     r = request.POST
@@ -567,6 +569,7 @@ def rechazar_copiloto(request):
     viaje_copiloto.rechazarCopiloto()
     return JsonResponse(data)
 
+
 def cancelar_copiloto(request):
     data = {}
     r = request.POST
@@ -574,6 +577,7 @@ def cancelar_copiloto(request):
     viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viaje_copiloto.cancelarCopiloto()
     return JsonResponse(data)
+
 
 def calificar_piloto(request):
     data = {}
@@ -592,6 +596,7 @@ def calificar_piloto(request):
         # algun dato esta mal
         pass
     return JsonResponse(data)
+
 
 def calificar_copiloto(request):
     data = {}
@@ -614,6 +619,7 @@ def calificar_copiloto(request):
         pass
     return JsonResponse(data)
 
+
 def elimiar_viaje(request):
     # elimina absolutamente el viaje
     data = {}
@@ -623,6 +629,7 @@ def elimiar_viaje(request):
     viaje.eliminar()
     return JsonResponse(data)
 
+
 def datos_del_viaje(request):
     viaje = Viaje.objects.get(pk=request.POST['viaje_id'])
     data = model_to_dict(viaje)
@@ -631,12 +638,12 @@ def datos_del_viaje(request):
 
 def buscar_viajes_ajax(request):
     data = {
-        'viajes':[]
+        'viajes': []
     }
 
     origen = request.POST.get('origen', None)
     destino = request.POST.get('destino', None)
-    print('safasdf',request.POST.get('precio_max', None))
+
     precio_minimo = int(request.POST['precio_min']) if request.POST.get('precio_min', None) else 0
     precio_maximo = int(request.POST['precio_max']) if request.POST.get('precio_max', None) else 9999999
 
@@ -650,6 +657,5 @@ def buscar_viajes_ajax(request):
     viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
     viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
 
-
-    data['viajes']=list(map(lambda x: model_to_dict(x), viajes))
+    data['viajes'] = list(map(lambda x: x.asJsonPublicacion(), viajes))
     return JsonResponse(data)
