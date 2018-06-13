@@ -493,10 +493,10 @@ class Viaje(models.Model):
         import ast
         frecuencia, dia = ast.literal_eval(self.se_repite)
         dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes']
-        if frecuencia == 'semanal':
-            return "Se repite todas las semanas"
-        elif frecuencia == 'diario':
-            return "Se repite todos los " + dias[dia] + "."
+        if frecuencia == 'diario':
+            return "Este viaje se repite todas los dias"
+        elif frecuencia == 'semanal':
+            return "Se repite todos los " + dias[dia].capitalize() + ", todas las semanas."
         return "Sin datos"
 
     def asJson(self):
@@ -531,6 +531,8 @@ class Viaje(models.Model):
             'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
+            'comentario': self.comentario,
+            'se_repite': self.get_se_repite_asString(),
             'auto': self.auto.asJson()
         }
 
