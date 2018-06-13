@@ -643,6 +643,8 @@ def buscar_viajes_ajax(request):
 
     origen = request.POST.get('origen', None)
     destino = request.POST.get('destino', None)
+    fecha = request.POST.get('fecha', None)
+    hora = request.POST.get('hora', None)
 
     precio_minimo = int(request.POST['precio_min']) if request.POST.get('precio_min', None) else 0
     precio_maximo = int(request.POST['precio_max']) if request.POST.get('precio_max', None) else 9999999
@@ -652,6 +654,12 @@ def buscar_viajes_ajax(request):
         destino__icontains=destino,
         activo=True
     )
+
+    # filtra por fecha y hora
+    if fecha:
+        viajes = list(filter(lambda x: x.caeEnLaFecha(fecha), viajes))
+    if hora:
+        viajes = list(filter(lambda x: x.caeEnLaHora(hora), viajes))
 
     # chequea si hay que filtrar por costo
     viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
