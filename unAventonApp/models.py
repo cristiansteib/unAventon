@@ -407,31 +407,31 @@ class Viaje(models.Model):
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
 
-        fecha = timezone.datetime(unaFecha)
+        fecha = datetime.datetime.strptime(unaFecha,'%Y-%m-%d')
+
         # viaje semanal
+        if self.se_repite.count('sem'):
+            return (self.fecha_hora_salida.weekday() == fecha.weekday())
 
-        if self.se_repite.__contains__('sem'):
-            if self.fecha_hora_salida.weekday() == fecha.weekday():
-                print('weekday', fecha, fecha.weekday())
-                return True
-            else:
-                return False
-        # viaje diario
-        if self.se_repite.__contains__('dia'):
-            if self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month:
-                print('fecha', fecha.day, fecha.month)
-                return True
-            else:
-                return False
         # viaje unico
+        elif self.se_repite.count('nun'):
+            return (self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month and self.fecha_hora_salida.year == fecha.year)
 
-        #TODO: @seba
+        # viaje diario
+        elif self.se_repite.count('dia'):
+            return (self.fecha_hora_salida.day == fecha.day)
+
+        #TODO: @seba checkear
 
 
     def caeEnLaHora(self, unaHora):
         # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
-        #TODO: @seba
-        return True
+        delta = 1800   #margen de 30 minutos para matchear mas viajes, en segundos
+        hora = datetime.datetime.strptime(unaHora,'%H:%M')
+        horaBusqueda = datetime.datetime(1,1,1,hora.hour,hora.minute)
+        horaViaje = datetime.datetime(1,1,1,self.fecha_hora_salida.hour,self.fecha_hora_salida.minute)
+        return delta >= (horaBusqueda - horaViaje).seconds
+        #TODO: @seba   checkear
 
     def eliminar(self):
         self.activo = False
@@ -522,11 +522,13 @@ class Viaje(models.Model):
     def get_se_repite_asString(self):
         import ast
         frecuencia, dia = ast.literal_eval(self.se_repite)
-        dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+        dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes','sabado','domingo']
         if frecuencia == 'diario':
             return "Este viaje se repite todas los dias"
         elif frecuencia == 'semanal':
             return "Se repite todos los " + dias[dia].capitalize() + ", todas las semanas."
+        elif frecuencia == 'nunca':
+            return "Viaje unico"
         return "Sin datos"
 
     def asJson(self):
