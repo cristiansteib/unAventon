@@ -404,6 +404,17 @@ class Viaje(models.Model):
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
+
+    def caeEnLaFecha(self, unaFecha):
+        # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
+        #TODO: @seba
+        return True
+
+    def caeEnLaHora(self, unaHora):
+        # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
+        #TODO: @seba
+        return True
+
     def eliminar(self):
         self.activo = False
         conjunto = set()
@@ -528,8 +539,8 @@ class Viaje(models.Model):
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fechaHoraSalida,
-            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'fecha_hora_salida': self.fecha_hora_salida,
+            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'auto': self.auto.asJson()
