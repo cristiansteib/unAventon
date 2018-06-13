@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect,Http404,redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario, ViajeCopiloto
+from .models import Usuario, ViajeCopiloto, Viaje
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 def baseContext():
@@ -85,6 +85,15 @@ def mis_viajes(request):
     context['get_cuentas_bancarias'] = [cuenta.asJson() for cuenta in usuario.get_cuentas_bancarias()]
 
     return render(request, 'unAventonApp/mis_viajes.html', context)
+
+@login_required
+def mis_viajes_finalizados(request):
+    #TODO
+    context = {
+        'viajes': Viaje.objects.filter(activo=True)
+    }
+    return render(request, 'unAventonApp/mis_viajes_finalizados.html',context )
+
 
 @login_required
 def mi_perfil(request):
