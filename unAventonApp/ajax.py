@@ -101,6 +101,7 @@ def datos_relacionados_al_usuario(request):
         autos = usuario.get_autos()
         data['get_vehiculos'] = [obj.asJson() for obj in autos] if autos else None
 
+
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
@@ -493,6 +494,7 @@ def solicitar_ir_en_viaje(request):
         return JsonResponse(data)
     except:
         print('a la mierda todo')
+        return JsonResponse({'error':'algo salio mal'})
 
 
 def lista_de_copilotos_confirmados(request):
@@ -658,6 +660,11 @@ def buscar_viajes_ajax(request):
     # filtra por fecha y hora
     if fecha:
         viajes = list(filter(lambda x: x.caeEnLaFecha(fecha), viajes))
+        f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
+
+        for viaje in viajes:
+            viaje.fecha_hora_salida = timezone.datetime(f.year,f.month,f.day,viaje.fecha_hora_salida.hour,viaje.fecha_hora_salida.minute)
+
     if hora:
         viajes = list(filter(lambda x: x.caeEnLaHora(hora), viajes))
 
