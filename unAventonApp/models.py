@@ -619,6 +619,13 @@ class Viaje(models.Model):
     def get_conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
+    def tiene_calificacion_pendientes_a_copilotos(self):
+        #todo: Retorna booleano si el piloto adeuda calificaciones.
+        return True
+
+    def get_comision_cobrada(self):
+        #todo: Retorna el valor total recaudado por la app, en un pricipio seria 0, depende de la cant de copilotos confirmados
+        return 0
 
 class ViajeCopiloto(models.Model):
     class Meta:

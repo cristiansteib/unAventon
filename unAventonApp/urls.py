@@ -11,7 +11,8 @@ from .views import (
     crear_viaje,
     mi_perfil,
     upload_foto,
-detalle_de_publicacion_del_viaje
+    mis_viajes_finalizados,
+    detalle_de_publicacion_del_viaje
 )
 
 from .ajax import *
@@ -29,6 +30,7 @@ urlpatterns = [
     path('miPerfil', mi_perfil, name='miPerfil'),
     re_path(r'^publicacion/(?P<id>[0-9]+)/viaje/$', detalle_de_publicacion_del_viaje),
     path('misViajes', mis_viajes, name='mis_viajes'),
+    path('misViajesFinalizados', mis_viajes_finalizados, name='mis_viajes_finalizados'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
     path('uploadFoto', upload_foto, name='upload_foto'),
 
