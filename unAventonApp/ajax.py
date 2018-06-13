@@ -118,6 +118,7 @@ def crear_viaje_ajax(request):
 
         fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
             hours=21)
+        print(request_data)
         datos_viaje = {
             'comentario': request_data['comentario'],
             'fecha_hora_salida': fecha_hora,
@@ -126,6 +127,7 @@ def crear_viaje_ajax(request):
             'gasto_total': request_data['costo'],
             'destino': request_data['destino'],
             'auto_id': request_data['auto_id'],
+            'auto_lugares_ocupados_de_antemano' : Auto.objects.get(pk=request_data['auto_id']).capacidad - int(request_data['capacidad_restante']) ,
             'cuenta_bancaria_id': request_data['cuenta_bancaria'],
             'se_repite': (
                 request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())

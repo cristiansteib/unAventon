@@ -375,6 +375,7 @@ class ViajeManager(models.Manager):
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
+    auto_lugares_ocupados_de_antemano = models.IntegerField(default=0) # estos no se cobran
     se_repite = models.CharField(default=None, null=True, max_length=50)
     cuenta_bancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
     gasto_total = models.FloatField(default=0.0)
@@ -449,8 +450,6 @@ class Viaje(models.Model):
                 return proxima_fecha
 
         return "no calulado, no se contemplo alguna condicion."
-
-
 
     def buscar_viaje(self, origen, destino, fecha):
         pass
@@ -546,7 +545,8 @@ class Viaje(models.Model):
             Count('usuario')
         )['usuario__count']
         # se resta 1 por el piloto
-        return self.auto.capacidad - asientos_ocupados - 1
+        print( self.auto_lugares_ocupados_de_antemano)
+        return self.auto.capacidad - asientos_ocupados - self.auto_lugares_ocupados_de_antemano
 
     def hay_lugar(self):
         return True if self.get_asientos_disponibles() else False
