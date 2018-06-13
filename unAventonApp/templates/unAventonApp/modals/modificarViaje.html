@@ -9,7 +9,7 @@
         </button>
       </div>
       <div class="modal-body">
-<form id="id_form_viaje" method="POST">
+<form id="id_form_viaje" method="POST" onsubmit="return actualizarDatosViaje()">
             <fieldset>
               {% csrf_token %}
               <div class="form-row" style="margin-top:20px;">
@@ -114,7 +114,7 @@
 
               </div>
             {% include 'unAventonApp/alerts/alertsGenericos.html'  with idError='viajeEr_' idSuccess='viajeSucc_'  %}
-              <button type="button" class="btn  btn-success" style="margin-bottom: 20px;" onclick="actualizarDatosViaje()">Guardar cambios</button>
+              <button type="submit" class="btn  btn-success" style="margin-bottom: 20px;" >Guardar cambios</button>
               <button  type="button"  data-dismiss="modal" class="btn  btn-danger" style="margin-bottom: 20px;">Cancelar</button>
             </fieldset>
           </form>
