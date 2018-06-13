@@ -114,7 +114,8 @@ def crear_viaje_ajax(request):
     try:
         metodo = 'POST'
         request_data = getattr(request, metodo)
-        print(request_data)
+
+
         fecha_hora = timezone.datetime.fromtimestamp(int(request_data['fecha_hora_unix'])) + timezone.timedelta(
             hours=21)
         datos_viaje = {
@@ -129,8 +130,25 @@ def crear_viaje_ajax(request):
             'se_repite': (
                 request_data['repeticion'], -1 if request_data['repeticion'] == 'diario' else fecha_hora.weekday())
         }
+        # si es un update hay que borrar el existente
+        viaje_id = request_data.get('viaje_id', None)
+        viaje_anterior = None
+        if viaje_id:
+            print("es un update para el viaje, se desactiva")
+            viaje_anterior = Viaje.objects.get(pk=viaje_id)
+            viaje_anterior.desactivar()
 
+        # crea el nuevo viaje
         mensaje_json = request.user.usuario.set_nuevo_viaje(datos_viaje)
+
+        if viaje_anterior:
+            if mensaje_json['creado']:
+                viaje_anterior.delete()
+            else:
+                # restatura el viaje anterior, ya que el nuevo no se pudo crear
+                viaje_anterior.activar()
+
+
         print(mensaje_json)
     except ValueError:
         mensaje_json = {

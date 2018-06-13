@@ -130,7 +130,9 @@
 
         successCallback = function (response) {
             if (response.creado === true) {
+                viaje_seleccionado = response.id;
                 mostrarMesajeCorrecto('viajeSucc_',"Datos actualizados");
+                obtenerDataDelViaje();
             } else {
                 mostrarMensajeDeErroresAnidados('viajeEr_',response.error);
             }
@@ -194,16 +196,18 @@
     }
 
 
+    function obtenerDataDelViaje() {
+        postJson("{% url 'datos_viaje' %}",{viaje_id:viaje_seleccionado},cargarDatosEnElForm);
+    }
 
     $('#modal_editarViaje').on('shown.bs.modal', function (e) {
         // esta funcion se ejecuta automaticamente al abrir el modal.
-        postJson("{% url 'datos_viaje' %}",{viaje_id:viaje_seleccionado},cargarDatosEnElForm);
-
+        obtenerDataDelViaje();
     });
 
     $('#modal_editarViaje').on('hide.bs.modal', function (e) {
         // esta funcion se ejecuta automaticamente al abrir el modal.
-      //location.reload();
+      location.reload();
     });
 
     function actualizar_capacidad_del_auto_seleccionado() {
