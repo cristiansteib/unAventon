@@ -88,7 +88,7 @@ def mis_viajes(request):
 
 @login_required
 def mis_viajes_finalizados(request):
-    #TODO
+    #TODO: agregar solo los viajes finalizados.
     context = {
         'viajes': Viaje.objects.filter(activo=True)
     }
