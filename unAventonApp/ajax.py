@@ -91,8 +91,6 @@ def datos_relacionados_al_usuario(request):
         data['usuario'] = usuario.asJson()
         # data['calificacion_como_piloto'] = usuario.get_calificacion_como_piloto()
         # data['calificacion_como_copiloto'] = usuario.get_calificacion_como_copiloto()
-        viajes_creados_activos = usuario.get_viajes_creados_activos()
-        data['viajes_activos'] = [obj.asJson() for obj in viajes_creados_activos] if viajes_creados_activos else None
         tarjetas_de_creditos = usuario.get_tarjetas_de_credito()
         data['get_tarjetas_de_credito'] = [obj.asJson() for obj in
                                            tarjetas_de_creditos] if tarjetas_de_creditos else None
@@ -101,7 +99,7 @@ def datos_relacionados_al_usuario(request):
         data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
         autos = usuario.get_autos()
         data['get_vehiculos'] = [obj.asJson() for obj in autos] if autos else None
-
+        data['get_calif_piloto'] = usuario.get_puntaje_como_piloto()
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
     return JsonResponse(data)
