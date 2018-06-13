@@ -2,4 +2,54 @@
 {% block title %}Buscar viaje{% endblock %}
 {% block content %}
 
+  <div style="text-align: left">
+
+    <div class="col-md-4">
+      <form id="formBuscarViaje">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="origenInput" name="origen" placeholder="Origen" required>
+          </div>
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="destinoInput" name="destino" placeholder="Destino" required>
+          </div>
+        </div>
+
+        <h6>Precio</h6>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="precioMaxInput" name="precio_min" placeholder="Minimo">
+          </div>
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="precioMinInput" name="precio_max" placeholder="Maximo">
+          </div>
+
+        </div>
+
+        <button type="button" onclick="buscarViaje()" class="btn btn-primary">Buscar</button>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+      function successSearch(data) {
+          console.log(data);
+      }
+
+      function errorSearch(response) {
+          console.log('error en post form');
+
+      }
+
+      function buscarViaje() {
+          data = getFormData($("#formBuscarViaje"));
+          postJson("{% url 'buscar_viaje_ajax' %}", data, successSearch, errorSearch);
+      }
+
+
+  </script>
+
+
+
 {% endblock %}
