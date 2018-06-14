@@ -10,8 +10,8 @@ from django.core.files.storage import FileSystemStorage
 from . import utils
 import datetime
 
-
 fotoStorage = FileSystemStorage(location='media/')
+
 
 class Usuario(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -20,7 +20,6 @@ class Usuario(models.Model):
     fechaDeNacimiento = models.DateField(default=None, null=True)
     dni = models.CharField(max_length=15, default=None, null=True)
     foto_de_perfil = models.ImageField(storage=fotoStorage, default='assets/default-user.png')
-
 
     def asJsonMinified(self):
         return {
@@ -60,7 +59,6 @@ class Usuario(models.Model):
             mensaje['error'].append(
                 {101: 'Tenes {0} calificacion{1} pendiente{2} por hacer'.format(pendientes, plural, plural[1])})
 
-
         if (self.se_superpone_algun_viaje_como_piloto(fecha_hora_salida, duracion)):
             mensaje['error'].append(
                 {102: 'Tenes algun viaje como piloto en el mismo rango horario.'})
@@ -90,7 +88,9 @@ class Usuario(models.Model):
             fecha_hora_salida__month=fecha_hora_salida.month,
             fecha_hora_salida__day=fecha_hora_salida.day)
         sp = self.__se_superpone_rango_horario
-        return sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion,viajes_diarios) or sp(fecha_hora_salida, duracion, viajes_semanales)
+        return sp(fecha_hora_salida, duracion, viajes_mismo_dia) or sp(fecha_hora_salida, duracion,
+                                                                       viajes_diarios) or sp(fecha_hora_salida,
+                                                                                             duracion, viajes_semanales)
 
     def se_superpone_algun_viaje(self, fecha_hora_salida, duracion):
         return self.se_superpone_algun_viaje_como_copiloto(fecha_hora_salida, duracion) \
@@ -99,7 +99,7 @@ class Usuario(models.Model):
 
     @staticmethod
     def __se_superpone_rango_horario(fecha_hora_inicio, duracion, viajesCollection):
-        #FIXME: para viajes semanales, y diarios, si la fecha es anterior a otro viaje creado, no chequea el solapamiento
+        # FIXME: para viajes semanales, y diarios, si la fecha es anterior a otro viaje creado, no chequea el solapamiento
         duracion = int(duracion)
         fecha_hora_salida_start = datetime.datetime(1, 1, 1, fecha_hora_inicio.hour, fecha_hora_inicio.minute)
         fecha_hora_salida_end = utils.sumar_horas(fecha_hora_inicio.hour, fecha_hora_inicio.minute, duracion, 0)
@@ -109,10 +109,10 @@ class Usuario(models.Model):
             viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour,
                                                      viaje.fecha_hora_salida.minute)
             viaje_datetime_end = utils.sumar_horas(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute,
-                                              viaje.duracion, 0)
+                                                   viaje.duracion, 0)
 
             overlap = utils.get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start,
-                                  fecha_hora_salida_end)
+                                        fecha_hora_salida_end)
             if overlap > datetime.timedelta(0, 0):
                 return True
         return False
@@ -134,9 +134,20 @@ class Usuario(models.Model):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
+        # todas las calificaciones con sus comentarios como piloto
         pass
 
     def get_calificacion_como_copiloto(self):
+        # todas las calificaciones con sus comentarios como piloto
+        pass
+
+    def get_puntaje_como_piloto(self):
+        viajes_realizados = ViajeCopiloto.objects.filter(estaConfirmado=True, viaje__auto__usuario=self)
+        puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
+        print('calif como piloto', puntaje)
+        return puntaje
+
+    def get_puntaje_como_copiloto(self):
         pass
 
     def get_calificaciones_pendientes_para_piloto(self):
@@ -147,18 +158,6 @@ class Usuario(models.Model):
 
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         pass
-
-    def set_calificar_piloto(self, enViaje, calificacion, comentario):
-        if self.es_copiloto_en_viaje(enViaje):
-            self.__calificar(calificacion, enViaje.auto.usuario , enViaje, comentario)
-            return True
-        return False
-
-    def set_calificar_copiloto(self , viaje=None, calificacion=None, copiloto=None, comentario=None):
-        if self.es_piloto_en_viaje(viaje):
-            self.__calificar(calificacion, copiloto, viaje, comentario)
-            return True
-        return False
 
     def get_viajes_en_espera_como_copiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=False)
@@ -178,21 +177,11 @@ class Usuario(models.Model):
         """ Todos los viajes que creados por el usuario, finalizados"""
         return self.get_viajes_creados().exclude(self.get_viajes_creados_activos())
 
-    def es_piloto_en_viaje(self, viaje):
-        return viaje.auto.usuario == self
-
-    def es_copiloto_en_viaje(self, viaje):
-        try:
-            ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
-            return True
-        except ViajeCopiloto.DoesNotExist:
-            return False
-
     def get_tarjetas_de_credito(self):
         return Tarjeta.objects.filter(usuario=self, esta_activo=True)
 
     def get_autos(self):
-        return Auto.objects.filter(usuario=self,esta_activo=True)
+        return Auto.objects.filter(usuario=self, esta_activo=True)
 
     def tiene_el_auto_en_uso(self, unAuto):
         return len(self.get_viajes_creados_activos().filter(auto=unAuto)) > 0
@@ -214,7 +203,8 @@ class Usuario(models.Model):
         return self.get_viajes_creados_activos().filter(se_repite__contains='nunca')
 
     def tiene_la_cuenta_bancaria_en_uso(self, unaCuentaBancaria):
-        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria, cuenta_bancaria__esta_activo=True )) > 0
+        return len(self.get_viajes_creados_activos().filter(cuenta_bancaria=unaCuentaBancaria,
+                                                            cuenta_bancaria__esta_activo=True)) > 0
 
     def elimiar_cuenta_bancaria(self, unaCuentaBancaria):
         """ primero verifico que el usuario no tenga la cuenta bancaria en uso,
@@ -375,6 +365,7 @@ class ViajeManager(models.Manager):
 
 class Viaje(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.DO_NOTHING)
+    auto_lugares_ocupados_de_antemano = models.IntegerField(default=0)  # estos no se cobran
     se_repite = models.CharField(default=None, null=True, max_length=50)
     cuenta_bancaria = models.ForeignKey(CuentaBancaria, on_delete=models.DO_NOTHING)
     gasto_total = models.FloatField(default=0.0)
@@ -391,6 +382,36 @@ class Viaje(models.Model):
     def __str__(self):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
+
+    def caeEnLaFecha(self, unaFecha):
+        # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
+
+        fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
+
+        # viaje semanal
+        if self.se_repite.count('sem'):
+            return (self.fecha_hora_salida.weekday() == fecha.weekday())
+
+        # viaje unico
+        elif self.se_repite.count('nun'):
+            return (
+                        self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month and self.fecha_hora_salida.year == fecha.year)
+
+        # viaje diario
+        elif self.se_repite.count('dia'):
+            return (self.fecha_hora_salida.day == fecha.day)
+
+        # TODO: @seba checkear
+
+    def caeEnLaHora(self, unaHora):
+        # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
+        delta = 1800  # margen de 30 minutos para matchear mas viajes, en segundos
+        hora = datetime.datetime.strptime(unaHora, '%H:%M')
+        horaBusqueda = datetime.datetime(1, 1, 1, hora.hour, hora.minute)
+        horaViaje = datetime.datetime(1, 1, 1, self.fecha_hora_salida.hour, self.fecha_hora_salida.minute)
+        return delta >= (horaBusqueda - horaViaje).seconds
+        # TODO: @seba   checkear
+
     def eliminar(self):
         self.activo = False
         conjunto = set()
@@ -413,7 +434,6 @@ class Viaje(models.Model):
 
         if self.se_repite.count('nun'):
             return self.fecha_hora_salida
-
 
         """ Calculo para viajes semanales"""
 
@@ -450,8 +470,6 @@ class Viaje(models.Model):
 
         return "no calulado, no se contemplo alguna condicion."
 
-
-
     def buscar_viaje(self, origen, destino, fecha):
         pass
 
@@ -479,14 +497,20 @@ class Viaje(models.Model):
     def get_costo_por_pasajero(self):
         return self.gasto_total / self.auto.capacidad
 
+    def get_estado_del_viaje(self):
+        """ retorna un string con el estado del viaje"""
+        return ""
+
     def get_se_repite_asString(self):
         import ast
         frecuencia, dia = ast.literal_eval(self.se_repite)
-        dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes']
-        if frecuencia == 'semanal':
-            return "Se repite todas las semanas"
-        elif frecuencia == 'diario':
-            return "Se repite todos los " + dias[dia] + "."
+        dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+        if frecuencia == 'diario':
+            return "Este viaje se repite todas los dias"
+        elif frecuencia == 'semanal':
+            return "Se repite todos los " + dias[dia].capitalize() + ", todas las semanas."
+        elif frecuencia == 'nunca':
+            return "Viaje unico"
         return "Sin datos"
 
     def asJson(self):
@@ -504,7 +528,7 @@ class Viaje(models.Model):
             'get_asientos_disponibles': self.get_asientos_disponibles(),
             'usuarios_confirmados': None,
             'activo': self.esta_activo(),
-            'se_repite': self.get_se_repite_asString()
+            'se_repite': self.get_se_repite_asString(),
         }
         usuarios_confirmados = self.get_copilotos_confirmados()
         if usuarios_confirmados:
@@ -517,18 +541,20 @@ class Viaje(models.Model):
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fechaHoraSalida,
-            'fecha_hora_salida_unix': self.fechaHoraSalida.timestamp(),
+            'fecha_hora_salida': self.fecha_hora_salida,
+            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
+            'comentario': self.comentario,
+            'se_repite': self.get_se_repite_asString(),
             'auto': self.auto.asJson()
         }
 
     def get_copilotos_confirmados(self):
         return ViajeCopiloto.objects.filter(
-                viaje=self,
-                estaConfirmado=True
-            )
+            viaje=self,
+            estaConfirmado=True
+        )
 
     def get_count_copilotos_confirmados(self):
         return len(Usuario.objects.filter(
@@ -546,7 +572,8 @@ class Viaje(models.Model):
             Count('usuario')
         )['usuario__count']
         # se resta 1 por el piloto
-        return self.auto.capacidad - asientos_ocupados - 1
+        print(self.auto_lugares_ocupados_de_antemano)
+        return self.auto.capacidad - asientos_ocupados - self.auto_lugares_ocupados_de_antemano
 
     def hay_lugar(self):
         return True if self.get_asientos_disponibles() else False
@@ -576,6 +603,14 @@ class Viaje(models.Model):
     def get_conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
+    def tiene_calificacion_pendientes_a_copilotos(self):
+        # todo: Retorna booleano si el piloto adeuda calificaciones.
+        return True
+
+    def get_comision_cobrada(self):
+        # todo: Retorna el valor total recaudado por la app, en un pricipio seria 0, depende de la cant de copilotos confirmados
+        return 0
+
 
 class ViajeCopiloto(models.Model):
     class Meta:
@@ -592,8 +627,30 @@ class ViajeCopiloto(models.Model):
     calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
 
+    def calificar_a_copiloto(self, calificacion, comentario):
+        self.calificacion_a_copiloto = calificacion
+        self.calificacion_a_copiloto_mensaje = comentario
+        self.save()
+
+    def calificar_a_piloto(self, calificacion, comentario):
+        self.calificacion_a_piloto = calificacion
+        self.calificacion_a_piloto_mensaje = comentario
+        self.save()
+
+
+    def get_estado(self):
+        estados = ("esperando", "confirmado", "rechazado", "finalizado")
+        if self.estaConfirmado is None:
+            return estados[0]
+        if self.estaConfirmado is False:
+            return estados[2]
+        if (self.fecha_del_viaje < timezone.now()) and (self.estaConfirmado):
+            return estados[3]
+        if self.estaConfirmado:
+            return estados[1]
+
     def confirmarCopiloto(self):
-        #todo: chequear que no este en otro viaje
+        # todo: chequear que no este en otro viaje
         if self.viaje.hay_lugar():
             self.estaConfirmado = True
             self.save()

@@ -11,7 +11,8 @@ from .views import (
     crear_viaje,
     mi_perfil,
     upload_foto,
-detalle_de_publicacion_del_viaje
+    mis_viajes_finalizados,
+    detalle_de_publicacion_del_viaje
 )
 
 from .ajax import *
@@ -29,6 +30,7 @@ urlpatterns = [
     path('miPerfil', mi_perfil, name='miPerfil'),
     re_path(r'^publicacion/(?P<id>[0-9]+)/viaje/$', detalle_de_publicacion_del_viaje),
     path('misViajes', mis_viajes, name='mis_viajes'),
+    path('misViajesFinalizados', mis_viajes_finalizados, name='mis_viajes_finalizados'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
     path('uploadFoto', upload_foto, name='upload_foto'),
 
@@ -67,6 +69,11 @@ urlpatterns = [
 
     path('ajax/eliminarViaje', elimiar_viaje, name='eliminar_viaje'),
     path('ajax/viajeDatos', datos_del_viaje, name='datos_viaje'),
+    path('ajax/buscarViaje', buscar_viajes_ajax,  name='buscar_viaje_ajax'),
+
+    path('ajax/calificarCopiloto', calificar_copiloto,  name='calificar_a_copiloto'),
+    path('ajax/calificarPiloto', calificar_piloto,  name='calificar_a_piloto'),
+
 
 
 

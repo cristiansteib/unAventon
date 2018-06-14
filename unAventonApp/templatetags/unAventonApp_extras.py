@@ -43,13 +43,13 @@ def getEstado(viajeCopiloto):
 @register.filter(is_safe=True)
 def estadoCopilotoViaje(viajeCopilotoId):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    return getEstado(viajeCopiloto).capitalize()
+    return viajeCopiloto.get_estado().capitalize()
 
 
 @register.filter(is_safe=True)
 def estadoCopilotoViajeClass(viajeCopilotoId):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    estado = getEstado(viajeCopiloto)
+    estado = viajeCopiloto.get_estado()
     clase = "table"
     if estado == "esperando":
         clase = "table-warning"
@@ -69,7 +69,7 @@ def estadoCopilotoViajeClass(viajeCopilotoId):
 def copilotoViajeCalificarPiloto(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    estado = getEstado(viajeCopiloto)
+    estado = viajeCopiloto.get_estado()
     if estado == "finalizado":
         return "<button class='btn btn-default' onclick=calificarPiloto({0})>Calificar</button>".format(viajeCopilotoId)
     return "<button class='btn btn-default' disabled>Calificar</button>"
@@ -80,7 +80,7 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
 def copilotoCancelarInscripcion(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    estado = getEstado(viajeCopiloto)
+    estado =viajeCopiloto.get_estado()
     if estado == "finalizado":
         return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"
     return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(viajeCopilotoId)

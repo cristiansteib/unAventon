@@ -165,7 +165,6 @@ function trigger_modal_modificar_cuenta_bancaria(cuenta) {
 }
 
 function trigger_modal_modificar_vehiculo(auto) {
-    console.log('entra');
     d = datos.get_vehiculos[auto];
     $("#modal_id_auto").val(d.id);
     $("#modal_marca").val(d.marca);
