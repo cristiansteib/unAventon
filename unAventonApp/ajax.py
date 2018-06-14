@@ -579,40 +579,27 @@ def cancelar_copiloto(request):
     return JsonResponse(data)
 
 
-def calificar_piloto(request):
-    data = {}
-    r = request.POST
-
-    id_viaje = r['viaje_id']
-    calificacion = r['calificacion']
-    comentario = r['comentario']
-
-    viaje = Viaje.objects.get(pk=id_viaje)
-
-    if request.user.usuario.set_calificar_piloto(viaje, calificacion, comentario):
-        # calif ok
-        pass
-    else:
-        # algun dato esta mal
-        pass
-    return JsonResponse(data)
-
 
 def calificar_copiloto(request):
+    #TODO: retornar un json mas amigable :)
     data = {}
     r = request.POST
-    print(r)
     viaje_copiloto_id = r['viaje_copiloto_id']
     calificacion = r['calificacion']
     comentario = r['comentario']
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
+    viajeCopiloto.calificar_a_copiloto(calificacion, comentario)
+    return JsonResponse(data)
 
-
-    if True:
-        # calif ok
-        pass
-    else:
-        # algun dato esta mal
-        pass
+def calificar_piloto(request):
+    #TODO: retornar un json mas amigable :)
+    data = {}
+    r = request.POST
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    calificacion = r['calificacion']
+    comentario = r['comentario']
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
+    viajeCopiloto.calificar_a_piloto(calificacion, comentario)
     return JsonResponse(data)
 
 

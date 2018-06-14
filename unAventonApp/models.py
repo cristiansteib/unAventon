@@ -159,18 +159,6 @@ class Usuario(models.Model):
     def __calificar(self, calificacion, aUsuario, enViaje, comentario):
         pass
 
-    def set_calificar_piloto(self, enViaje, calificacion, comentario):
-        if self.es_copiloto_en_viaje(enViaje):
-            self.__calificar(calificacion, enViaje.auto.usuario, enViaje, comentario)
-            return True
-        return False
-
-    def set_calificar_copiloto(self, viaje=None, calificacion=None, copiloto=None, comentario=None):
-        if self.es_piloto_en_viaje(viaje):
-            self.__calificar(calificacion, copiloto, viaje, comentario)
-            return True
-        return False
-
     def get_viajes_en_espera_como_copiloto(self):
         return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=False)
 
@@ -188,16 +176,6 @@ class Usuario(models.Model):
     def get_viajes_finalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""
         return self.get_viajes_creados().exclude(self.get_viajes_creados_activos())
-
-    def es_piloto_en_viaje(self, viaje):
-        return viaje.auto.usuario == self
-
-    def es_copiloto_en_viaje(self, viaje):
-        try:
-            ViajeCopiloto.objects.get(usuario=self, viaje=viaje)
-            return True
-        except ViajeCopiloto.DoesNotExist:
-            return False
 
     def get_tarjetas_de_credito(self):
         return Tarjeta.objects.filter(usuario=self, esta_activo=True)
@@ -648,6 +626,17 @@ class ViajeCopiloto(models.Model):
     calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
     calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
+
+    def calificar_a_copiloto(self, calificacion, comentario):
+        self.calificacion_a_copiloto = calificacion
+        self.calificacion_a_copiloto_mensaje = comentario
+        self.save()
+
+    def calificar_a_piloto(self, calificacion, comentario):
+        self.calificacion_a_piloto = calificacion
+        self.calificacion_a_piloto_mensaje = comentario
+        self.save()
+
 
     def get_estado(self):
         estados = ("esperando", "confirmado", "rechazado", "finalizado")
