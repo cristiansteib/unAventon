@@ -494,7 +494,7 @@ def solicitar_ir_en_viaje(request):
         return JsonResponse(data)
     except:
         print('a la mierda todo')
-        return JsonResponse({'error':'algo salio mal'})
+        return JsonResponse({'error': 'algo salio mal'})
 
 
 def lista_de_copilotos_confirmados(request):
@@ -580,9 +580,8 @@ def cancelar_copiloto(request):
     return JsonResponse(data)
 
 
-
 def calificar_copiloto(request):
-    #TODO: retornar un json mas amigable :)
+    # TODO: retornar un json mas amigable :)
     data = {}
     r = request.POST
     viaje_copiloto_id = r['viaje_copiloto_id']
@@ -591,6 +590,7 @@ def calificar_copiloto(request):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viajeCopiloto.calificar_a_copiloto(calificacion, comentario)
     return JsonResponse(data)
+
 
 def ver_calificacion_de_copiloto(request):
     data = {}
@@ -603,7 +603,7 @@ def ver_calificacion_de_copiloto(request):
 
 
 def calificar_piloto(request):
-    #TODO: retornar un json mas amigable :)
+    # TODO: retornar un json mas amigable :)
     data = {}
     r = request.POST
     viaje_copiloto_id = r['viaje_copiloto_id']
@@ -651,11 +651,14 @@ def buscar_viajes_ajax(request):
 
     # filtra por fecha y hora
     if fecha:
+        print(viajes)
         viajes = list(filter(lambda x: x.caeEnLaFecha(fecha), viajes))
+        print(viajes)
         f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
 
         for viaje in viajes:
-            viaje.fecha_hora_salida = timezone.datetime(f.year,f.month,f.day,viaje.fecha_hora_salida.hour,viaje.fecha_hora_salida.minute)
+            viaje.fecha_hora_salida = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour,
+                                                        viaje.fecha_hora_salida.minute)
 
     if hora:
         viajes = list(filter(lambda x: x.caeEnLaHora(hora), viajes))

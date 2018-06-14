@@ -399,7 +399,7 @@ class Viaje(models.Model):
 
         # viaje diario
         elif self.se_repite.count('dia'):
-            return (self.fecha_hora_salida.day == fecha.day)
+            return (self.fecha_hora_salida.date() <= fecha.date())
 
         # TODO: @seba checkear
 
