@@ -88,11 +88,20 @@ def mis_viajes(request):
 
 @login_required
 def mis_viajes_finalizados(request):
-    #TODO: agregar solo los viajes finalizados.
+    #TODO: agregar solo los viajes finalizados. @seba
+    # el tema es asi, como tenemos un solo registro para los viajes que se repiten
+    # entonce tenemos que generar por cada copilotoViaje que este en estado "finalizado",
+    # la data del viaje, lo que recauda la app, lo que se retorna al usuario y mas datos
+    # que son calculados en realidad segun la repeticio y para X fecha,
+    # quiza se puede hacer un metodo sobre el Viaje, que reciba como param una fecha y
+    # retorne la data generada para esa fecha.
+    # o directamente aca, total en otro lado no se va a usar.
+    # ViajeCopiloto tiene el metodo get_estado(). se deberian agrupar por fechas y generar la data
+    # sese ya se muchos comentarios redundantes ajaj :D
     context = {
         'viajes': Viaje.objects.filter(activo=True)
     }
-    return render(request, 'unAventonApp/mis_viajes_finalizados.html',context )
+    return render(request, 'unAventonApp/mis_viajes_finalizados.html',context)
 
 
 @login_required
