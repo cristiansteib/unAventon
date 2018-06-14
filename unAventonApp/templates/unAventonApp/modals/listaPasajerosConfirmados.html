@@ -58,8 +58,10 @@
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';
-            if (actual.estado === 'finalizado') {
+            if (actual.estado === 'finalizado' && actual.esta_calificado === false) {
                 row += '<td> <button type="button" class="btn btn-default"  onclick="calificar_copiloto(' + actual.viajeCopiloto_id +')">Calificar</button></td>';
+            }else if (actual.estado === 'finalizado' && actual.esta_calificado === true) {
+                row += '<td> <button type="button" class="btn btn-default"  onclick="ver_calificacion_copiloto(' + actual.viajeCopiloto_id +')">Ver calificacion</button></td>';
             } else {
               row += '<td> <button type="button" class="btn btn-danger"  onclick="cancelarCopiloto(' + actual.viajeCopiloto_id +')">Cancelar</button></td>';
             }

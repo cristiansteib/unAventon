@@ -637,6 +637,8 @@ class ViajeCopiloto(models.Model):
         self.calificacion_a_piloto_mensaje = comentario
         self.save()
 
+    def esta_el_copiloto_calificado(self):
+        return self.calificacion_a_copiloto is not None
 
     def get_estado(self):
         estados = ("esperando", "confirmado", "rechazado", "finalizado")
