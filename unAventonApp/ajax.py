@@ -503,13 +503,14 @@ def lista_de_copilotos_confirmados(request):
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
-    viajeCopiloto = viaje.get_copilotos_confirmados()
-    for obj in viajeCopiloto:
+    viajeCopilotos = viaje.get_copilotos_confirmados()
+    for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
         current_data.update({'viajeCopiloto_id': obj.pk})
         current_data.update({'estado': obj.get_estado()})
+        current_data.update({'esta_calificado': obj.esta_el_copiloto_calificado()})
         data['data'].append(current_data)
 
     return JsonResponse(data)
@@ -590,6 +591,16 @@ def calificar_copiloto(request):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viajeCopiloto.calificar_a_copiloto(calificacion, comentario)
     return JsonResponse(data)
+
+def ver_calificacion_de_copiloto(request):
+    data = {}
+    r = request.POST
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
+    data['calificacion'] = viajeCopiloto.calificacion_a_copiloto
+    data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_copiloto_mensaje
+    return JsonResponse(data)
+
 
 def calificar_piloto(request):
     #TODO: retornar un json mas amigable :)
