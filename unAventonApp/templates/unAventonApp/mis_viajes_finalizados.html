@@ -49,7 +49,7 @@
 
     function calificar_copiloto(idViajeCopiloto) {
       $("#id_calificar_usuario").modal('show');
-      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto);
+      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto, loadListaDeCopilotosConfirmados);
     }
 
     function ver_calificacion_copiloto(idViajeCopiloto) {

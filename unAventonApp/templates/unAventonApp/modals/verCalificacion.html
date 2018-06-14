@@ -32,20 +32,23 @@
         } else {
             calificacion += data.calificacion + '? Unknown ? ';
         }
-        calificacion += '</strnog></p>';
+        calificacion += '</strong></p>';
         var comentario = '<p> Comentario: '+ data.calificacion_mensaje +'</p>';
         $("#calificacion_verCalificacion").html(calificacion);
         $("#comentario_verCalificacion").html(comentario);
-
     };
 
-
     function setVerCalificacion(url, viajeCopilotoId) {
+
+        var callback = function (data) {
+            successCallbackVerCalificacion(data);
+        };
+
         $('#id_modal_ver_calificion_de_usuario').on('shown.bs.modal', function (e) {
             data = {
                 'viaje_copiloto_id': viajeCopilotoId,
             };
-            postJson(url, data, successCallbackVerCalificacion)
+            postJson(url, data, callback)
         });
     }
 

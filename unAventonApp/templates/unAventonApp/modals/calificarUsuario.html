@@ -43,20 +43,21 @@
 <script>
 
 
-    function setSubmitEventToCalificarUsuario(url, viajeCopilotoId) {
+    function setSubmitEventToCalificarUsuario(url, viajeCopilotoId,callback) {
         $('#id_form_calificar_usuario').on('submit', function (e) {
             e.preventDefault();
-            calificar_a_usuario(url, viajeCopilotoId);
+            calificar_a_usuario(url, viajeCopilotoId, callback);
             return false;
         });
     }
 
 
-    function calificar_a_usuario(url, viajeCopilotoId) {
+    function calificar_a_usuario(url, viajeCopilotoId, callbackOnSuccess) {
 
         successCallback = function (response) {
             if (!response.error) {
                 $("#id_calificar_usuario").modal('hide');
+                callbackOnSuccess();
 
             } else {
                 $("#error_calificacion").fadeIn(500).fadeOut(500);
