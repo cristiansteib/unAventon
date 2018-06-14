@@ -503,15 +503,13 @@ def lista_de_copilotos_confirmados(request):
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
-    print("sadf")
     viajeCopiloto = viaje.get_copilotos_confirmados()
-    print(viajeCopiloto)
-
     for obj in viajeCopiloto:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
         current_data.update({'viajeCopiloto_id': obj.pk})
+        current_data.update({'estado': obj.get_estado()})
         data['data'].append(current_data)
 
     return JsonResponse(data)
@@ -603,17 +601,13 @@ def calificar_piloto(request):
 def calificar_copiloto(request):
     data = {}
     r = request.POST
-
-    id_viaje = r['viaje_id']
-    id_copiloto = r['copiloto_id']
+    print(r)
+    viaje_copiloto_id = r['viaje_copiloto_id']
     calificacion = r['calificacion']
     comentario = r['comentario']
 
-    viaje = Viaje.objects.get(pk=id_viaje)
-    copiloto = Usuario.objects.get(pk=id_copiloto)
 
-    if request.user.usuario.set_calificar_copiloto(viaje=viaje, calificacion=calificacion, copiloto=copiloto,
-                                                   comentario=comentario):
+    if True:
         # calif ok
         pass
     else:

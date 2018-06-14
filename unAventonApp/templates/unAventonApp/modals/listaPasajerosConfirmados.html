@@ -54,11 +54,15 @@
             var actual = datos['data'][i];
             var row;
             row = '<tr id=confirm_' + actual.usuario + i +'>';
-            row += '<td>' + Date(actual.fecha_del_viaje).toLocaleString() + '</td>';
+            row += '<td>' + new Date(actual.fecha_del_viaje).toUTCString() + '</td>';
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';
-            row += '<td> <button type="button" class="btn btn-danger"  onclick="cancelarCopiloto(' + actual.viajeCopiloto_id +')">Cancelar</button></td>';
+            if (actual.estado === 'finalizado') {
+                row += '<td> <button type="button" class="btn btn-default"  onclick="calificar_copiloto(' + actual.viajeCopiloto_id +')">Calificar</button></td>';
+            } else {
+              row += '<td> <button type="button" class="btn btn-danger"  onclick="cancelarCopiloto(' + actual.viajeCopiloto_id +')">Cancelar</button></td>';
+            }
             row += '</tr>';
             tableBody.append(row);
         }

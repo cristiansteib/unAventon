@@ -46,6 +46,10 @@
       location.reload();
   }
 
+    function calificar_copiloto(idViajeCopiloto) {
+      $("#id_calificar_usuario").modal('show');
+      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto);
+    }
 
 
   </script>
