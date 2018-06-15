@@ -403,11 +403,13 @@ class Viaje(models.Model):
 
     def caeEnLaHora(self, unaHora):
         # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
+        def crear_hora(hora,minuto):
+            return datetime.datetime(1,1,1,hora,minuto)
+
         delta = 1800  # margen de 30 minutos para matchear mas viajes, en segundos
         hora = datetime.datetime.strptime(unaHora, '%H:%M')
-        horarios = (datetime.datetime(1, 1, 1, hora.hour, hora.minute), datetime.datetime(1, 1, 1, self.fecha_hora_salida.hour, self.fecha_hora_salida.minute))
+        horarios = (crear_hora(hora.hour, hora.minute), crear_hora(self.fecha_hora_salida.hour, self.fecha_hora_salida.minute))
         return delta >= (max(horarios) - min(horarios)).seconds
-        # TODO: @seba   checkear
 
     def eliminar(self):
         self.activo = False
