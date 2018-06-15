@@ -457,8 +457,9 @@ def borrar_cuenta_bancaria(request):
 def solicitar_ir_en_viaje(request):
     data = {}
     # r = request.POST
-    r = request.GET
+    r = request.POST
     id = r['viaje_id']
+    fecha = r['fecha_viaje']
 
     try:
         '''Reglas de negocio para inscribirse a un viaje
@@ -640,8 +641,8 @@ def buscar_viajes_ajax(request):
     fecha = request.POST.get('fecha', None)
     hora = request.POST.get('hora', None)
 
-    precio_minimo = int(request.POST['precio_min']) if request.POST.get('precio_min', None) else 0
-    precio_maximo = int(request.POST['precio_max']) if request.POST.get('precio_max', None) else 9999999
+    precio_minimo = int(request.POST['precio_min']) if request.POST.get('precio_min', None) else None
+    precio_maximo = int(request.POST['precio_max']) if request.POST.get('precio_max', None) else None
 
     viajes = Viaje.objects.filter(
         origen__icontains=origen,
@@ -664,8 +665,10 @@ def buscar_viajes_ajax(request):
         viajes = list(filter(lambda x: x.caeEnLaHora(hora), viajes))
 
     # chequea si hay que filtrar por costo
-    viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
-    viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
+    if precio_minimo:
+        viajes = list(filter(lambda x: x.get_costo_por_pasajero() >= precio_minimo, viajes))
+    if precio_maximo:
+        viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
 
     data['viajes'] = list(map(lambda x: x.asJsonPublicacion(), viajes))
     return JsonResponse(data)
