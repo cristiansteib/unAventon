@@ -459,8 +459,7 @@ def solicitar_ir_en_viaje(request):
     # r = request.POST
     r = request.POST
     id = r['viaje_id']
-    fecha = r['fecha_viaje']
-
+    fecha_solicitada = timezone.datetime.fromtimestamp(float(r['fecha_viaje']))
     try:
         '''Reglas de negocio para inscribirse a un viaje
             - tener tarjeta
@@ -484,8 +483,7 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
             return JsonResponse(data)
 
-        fecha_salida = viaje.proxima_fecha_de_salida()  # o recibirlo via request para un dia particular???
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_salida)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)

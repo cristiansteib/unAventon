@@ -2,94 +2,111 @@
 {% block title %}Buscar viaje{% endblock %}
 {% block content %}
 
-    <div class="container" style="text-align: left">
-        <div class="row">
-            <div class="col-md-4" style="width: 100%">
-                <form id="formBuscarViaje">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <input type="text" class="form-control" id="origenInput" name="origen" placeholder="Origen"
-                                   required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="text" class="form-control" id="destinoInput" name="destino"
-                                   placeholder="Destino"
-                                   required>
-                        </div>
-                    </div>
+  <div class="container" style="text-align: left">
+    <div class="row">
+      <div class="col-md-4" style="width: 100%">
+        <form id="formBuscarViaje">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="origenInput" name="origen" placeholder="Origen"
+                     required>
+            </div>
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="destinoInput" name="destino"
+                     placeholder="Destino"
+                     required>
+            </div>
+          </div>
 
 
-                    <h6>Fecha y hora de salida</h6>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <input type="date" class="form-control" id="precioMaxInput" name="fecha" placeholder="">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="time" class="form-control" id="precioMinInput" name="hora" placeholder="">
-                        </div>
-
-                    </div>
-
-                    <h6>Precio</h6>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <input type="text" class="form-control" id="precioMaxInput" name="precio_min"
-                                   placeholder="Minimo">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="text" class="form-control" id="precioMinInput" name="precio_max"
-                                   placeholder="Maximo">
-                        </div>
-
-                    </div>
-                    <button type="button" onclick="buscarViaje()" class="btn btn-primary">Buscar</button>
-                </form>
-
+          <h6>Fecha y hora de salida</h6>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="date" class="form-control" id="precioMaxInput" name="fecha" placeholder="">
+            </div>
+            <div class="form-group col-md-6">
+              <input type="time" class="form-control" id="precioMinInput" name="hora" placeholder="">
             </div>
 
-            <div id="id_viajes_encontrados" class="col-md-8">
+          </div>
 
+          <h6>Precio</h6>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="precioMaxInput" name="precio_min"
+                     placeholder="Minimo">
             </div>
-        </div>
-        <script>
-            function successSearch(data) {
-                mostrarViajesEncontrados(data);
-                console.log(data);
-            }
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="precioMinInput" name="precio_max"
+                     placeholder="Maximo">
+            </div>
 
-            function errorSearch(response) {
-                console.log('error en post form');
+          </div>
+          <button type="button" onclick="buscarViaje()" class="btn btn-primary">Buscar</button>
+        </form>
 
-            }
+      </div>
 
-            function buscarViaje() {
-                data = getFormData($("#formBuscarViaje"));
-                postJson("{% url 'buscar_viaje_ajax' %}", data, successSearch, errorSearch);
-            }
+      <div id="id_viajes_encontrados" class="col-md-8">
 
-            function mostrarViajesEncontrados(data) {
-                console.log('viajes',data.viajes[0]);
-                var v = data.viajes;
-                if (data !== null) {
-                    $("#id_viajes_encontrados").html('');
-                    for (i = 0; i < v.length; i++) {
-                        output = '<div class="card-header"></div>';
-                        output += '<div class="card text-center">' +
-                                    ' <h6>Origen:  ' + v[i].origen + '</h6>' +
-                                    ' <h6>Destino:  ' + v[i].destino + '</h6>' +
-                                    ' <h6>Fecha de salida:  ' + v[i].fecha_hora_salida + '</h6>' +
-                                    ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>' +
-                                    ' <h6>Comentario:  ' + v[i].comentario + '</h6>'+
-                                    '<button class="btn btn-success"> Enviar Solicitud </button>'+
-                                   '</div>';
+      </div>
+    </div>
+  </div>
+  <script>
+      function successSearch(data) {
+          mostrarViajesEncontrados(data);
+          console.log(data);
+      }
 
-                        $("#id_viajes_encontrados").append(output);
-                    }
-                }
-            }
+      function errorSearch(response) {
+          console.log('error en post form');
+
+      }
+
+      function buscarViaje() {
+          data = getFormData($("#formBuscarViaje"));
+          postJson("{% url 'buscar_viaje_ajax' %}", data, successSearch, errorSearch);
+      }
+
+      function mostrarViajesEncontrados(data) {
+          console.log('viajes', data.viajes[0]);
+          var v = data.viajes;
+          if (data !== null) {
+              $("#id_viajes_encontrados").html('');
+              for (i = 0; i < v.length; i++) {
+
+                  output = '<div class="card-header"></div>';
+                  output += '<div class="card text-center">' +
+                      ' <h6>Origen:  ' + v[i].origen + '</h6>' +
+                      ' <h6>Destino:  ' + v[i].destino + '</h6>' +
+                      ' <h6>Fecha de salida:  ' + v[i].fecha_hora_salida + '</h6>' +
+                      ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>' +
+                      ' <h6>Comentario:  ' + v[i].comentario + '</h6>' +
+                      '<button class="btn btn-success" onclick="solicitarIrEnViaje(' + v[i].id + ',' + new Date(v[i].fecha_hora_salida).getTime() / 1000 + ')"> Enviar Solicitud </button>' +
+                      '</div>';
+
+                  $("#id_viajes_encontrados").append(output);
+              }
+          }
+      }
 
 
-        </script>
+      function successCallBack_solicitarIrEnViaje(data) {
+        console.log(data);
+        if (data.error === true) {
+            overlayShow(data.msg);
+        }
+      }
+
+      function solicitarIrEnViaje(idViaje, fechaDeViaje) {
+          data = {
+              viaje_id: idViaje,
+              fecha_viaje: fechaDeViaje
+          };
+          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
+      }
+
+  </script>
 
 
 

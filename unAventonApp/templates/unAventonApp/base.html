@@ -32,6 +32,7 @@
 </head>
 
 <style>
+
   /* Remove the navbar's default margin-bottom and rounded borders */
   .navbar {
     margin-bottom: 0;
@@ -55,7 +56,6 @@
 
   .fondo-color {
     background-color: #f1737666!important;
-
   }
   body {
     padding: 0 0 100px 0;
@@ -64,6 +64,38 @@
   #content {
     margin-top: 15px;
   }
+
+  #overlay {
+    position: fixed;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+
+
+  #overlay .text{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: white;
+    transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    background-color: #555555;
+    min-width: 25%;
+    min-height: 15%;
+    padding: 20px;
+    font-size: 2rem;
+}
+
+
+
 </style>
 
 <body>
@@ -85,6 +117,14 @@
 
 
 <script>
+function overlayShow(mensaje) {
+    document.getElementById("overlay").style.display = "block";
+    $("#overlay .text").html(mensaje)
+}
+
+function overlayHide() {
+    document.getElementById("overlay").style.display = "none";
+}
 
     function mostrarMesajeCorrecto(id, mensaje) {
         $('#' + id + 'mensaje_ok').html(mensaje);
@@ -114,6 +154,13 @@
     }
 
 </script>
+
+<div id="overlay" onclick="overlayHide()">
+
+  <div class="text">
+<p>dfsgsdfgds</p>
+  </div>
+</div>
 
 </body>
 </html>
