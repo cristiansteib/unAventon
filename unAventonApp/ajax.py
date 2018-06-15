@@ -452,11 +452,24 @@ def borrar_cuenta_bancaria(request):
  
  
 """
+def cancelar_ir_en_viaje(request):
+    data = {}
+    r = request.POST
+    id = r['viaje_copiloto_id']
+    viajeC = ViajeCopiloto.objects.get(pk=id)
+    if viajeC.estaConfirmado:
+        viajeC.calificacion_a_copiloto = -1
+        viajeC.calificacion_a_copiloto_mensaje = "Calificacion negativa por cancelar inscripcion estando confirmado"
+        data['msg'] = ' Se desinscribio correctamente, se califico negativo.'
+    else:
+        viajeC.estaConfirmado = False
+        data['msg'] = ' Se desinscribio correctamente'
+    viajeC.save()
+    return JsonResponse(data)
 
 
 def solicitar_ir_en_viaje(request):
     data = {}
-    # r = request.POST
     r = request.POST
     id = r['viaje_id']
     fecha_solicitada = timezone.datetime.fromtimestamp(float(r['fecha_viaje']))

@@ -70,7 +70,7 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
     estado = viajeCopiloto.get_estado()
-    if estado == "finalizado":
+    if estado == "finalizado" and viajeCopiloto.estaConfirmado:
         return "<button class='btn btn-default' onclick=calificarPiloto({0})>Calificar</button>".format(viajeCopilotoId)
     return "<button class='btn btn-default' disabled>Calificar</button>"
 
@@ -80,7 +80,8 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
 def copilotoCancelarInscripcion(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    estado =viajeCopiloto.get_estado()
-    if estado == "finalizado":
-        return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"
-    return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(viajeCopilotoId)
+    estado = viajeCopiloto.get_estado()
+    if estado != "finalizado" and viajeCopiloto.estaConfirmado is None:
+        return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(
+            viajeCopilotoId)
+    return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"
