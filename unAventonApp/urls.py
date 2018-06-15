@@ -78,6 +78,7 @@ urlpatterns = [
     path('ajax/calificarCopiloto', calificar_copiloto,  name='calificar_a_copiloto'),
     path('ajax/calificarPiloto', calificar_piloto,  name='calificar_a_piloto'),
     path('ajax/calificacionCopiloto', ver_calificacion_de_copiloto,  name='ver_calificacion_a_copiloto'),
+    path('ajax/calificacionPiloto', ver_calificacion_de_piloto,  name='ver_calificacion_a_piloto'),
 
 
 

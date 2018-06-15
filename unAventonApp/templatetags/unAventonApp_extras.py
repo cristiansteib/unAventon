@@ -70,8 +70,10 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
     estado = viajeCopiloto.get_estado()
-    if estado == "finalizado" and viajeCopiloto.estaConfirmado:
+    if estado == "finalizado" and viajeCopiloto.estaConfirmado and viajeCopiloto.calificacion_a_piloto is None:
         return "<button class='btn btn-default' onclick=calificarPiloto({0})>Calificar</button>".format(viajeCopilotoId)
+    if estado == "finalizado" and viajeCopiloto.estaConfirmado and viajeCopiloto.calificacion_a_piloto is not None:
+        return "<button class='btn btn-default' onclick=verCalificacionDadaAPiloto({0})>Ver calificacion</button>".format(viajeCopilotoId)
     return "<button class='btn btn-default' disabled>Calificar</button>"
 
 

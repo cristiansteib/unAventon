@@ -37,7 +37,6 @@
           <td>{{ viaje.viaje.auto.usuario.get_calificacion_como_piloto }}</td>
           <td>{{ viaje.id | estadoCopilotoViaje}}</td>
           <td>{{ viaje.id | copilotoViajeCalificarPiloto | safe}}</td>
-
           <td>{{ viaje.id | copilotoCancelarInscripcion | safe }}</td>
         </tr>
       {% endfor %}
@@ -45,7 +44,8 @@
       </tbody>
     </table>
   </div>
-
+{% include 'unAventonApp/modals/calificarUsuario.html' %}
+{% include 'unAventonApp/modals/verCalificacion.html' %}
   <script>
       function mostrar_solo(clase) {
           $("tr").hide();
@@ -57,10 +57,21 @@
       }
 
       function calificarPiloto(viajeCopilotoId) {
-
+          var callbackReload = function(){
+              location.reload();
+          };
+        $("#id_calificar_usuario").modal('show');
+        setSubmitEventToCalificarUsuario("{% url 'calificar_a_piloto' %}", viajeCopilotoId, callbackReload);
       }
 
+
+    function verCalificacionDadaAPiloto(idViajeCopiloto) {
+        setVerCalificacion("{% url 'ver_calificacion_a_piloto' %}",idViajeCopiloto);
+        $("#id_modal_ver_calificion_de_usuario").modal('show');
+    }
+
       function cancelarInscripcion(viajeCopilotoId) {
+          console.log('cancelar inscriptcion');
           var successCallback = function (data) {
               location.reload();
           };

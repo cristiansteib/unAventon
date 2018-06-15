@@ -623,6 +623,14 @@ def ver_calificacion_de_copiloto(request):
     data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_copiloto_mensaje
     return JsonResponse(data)
 
+def ver_calificacion_de_piloto(request):
+    data = {}
+    r = request.POST
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    viajeCopiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
+    data['calificacion'] = viajeCopiloto.calificacion_a_piloto
+    data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_piloto_mensaje
+    return JsonResponse(data)
 
 def calificar_piloto(request):
     # TODO: retornar un json mas amigable :)
