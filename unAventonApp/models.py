@@ -387,19 +387,17 @@ class Viaje(models.Model):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
 
         fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
-
         # viaje semanal
         if self.se_repite.count('sem'):
-            return (self.fecha_hora_salida.weekday() == fecha.weekday())
-
+            return (self.fecha_hora_salida.weekday() == fecha.weekday()) and (
+                        self.fecha_hora_salida.date() <= fecha.date())
         # viaje unico
         elif self.se_repite.count('nun'):
-            return (
-                        self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month and self.fecha_hora_salida.year == fecha.year)
+            return self.fecha_hora_salida.date() == fecha.date()
 
         # viaje diario
         elif self.se_repite.count('dia'):
-            return (self.fecha_hora_salida.date() <= fecha.date())
+            return self.fecha_hora_salida.date() <= fecha.date()
 
         # TODO: @seba checkear
 
