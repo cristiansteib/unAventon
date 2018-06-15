@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from .models import Usuario, ViajeCopiloto, Viaje
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.utils import timezone
+
+
 def baseContext():
     return {
         'footer': {}
@@ -98,9 +101,21 @@ def mis_viajes_finalizados(request):
     # o directamente aca, total en otro lado no se va a usar.
     # ViajeCopiloto tiene el metodo get_estado(). se deberian agrupar por fechas y generar la data
     # sese ya se muchos comentarios redundantes ajaj :D
+
+    #viajes con copilotos confirmados finalizados
     context = {
-        'viajes': Viaje.objects.filter(activo=True)
+        'viajes': []
     }
+
+    viajes_copilotos = ViajeCopiloto.objects.filter(
+        fecha_del_viaje__lte=timezone.now(),
+        estaConfirmado=True
+    ).distinct('fecha_del_viaje', 'viaje__pk')
+
+    for viaje_copiloto in viajes_copilotos:
+        viaje = Viaje.objects.get(pk=viaje_copiloto.viaje)
+        context['viajes'].append(viaje.datos_del_viaje_en_fecha(viaje_copiloto.fecha_del_viaje))
+
     return render(request, 'unAventonApp/mis_viajes_finalizados.html',context)
 
 
