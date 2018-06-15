@@ -28,14 +28,24 @@
   </div>
 </div>
 <script>
+
+
+
     function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
+        var callbackOnSuccess = function (data){
+            if (data.error === true){
+                overlayShow(data.msg);
+            }
+            loadListaDePasajerosSinConfirmar();
+
+        };
         console.log('confirmar');
         var data = {
             viaje_id: idViaje,
             copiloto_id: idCopiloto,
             viaje_copiloto_id: idViajeCopiloto
         };
-        postJson('{% url 'confirmar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
+        postJson('{% url 'confirmar_copiloto' %}', data, callbackOnSuccess);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 

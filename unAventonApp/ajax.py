@@ -536,7 +536,7 @@ def lista_de_copitolos_en_espera(request):
 
 
 def confirmar_copiloto(request):
-    data = {}
+    data = {'error': True}
     r = request.POST
     print(r)
     id_viaje = r['viaje_id']
@@ -546,19 +546,27 @@ def confirmar_copiloto(request):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
     copiloto = Usuario.objects.get(pk=id_copilto)
 
-    if request.user.usuario.pk != copiloto.pk:
+    if viajeCopiloto.usuario != viajeCopiloto.viaje.auto.usuario:
         if not copiloto.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
 
             if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
                 viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
                 if viaje_copiloto.confirmarCopiloto():
                     print('se confirmo')
+                    data['error'] = False
+                    data['msg'] = 'confirmado'
                 else:
+                    data['msg'] = 'no se confirmo, no hay lugar'
                     print('no se confirmo')
             else:
+                data['msg'] = 'El copiloto esta confirmado en otro viaje, al mismo horario'
                 print("se superpone guacho")
         else:
+            data['msg'] = 'El copiloto tiene calificaciones pendientes, no se puede confirmar.'
             print("el copiloto tiene calificacione pendientes")
+    else:
+        data['msg'] = 'Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo'
+        print("Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo")
     return JsonResponse(data)
 
 

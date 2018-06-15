@@ -312,22 +312,6 @@ class Auto(models.Model):
             'dominio': self.dominio,
         }
 
-
-class TipoViaje(models.Model):
-    tipo = models.CharField(max_length=20)
-    descripcion = models.CharField(max_length=150)
-
-    def asJson(self):
-        return json.dumps(
-            {
-                'id': self.pk,
-                'tipoViaje': self.tipo,
-                'descripcion': self.descripcion
-            },
-            sort_keys=True,
-            indent=4)
-
-
 class ViajeManager(models.Manager):
     def create_viaje(self, usuario=..., **kwargs):
         __json = {
@@ -353,14 +337,6 @@ class ViajeManager(models.Manager):
 
         # return viaje
 
-    def buscar_viajes_activos(self, usuario=None, fecha=None):
-        viajes = self.filter(activo=True)
-        if usuario:
-            viajes = viajes.filter(usuario=usuario)
-        if fecha:
-            viajes = viajes.filter(fecha_hora_salida=fecha)
-
-        return viajes
 
 
 class Viaje(models.Model):
@@ -411,6 +387,20 @@ class Viaje(models.Model):
         horarios = (
         crear_hora(hora.hour, hora.minute), crear_hora(self.fecha_hora_salida.hour, self.fecha_hora_salida.minute))
         return delta >= (max(horarios) - min(horarios)).seconds
+
+    @staticmethod
+    def datos_del_viaje_en_fecha(viaje, fecha):
+        """ retorna un json con los datos asoc al
+        viaje segun la fecha"""
+
+        return {
+
+        }
+
+
+
+    def datos_del_viaje_en_proxima_fecha_de_salida(self):
+        return self.datos_del_viaje_en_fecha(self, self.proxima_fecha_de_salida())
 
     def eliminar(self):
         self.activo = False
@@ -564,19 +554,26 @@ class Viaje(models.Model):
             ).values('usuario__pk')
         ))
 
-    def get_asientos_disponibles(self):
+    def get_asientos_disponibles_en_fecha(self, fecha):
         asientos_ocupados = ViajeCopiloto.objects.filter(
             viaje=self,
+            fecha_del_viaje=fecha,
             estaConfirmado=True
         ).aggregate(
             Count('usuario')
         )['usuario__count']
-        # se resta 1 por el piloto
-        print(self.auto_lugares_ocupados_de_antemano)
         return self.auto.capacidad - asientos_ocupados - self.auto_lugares_ocupados_de_antemano
 
-    def hay_lugar(self):
+
+    def get_asientos_disponibles(self):
+        return self.get_asientos_disponibles_en_fecha(self.proxima_fecha_de_salida())
+
+
+    def hay_lugar_en_fecha(self, fecha):
         return True if self.get_asientos_disponibles() else False
+
+    def hay_lugar(self):
+        return self.hay_lugar_en_fecha(self.proxima_fecha_de_salida())
 
     def get_copilotos_en_lista_de_espera(self):
         return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None)
@@ -653,7 +650,7 @@ class ViajeCopiloto(models.Model):
 
     def confirmarCopiloto(self):
         # todo: chequear que no este en otro viaje
-        if self.viaje.hay_lugar():
+        if self.viaje.hay_lugar_en_fecha(self.fecha_del_viaje):
             self.estaConfirmado = True
             self.save()
             return True
