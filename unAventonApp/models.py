@@ -387,30 +387,30 @@ class Viaje(models.Model):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
 
         fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
-
         # viaje semanal
         if self.se_repite.count('sem'):
-            return (self.fecha_hora_salida.weekday() == fecha.weekday())
-
+            return (self.fecha_hora_salida.weekday() == fecha.weekday()) and (
+                    self.fecha_hora_salida.date() <= fecha.date())
         # viaje unico
         elif self.se_repite.count('nun'):
-            return (
-                        self.fecha_hora_salida.day == fecha.day and self.fecha_hora_salida.month == fecha.month and self.fecha_hora_salida.year == fecha.year)
+            return self.fecha_hora_salida.date() == fecha.date()
 
         # viaje diario
         elif self.se_repite.count('dia'):
-            return (self.fecha_hora_salida.day == fecha.day)
+            return self.fecha_hora_salida.date() <= fecha.date()
 
         # TODO: @seba checkear
 
     def caeEnLaHora(self, unaHora):
         # retorna un booleano, si el viaje cae en la hora unaHora, no chequea por fecha
+        def crear_hora(hora, minuto):
+            return datetime.datetime(1, 1, 1, hora, minuto)
+
         delta = 1800  # margen de 30 minutos para matchear mas viajes, en segundos
         hora = datetime.datetime.strptime(unaHora, '%H:%M')
-        horaBusqueda = datetime.datetime(1, 1, 1, hora.hour, hora.minute)
-        horaViaje = datetime.datetime(1, 1, 1, self.fecha_hora_salida.hour, self.fecha_hora_salida.minute)
-        return delta >= (horaBusqueda - horaViaje).seconds
-        # TODO: @seba   checkear
+        horarios = (
+        crear_hora(hora.hour, hora.minute), crear_hora(self.fecha_hora_salida.hour, self.fecha_hora_salida.minute))
+        return delta >= (max(horarios) - min(horarios)).seconds
 
     def eliminar(self):
         self.activo = False
@@ -637,6 +637,8 @@ class ViajeCopiloto(models.Model):
         self.calificacion_a_piloto_mensaje = comentario
         self.save()
 
+    def esta_el_copiloto_calificado(self):
+        return self.calificacion_a_copiloto is not None
 
     def get_estado(self):
         estados = ("esperando", "confirmado", "rechazado", "finalizado")

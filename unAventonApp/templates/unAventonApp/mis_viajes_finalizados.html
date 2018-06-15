@@ -34,6 +34,7 @@
   {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
   {% include 'unAventonApp/modals/modificarViaje.html' %}
   {% include 'unAventonApp/modals/calificarUsuario.html' %}
+  {% include 'unAventonApp/modals/verCalificacion.html' %}
   <script>
   var viaje_seleccionado = null;
 
@@ -48,9 +49,13 @@
 
     function calificar_copiloto(idViajeCopiloto) {
       $("#id_calificar_usuario").modal('show');
-      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto);
+      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto, loadListaDeCopilotosConfirmados);
     }
 
+    function ver_calificacion_copiloto(idViajeCopiloto) {
+        setVerCalificacion("{% url 'ver_calificacion_a_copiloto' %}",idViajeCopiloto);
+        $("#id_modal_ver_calificion_de_usuario").modal('show');
+    }
 
   </script>
 {% endblock %}
