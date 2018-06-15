@@ -480,7 +480,7 @@ def solicitar_ir_en_viaje(request):
 
         if request.user.usuario.se_superpone_algun_viaje(fecha_solicitada, viaje.duracion):
             data['error'] = True
-            data['msg'] = 'Ya estás inscripto en otro viaje en el mismo horario'
+            data['msg'] = 'Hay un viaje que se superpone en la fecha y hora solicitada'
             return JsonResponse(data)
 
         rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada)
