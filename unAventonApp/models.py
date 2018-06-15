@@ -388,8 +388,8 @@ class Viaje(models.Model):
             crear_hora(hora.hour, hora.minute), crear_hora(self.fecha_hora_salida.hour, self.fecha_hora_salida.minute))
         return delta >= (max(horarios) - min(horarios)).seconds
 
-    @staticmethod
-    def datos_del_viaje_en_fecha(viaje, fecha):
+    # todo!!
+    def datos_del_viaje_en_fecha(self, fecha):
         """ retorna un json con los datos asoc al
         viaje segun la fecha"""
 
@@ -397,8 +397,9 @@ class Viaje(models.Model):
 
         }
 
-    def datos_del_viaje_en_proxima_fecha_de_salida(self):
-        return self.datos_del_viaje_en_fecha(self, self.proxima_fecha_de_salida())
+    # ready
+    def datos_del_viaje(self):
+        return self.datos_del_viaje_en_fecha(self.proxima_fecha_de_salida())
 
     def eliminar(self):
         self.activo = False
@@ -458,9 +459,6 @@ class Viaje(models.Model):
 
         return "no calulado, no se contemplo alguna condicion."
 
-    def buscar_viaje(self, origen, destino, fecha):
-        pass
-
     def activar(self):
         self.activo = True
         self.save()
@@ -472,19 +470,24 @@ class Viaje(models.Model):
     def esta_activo(self):
         return self.activo
 
-    def get_total_a_reintegrar_al_conductor(self):
-        value = self.get_total_cobrado() - self.get_comision_a_cobrar()
+    # ready
+    def get_total_a_reintegrar_al_conductor_en_fecha(self, fecha):
+        value = self.get_total_cobrado_fecha(fecha) - self.get_comision_a_cobrar()
         return value if value > 0 else 0
 
-    #ready
+    # ready
+    def get_total_a_reintegrar_al_conductor(self):
+        return self.get_total_a_reintegrar_al_conductor_en_fecha(self.proxima_fecha_de_salida())
+
+    # ready
     def get_comision_a_cobrar(self):
         return self.comision * self.gasto_total
 
-    #ready
+    # ready
     def get_total_cobrado_fecha(self, fecha):
         return len(self.get_copilotos_confirmados_en_fecha(fecha)) * self.get_costo_por_pasajero()
 
-    #ready
+    # ready
     def get_total_cobrado(self):
         return self.get_total_cobrado_fecha(self.proxima_fecha_de_salida())
 
@@ -492,7 +495,7 @@ class Viaje(models.Model):
         return self.gasto_total / self.auto.capacidad
 
     def get_estado_del_viaje(self):
-        #todo ??
+        # todo ??
         """ retorna un string con el estado del viaje"""
         return ""
 
@@ -545,15 +548,15 @@ class Viaje(models.Model):
             'auto': self.auto.asJson()
         }
 
-    #ready
-    def get_copilotos_confirmados_en_fecha(self,fecha):
+    # ready
+    def get_copilotos_confirmados_en_fecha(self, fecha):
         return ViajeCopiloto.objects.filter(
             viaje=self,
             estaConfirmado=True,
-            fecha=fecha
+            fecha_del_viaje=fecha
         )
 
-    #ready
+    # ready
     def get_copilotos_confirmados(self):
         return self.get_copilotos_confirmados_en_fecha(self.proxima_fecha_de_salida())
 
@@ -563,7 +566,7 @@ class Viaje(models.Model):
             pk__in=ViajeCopiloto.objects.filter(
                 viaje=self,
                 estaConfirmado=True,
-                fecha=fecha
+                fecha_del_viaje=fecha
             ).values('usuario__pk')
         ))
 
@@ -594,17 +597,22 @@ class Viaje(models.Model):
     def hay_lugar(self):
         return self.hay_lugar_en_fecha(self.proxima_fecha_de_salida())
 
+    # ready
+    def get_copilotos_en_lista_de_espera_en_fecha(self, fecha):
+        return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None, fecha_del_viaje=fecha)
+
+    # ready
     def get_copilotos_en_lista_de_espera(self):
-        return ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None)
+        return self.get_copilotos_en_lista_de_espera_en_fecha(self.proxima_fecha_de_salida())
 
-    def get_copilotos_en_lista_de_espera_siguiente_fecha(self):
-        pass
+    #ready
+    def get_count_copilotos_en_lista_de_espera_en_fecha(self, fecha):
+        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None, fecha_del_viaje=fecha))
 
+    #ready
     def get_count_copilotos_en_lista_de_espera(self):
-        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None))
+        return self.get_count_copilotos_en_lista_de_espera_en_fecha(self.proxima_fecha_de_salida())
 
-    def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
-        pass
 
     def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha):
         return ViajeCopiloto.objects.create(
