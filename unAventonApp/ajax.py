@@ -470,7 +470,7 @@ def solicitar_ir_en_viaje(request):
 
         if not (request.user.usuario.get_tarjetas_de_credito()):
             data['error'] = True
-            data['msg'] = 'No tiene tarjeta, registre una para inscribirse'
+            data['msg'] = 'No tienes tarjeta de credito, registre una para poder inscribirse'
             return JsonResponse(data)
 
         if request.user.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
@@ -478,12 +478,12 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Debe calificaciones de mas de 30 dias'
             return JsonResponse(data)
 
-        if request.user.usuario.se_superpone_algun_viaje(viaje.fecha_hora_salida, viaje.duracion):
+        if request.user.usuario.se_superpone_algun_viaje(fecha_solicitada, viaje.duracion):
             data['error'] = True
-            data['msg'] = 'Ya esta inscripto en otro viaje en el mismo horario'
+            data['msg'] = 'Ya estás inscripto en otro viaje en el mismo horario'
             return JsonResponse(data)
 
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)
@@ -492,6 +492,8 @@ def solicitar_ir_en_viaje(request):
         data['msg'] = 'Ya envio solicitud'
         return JsonResponse(data)
     except:
+        import sys
+        print(sys.exc_info())
         print('a la mierda todo')
         return JsonResponse({'error': 'algo salio mal'})
 
