@@ -489,7 +489,7 @@ def solicitar_ir_en_viaje(request):
         return JsonResponse(data)
     except IntegrityError:
         data['error'] = True
-        data['msg'] = 'Ya envio solicitud'
+        data['msg'] = 'Ya estas incripto en este viaje'
         return JsonResponse(data)
     except:
         import sys
