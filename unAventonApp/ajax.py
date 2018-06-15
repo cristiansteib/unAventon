@@ -464,6 +464,7 @@ def cancelar_ir_en_viaje(request):
     else:
         viajeC.estaConfirmado = False
         data['msg'] = ' Se desinscribio correctamente'
+    viajeC.estaConfirmado = False
     viajeC.save()
     return JsonResponse(data)
 
