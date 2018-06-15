@@ -61,7 +61,14 @@
       }
 
       function cancelarInscripcion(viajeCopilotoId) {
+          var successCallback = function (data) {
+              location.reload();
+          };
 
+          data = {
+              viaje_copiloto_id:viajeCopilotoId
+          };
+        postJson("{% url 'cancelar_ir_a_viaje' %}", data,successCallback)
       }
 
   </script>
