@@ -394,6 +394,13 @@ class Viaje(models.Model):
         viaje segun la fecha"""
 
         return {
+            'viaje': self,
+            'fecha_hora_salida': fecha,
+            'fecha_hora_salida_unix': fecha.timestamp(),
+            'get_comision_cobrada': self.get_comision_cobrada_en_fecha(fecha),
+            'get_total_a_reintegrar_al_conductor': self.get_total_a_reintegrar_al_conductor_en_fecha(fecha),
+            'get_count_copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
+            'tiene_calificacion_pendientes_a_copilotos': self.tiene_calificacion_pendientes_a_copilotos_en_fecha(fecha)
 
         }
 
@@ -605,14 +612,13 @@ class Viaje(models.Model):
     def get_copilotos_en_lista_de_espera(self):
         return self.get_copilotos_en_lista_de_espera_en_fecha(self.proxima_fecha_de_salida())
 
-    #ready
+    # ready
     def get_count_copilotos_en_lista_de_espera_en_fecha(self, fecha):
         return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None, fecha_del_viaje=fecha))
 
-    #ready
+    # ready
     def get_count_copilotos_en_lista_de_espera(self):
         return self.get_count_copilotos_en_lista_de_espera_en_fecha(self.proxima_fecha_de_salida())
-
 
     def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha):
         return ViajeCopiloto.objects.create(
@@ -627,13 +633,26 @@ class Viaje(models.Model):
     def get_conversacion_privada(self):
         return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
 
-    def tiene_calificacion_pendientes_a_copilotos(self):
-        # todo: Retorna booleano si el piloto adeuda calificaciones.
-        return True
+    def tiene_calificacion_pendientes_a_copilotos_en_fecha(self, fecha):
+        vc = ViajeCopiloto.objects.filter(
+            viaje=self,
+            fecha_del_viaje=fecha,
+            estaConfirmado=True,
+            calificacion_a_copiloto=None
+        )
+        for v in vc:
+            print(v.pk)
+        return True if vc else False
 
+    def tiene_calificacion_pendientes_a_copilotos(self):
+        self.tiene_calificacion_pendientes_a_copilotos_en_fecha(self.proxima_fecha_de_salida())
+
+    def get_comision_cobrada_en_fecha(self, fecha):
+        return self.get_comision_a_cobrar() if self.get_total_a_reintegrar_al_conductor_en_fecha(fecha) > 0 else 0
+
+    # ready
     def get_comision_cobrada(self):
-        # todo: Retorna el valor total recaudado por la app, en un pricipio seria 0, depende de la cant de copilotos confirmados
-        return 0
+        return self.get_comision_cobrada_en_fecha(self.proxima_fecha_de_salida())
 
 
 class ViajeCopiloto(models.Model):

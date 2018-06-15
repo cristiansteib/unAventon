@@ -102,18 +102,30 @@ def mis_viajes_finalizados(request):
     # ViajeCopiloto tiene el metodo get_estado(). se deberian agrupar por fechas y generar la data
     # sese ya se muchos comentarios redundantes ajaj :D
 
-    #viajes con copilotos confirmados finalizados
     context = {
         'viajes': []
     }
 
-    viajes_copilotos = ViajeCopiloto.objects.filter(
+    #busca los viajes finalizados con copilotos confirmados
+    viajes_copilotos = list(ViajeCopiloto.objects.filter(
         fecha_del_viaje__lte=timezone.now(),
         estaConfirmado=True
-    ).distinct('fecha_del_viaje', 'viaje__pk')
+    ))
 
+    #aplico un DISTINCT caserito porque no functiona con sqlite
+    x = set()
+    for vc in viajes_copilotos:
+        v = (vc.fecha_del_viaje, vc.viaje.pk)
+        if v in x:
+            print('se borra')
+            viajes_copilotos.remove(vc)
+        else:
+            x.add(v)
+
+    print(viajes_copilotos)
+    #agrega los datos de cada viaje encontrado
     for viaje_copiloto in viajes_copilotos:
-        viaje = Viaje.objects.get(pk=viaje_copiloto.viaje)
+        viaje = Viaje.objects.get(pk=viaje_copiloto.viaje.pk)
         context['viajes'].append(viaje.datos_del_viaje_en_fecha(viaje_copiloto.fecha_del_viaje))
 
     return render(request, 'unAventonApp/mis_viajes_finalizados.html',context)
