@@ -626,10 +626,10 @@ class Viaje(models.Model):
         )
 
     def get_conversacion_publica(self):
-        return ConversacionPublica.objects.filter(viaje=self).order_by('fechaHoraPregunta')
+        return ConversacionPublica.objects.filter(viaje=self).order_by('-fechaHoraPregunta')
 
     def get_conversacion_privada(self):
-        return ConversacionPrivada.objects.filter(viaje=self).order_by('fechaHora')
+        return ConversacionPrivada.objects.filter(viaje=self).order_by('-fechaHora')
 
     def tiene_calificacion_pendientes_a_copilotos_en_fecha(self, fecha):
         vc = ViajeCopiloto.objects.filter(
