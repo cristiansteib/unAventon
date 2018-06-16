@@ -73,7 +73,8 @@
     function loadListaDeCopilotosConfirmados() {
         const url = "{% url 'copilotos_confirmados' %}";
         var data = {
-            viaje_id: viaje_seleccionado
+            viaje_id: viaje_seleccionado,
+            fecha_hora_unix:viaje_fecha_unix
         };
         postJson(url, data, cargarListaDeCopilotosConfirmados);
     }
