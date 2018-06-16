@@ -68,6 +68,8 @@ function insert_user_data(data_user) {
     $("#dni").html("dni:  " + data_user.dni);
     $("#email").html( data_user.mail);
     $("#birthday").html("Cumplea&ntilde;os:  " + data_user.fecha_de_nacimiento);
+    $("#reputacionPiloto").text('Reputacion como piloto: '+data_user.reputacion_como_piloto);
+    $("#reputacionCoPiloto").text('Reputacion como copiloto: '+data_user.reputacion_como_copiloto);
 }
 
 function insert_credit_card_data(data) {
