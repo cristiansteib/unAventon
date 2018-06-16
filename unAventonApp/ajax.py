@@ -453,6 +453,8 @@ def borrar_cuenta_bancaria(request):
  
  
 """
+
+
 def cancelar_ir_en_viaje(request):
     data = {}
     r = request.POST
@@ -484,7 +486,6 @@ def solicitar_ir_en_viaje(request):
         '''
         viaje = Viaje.objects.get(pk=id)
 
-
         if not (request.user.usuario.get_tarjetas_de_credito()):
             data['error'] = True
             data['msg'] = 'No tienes tarjeta de credito, registre una para poder inscribirse'
@@ -501,7 +502,8 @@ def solicitar_ir_en_viaje(request):
             return JsonResponse(data)
 
         tarjeta = Tarjeta.objects.get(pk=id_tarjeta)
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,tarjeta=tarjeta)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,
+                                                            tarjeta=tarjeta)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)
@@ -525,10 +527,12 @@ def lista_de_copilotos_confirmados(request):
     viaje = Viaje.objects.get(pk=id)
     if fecha_viaje_unix:
         # si se requiere de una fecha en particular, se filtra por esa fecha
-        viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
+        viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(
+            timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
     else:
         # sino todas la fechas mayores a hoy. Las fechas anteriores a hoy estan finalizados.
-        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now(), estaConfirmado=True)
+        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now(),
+                                                      estaConfirmado=True)
     for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
@@ -546,9 +550,8 @@ def lista_de_copitolos_en_espera(request):
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
-    viajes_copilotos = ViajeCopiloto.objects.filter(viaje=viaje, estaConfirmado=None, fecha_del_viaje__gte=timezone.now())
-    # deja solamanete los copilotos en espera que sean mayor a hoy, el resto no nos interesaria
-    # porque el viaje ya paso
+    viajes_copilotos = ViajeCopiloto.objects.filter(viaje=viaje, estaConfirmado=None,
+                                                    fecha_del_viaje__gte=timezone.now())
 
     for obj in viajes_copilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
@@ -635,6 +638,7 @@ def ver_calificacion_de_copiloto(request):
     data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_copiloto_mensaje
     return JsonResponse(data)
 
+
 def ver_calificacion_de_piloto(request):
     data = {}
     r = request.POST
@@ -643,6 +647,7 @@ def ver_calificacion_de_piloto(request):
     data['calificacion'] = viajeCopiloto.calificacion_a_piloto
     data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_piloto_mensaje
     return JsonResponse(data)
+
 
 def calificar_piloto(request):
     # TODO: retornar un json mas amigable :)
@@ -697,7 +702,8 @@ def buscar_viajes_ajax(request):
         f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
 
         for viaje in viajes:
-            fecha = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, tzinfo=viaje.fecha_hora_salida.tzinfo)
+            fecha = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour,
+                                      viaje.fecha_hora_salida.minute, tzinfo=viaje.fecha_hora_salida.tzinfo)
             viaje.fecha_hora_salida = fecha
 
     if hora:
