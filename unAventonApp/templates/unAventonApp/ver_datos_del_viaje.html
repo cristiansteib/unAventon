@@ -21,6 +21,11 @@
       background-color: #f1737645;
     }
 
+    .sin-pregunta {
+      background-color: rgba(171, 171, 171, 0.27);
+
+    }
+
     .respuesta {
       margin: 0 0 0 30px;
       background-color: #f173761c;
@@ -47,15 +52,17 @@
   <div class="container">
     <div class="row" style="margin-top: 10%">
       <p> {{ viaje }}</p>
-        <div class="form-group">
-          <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
-          <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control">
-            {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
-              <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
-            {% endfor %}
+      <div class="form-group">
+        <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+        <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control">
+          {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
+            <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
+          {% endfor %}
         </select>
       </div>
-      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"> Inscribirse </button>
+      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})">
+        Inscribirse
+      </button>
 
     </div>
   </div>
@@ -76,25 +83,34 @@
     </div>
 
 
-    {% for conversacion in conversacion_publica %}
-      <div class="col-10 card pregunta">
-        <div class="card-body">
-          <img height="50px" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
-            class="msgText"> {{ conversacion.pregunta }}</span>
-          <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
-        </div>
-      </div>
-      {% if conversacion.respuesta %}
-        <div class="col-10 card respuesta">
+    {% if conversacion_publica %}
+      {% for conversacion in conversacion_publica %}
+        <div class="col-10 card pregunta">
           <div class="card-body">
-            <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}"> <span
-              class="msgText"> {{ conversacion.respuesta }}</span>
-            <span class="data"> {{ conversacion.fechaHoraRespuesta }} </span>
+            <img height="50px" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
+              class="msgText"> {{ conversacion.pregunta }}</span>
+            <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
           </div>
         </div>
-      {% endif %}
-    {% endfor %}
-  </div>
+        {% if conversacion.respuesta %}
+          <div class="col-10 card respuesta">
+            <div class="card-body">
+              <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}"> <span
+                class="msgText"> {{ conversacion.respuesta }}</span>
+              <span class="data"> {{ conversacion.fechaHoraRespuesta }} </span>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      </div>
+    {% else %}
+
+      <div class="col-10 card pregunta sin-pregunta">
+        <div class="card-body">
+          <p>Este viaje aun no tiene preguntas, se el primero en consultar.</p>
+        </div>
+      </div>
+    {% endif %}
 
 
   <script>
