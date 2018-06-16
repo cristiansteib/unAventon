@@ -69,6 +69,7 @@
 
 
   <div style="text-align: left">
+  <div class="col-md-8">
     <div class="col-10  preguntar">
       <form class="form-inline" action="{% url 'agregar_pregunta_conversacion_publica' %}" method="post">
         {% csrf_token %}
@@ -82,12 +83,11 @@
       </form>
     </div>
 
-
     {% if conversacion_publica %}
       {% for conversacion in conversacion_publica %}
         <div class="col-10 card pregunta">
           <div class="card-body">
-            <img height="50px" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
+            <img height="50px" class="rounded" style="border-radius: 100%!important;" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
               class="msgText"> {{ conversacion.pregunta }}</span>
             <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
           </div>
@@ -97,14 +97,15 @@
             <div class="card-body">
               <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}"> <span
                 class="msgText"> {{ conversacion.respuesta }}</span>
-              <span class="data"> {{ conversacion.fechaHoraRespuesta }} </span>
+              <span class="data"> {{ conversacion }} </span>
             </div>
           </div>
         {% endif %}
       {% endfor %}
       </div>
-    {% else %}
 
+    {% else %}
+</div>
       <div class="col-10 card pregunta sin-pregunta">
         <div class="card-body">
           <p>Este viaje aun no tiene preguntas, se el primero en consultar.</p>
