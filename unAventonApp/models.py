@@ -72,7 +72,7 @@ class Usuario(models.Model):
     def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
         viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+            pk__in=self.get_viajes_confirmados_como_copiloto().filter(viaje__fecha_hora_salida__gte=fecha_hora_salida).values('viaje_id'))
         return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
 
     def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
