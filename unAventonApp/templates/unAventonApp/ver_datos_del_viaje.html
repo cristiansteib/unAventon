@@ -55,7 +55,7 @@
             {% endfor %}
         </select>
       </div>
-      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})">Success</button>
+      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"> Inscribirse </button>
 
     </div>
   </div>
@@ -109,7 +109,8 @@
       function solicitarIrEnViaje(idViaje, fechaDeViaje) {
           data = {
               viaje_id: idViaje,
-              fecha_viaje: fechaDeViaje
+              fecha_viaje: fechaDeViaje,
+              tarjeta_id: $("#tarjeta_de_credito_inp").val()
           };
           postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
       }
