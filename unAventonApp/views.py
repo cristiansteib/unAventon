@@ -56,7 +56,8 @@ def signInRegister(request):
 
 def logout(request):
     __logout(request)
-    return HttpResponseRedirect('/')
+    print('logout')
+    return redirect('index')
 
 @login_required
 def viajes_inscriptos(request):

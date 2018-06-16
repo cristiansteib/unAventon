@@ -513,15 +513,18 @@ def solicitar_ir_en_viaje(request):
 
 
 def lista_de_copilotos_confirmados(request):
-    print("copilotos confirmados")
     data = {'data': []}
     r = request.POST
     id = r['viaje_id']
-    fecha_viaje = int(r['fecha_hora_unix'])
-    print(fecha_viaje)
+    fecha_viaje_unix = r.get('fecha_hora_unix', None)
 
     viaje = Viaje.objects.get(pk=id)
-    viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(fecha_viaje))
+    if fecha_viaje_unix:
+        # si se requiere de una fecha en particular, se filtra por esa fecha
+        viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
+    else:
+        # sino todas la fechas mayores a hoy. Las fechas anteriores a hoy estan finalizados.
+        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now())
     for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
