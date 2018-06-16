@@ -100,7 +100,8 @@ def datos_relacionados_al_usuario(request):
         data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
         autos = usuario.get_autos()
         data['get_vehiculos'] = [obj.asJson() for obj in autos] if autos else None
-
+        data['usuario']['reputacion_como_piloto'] = usuario.get_puntaje_como_piloto()
+        data['usuario']['reputacion_como_copiloto'] = usuario.get_puntaje_como_copiloto()
 
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
@@ -483,6 +484,7 @@ def solicitar_ir_en_viaje(request):
         '''
         viaje = Viaje.objects.get(pk=id)
 
+
         if not (request.user.usuario.get_tarjetas_de_credito()):
             data['error'] = True
             data['msg'] = 'No tienes tarjeta de credito, registre una para poder inscribirse'
@@ -498,7 +500,8 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Hay un viaje que se superpone en la fecha y hora solicitada'
             return JsonResponse(data)
 
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,tarjeta=id_tarjeta)
+        tarjeta = Tarjeta.objects.get(pk=id_tarjeta)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,tarjeta=tarjeta)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)
