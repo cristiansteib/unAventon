@@ -436,7 +436,6 @@ class Viaje(models.Model):
         if self.se_repite.count('sem'):
             # es mayor a hoy la fecha, asique retorno de una el valor
             if timezone.now() < self.fecha_hora_salida:
-                print('fecha actual proxima')
                 return self.fecha_hora_salida
 
             else:
