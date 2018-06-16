@@ -82,7 +82,7 @@
                   output += ' <h6>Fecha de salida:  ' + new Date(v[i].fecha_hora_salida).toUTCString() + '</h6>';
                   output += ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>';
                   output += ' <h6>Comentario:  ' + v[i].comentario + '</h6>';
-                  output += '<a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> verViaje</a>';
+                  output += '<a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> Ver viaje</a>';
                   output += '</div>';
 
                   $("#id_viajes_encontrados").append(output);
