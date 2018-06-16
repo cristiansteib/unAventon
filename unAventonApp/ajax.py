@@ -528,7 +528,7 @@ def lista_de_copilotos_confirmados(request):
         viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
     else:
         # sino todas la fechas mayores a hoy. Las fechas anteriores a hoy estan finalizados.
-        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now())
+        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now(), estaConfirmado=True)
     for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
