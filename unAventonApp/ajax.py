@@ -473,6 +473,7 @@ def solicitar_ir_en_viaje(request):
     data = {}
     r = request.POST
     id = r['viaje_id']
+    id_tarjeta = r['tarjeta_id']
     fecha_solicitada = timezone.datetime.fromtimestamp(float(r['fecha_viaje']))
     try:
         '''Reglas de negocio para inscribirse a un viaje
@@ -497,7 +498,7 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Hay un viaje que se superpone en la fecha y hora solicitada'
             return JsonResponse(data)
 
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,tarjeta=id_tarjeta)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)

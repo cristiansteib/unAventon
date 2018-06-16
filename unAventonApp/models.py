@@ -625,11 +625,12 @@ class Viaje(models.Model):
     def get_count_copilotos_en_lista_de_espera(self):
         return self.get_count_copilotos_en_lista_de_espera_en_fecha(self.proxima_fecha_de_salida())
 
-    def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha):
+    def set_agregar_copiloto_en_lista_de_espera(self, usuario, fecha, tarjeta):
         return ViajeCopiloto.objects.create(
             viaje=self,
             usuario=usuario,
-            fecha_del_viaje=fecha
+            fecha_del_viaje=fecha,
+            tarjeta=tarjeta
         )
 
     def get_conversacion_publica(self):
