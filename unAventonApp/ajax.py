@@ -517,8 +517,11 @@ def lista_de_copilotos_confirmados(request):
     data = {'data': []}
     r = request.POST
     id = r['viaje_id']
+    fecha_viaje = int(r['fecha_hora_unix'])
+    print(fecha_viaje)
+
     viaje = Viaje.objects.get(pk=id)
-    viajeCopilotos = viaje.get_copilotos_confirmados()
+    viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(fecha_viaje))
     for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
@@ -682,14 +685,12 @@ def buscar_viajes_ajax(request):
 
     # filtra por fecha y hora
     if fecha:
-        print(viajes)
         viajes = list(filter(lambda x: x.caeEnLaFecha(fecha), viajes))
-        print(viajes)
         f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
 
         for viaje in viajes:
-            viaje.fecha_hora_salida = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour,
-                                                        viaje.fecha_hora_salida.minute)
+            fecha = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, tzinfo=viaje.fecha_hora_salida.tzinfo)
+            viaje.fecha_hora_salida = fecha
 
     if hora:
         viajes = list(filter(lambda x: x.caeEnLaHora(hora), viajes))
