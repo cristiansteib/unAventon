@@ -539,8 +539,8 @@ class Viaje(models.Model):
 
         return data
 
-    def asJsonPublicacion(self):
-        return {
+    def asJsonPublicacion(self, usuario=None):
+        data = {
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
@@ -550,8 +550,15 @@ class Viaje(models.Model):
             'duracion': self.duracion,
             'comentario': self.comentario,
             'se_repite': self.get_se_repite_asString(),
-            'auto': self.auto.asJson()
+            'auto': self.auto.asJson(),
         }
+        if usuario:
+            data.update({
+                'esta_incripto': True if len(ViajeCopiloto.objects.filter(usuario=usuario, viaje=self,
+                                                                      fecha_del_viaje=self.fecha_hora_salida)) > 0 else False,
+                'es_piloto': usuario.pk == self.auto.usuario.pk
+            })
+        return data
 
     # ready
     def get_copilotos_confirmados_en_fecha(self, fecha):

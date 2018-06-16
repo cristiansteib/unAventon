@@ -707,5 +707,5 @@ def buscar_viajes_ajax(request):
     if precio_maximo:
         viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
 
-    data['viajes'] = list(map(lambda x: x.asJsonPublicacion(), viajes))
+    data['viajes'] = list(map(lambda x: x.asJsonPublicacion(request.user.usuario), viajes))
     return JsonResponse(data)
