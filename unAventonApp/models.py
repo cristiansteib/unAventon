@@ -401,7 +401,6 @@ class Viaje(models.Model):
             'get_total_a_reintegrar_al_conductor': self.get_total_a_reintegrar_al_conductor_en_fecha(fecha),
             'get_count_copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
             'tiene_calificacion_pendientes_a_copilotos': self.tiene_calificacion_pendientes_a_copilotos_en_fecha(fecha)
-
         }
 
     # ready
@@ -740,4 +739,4 @@ class ConversacionPublica(models.Model):
     pregunta = models.CharField(max_length=150)
     respuesta = models.CharField(max_length=150, default=None, null=True)
     fechaHoraPregunta = models.DateTimeField(auto_created=True)
-    fechaHoraRespuesta = models.DateTimeField()
+    fechaHoraRespuesta = models.DateTimeField(default=None, null=True)

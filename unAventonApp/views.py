@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponseRedirect, Http404, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
-from .models import Usuario, ViajeCopiloto, Viaje
+from .models import Usuario, ViajeCopiloto, Viaje, ConversacionPublica
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.utils import timezone
@@ -60,8 +60,22 @@ def viaje(request, id, timestamp):
     context = {}
     viaje = Viaje.objects.get(pk=id)
     context['viaje'] = viaje.datos_del_viaje_en_fecha(timezone.datetime.fromtimestamp(int(timestamp)))
+    context['timestamp'] = timestamp
+    context['conversacion_publica'] = viaje.get_conversacion_publica()
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
+
+@login_required
+def agregar_pregunta_conversacion_publica(request):
+    id_viaje = request.POST['id_viaje']
+    timestamp = request.POST['fecha_hora_unix']
+    ConversacionPublica.objects.create(
+        viaje=Viaje.objects.get(pk=id_viaje),
+        usuario=request.user.usuario,
+        pregunta=request.POST['pregunta'],
+        fechaHoraPregunta=timezone.now()
+    )
+    return redirect('viaje', id=id_viaje, timestamp=timestamp)
 
 
 def logout(request):
