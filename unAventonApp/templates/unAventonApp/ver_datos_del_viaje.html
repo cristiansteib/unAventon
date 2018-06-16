@@ -82,7 +82,7 @@
         <button type="submit" class="btn btn-primary mb-2"> Preguntar</button>
       </form>
     </div>
-
+  <div class="row">
     {% if conversacion_publica %}
       {% for conversacion in conversacion_publica %}
         <div class="col-10 card pregunta">
@@ -113,7 +113,7 @@
       </div>
     {% endif %}
 
-
+</div>
   <script>
       function successCallBack_solicitarIrEnViaje(data) {
           console.log(data);
