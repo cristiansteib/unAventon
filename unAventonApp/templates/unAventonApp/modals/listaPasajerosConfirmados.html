@@ -72,6 +72,9 @@
 
     function loadListaDeCopilotosConfirmados() {
         const url = "{% url 'copilotos_confirmados' %}";
+        if (typeof viaje_fecha_unix === 'undefined' ) {
+        viaje_fecha_unix = null;
+        }
         var data = {
             viaje_id: viaje_seleccionado,
             fecha_hora_unix:viaje_fecha_unix
