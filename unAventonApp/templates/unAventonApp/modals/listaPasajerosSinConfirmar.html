@@ -13,6 +13,7 @@
           <table class="table table-bordered">
             <thead>
             <tr>
+              <th>Fecha  del viaje</th>
               <th>Email</th>
               <th>Nombre</th>
               <th>Apellido</th>
@@ -28,14 +29,24 @@
   </div>
 </div>
 <script>
+
+
+
     function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
+        var callbackOnSuccess = function (data){
+            if (data.error === true){
+                overlayShow(data.msg);
+            }
+            loadListaDePasajerosSinConfirmar();
+
+        };
         console.log('confirmar');
         var data = {
             viaje_id: idViaje,
             copiloto_id: idCopiloto,
             viaje_copiloto_id: idViajeCopiloto
         };
-        postJson('{% url 'confirmar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
+        postJson('{% url 'confirmar_copiloto' %}', data, callbackOnSuccess);
         //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
@@ -63,6 +74,7 @@
             var actual = datos['data'][i];
             var row;
             row = '<tr id=' + actual.usuario + '>';
+            row += '<td>' + actual.fecha_del_viaje + '</td>';
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';

@@ -1,9 +1,10 @@
 from django.urls import path,re_path
 from .views import (
+    viaje,
     index,
     login,
     signIn,
-    logout,
+    logout as logout_view,
     signInRegister,
     viajes_inscriptos,
     buscar_viajes,
@@ -12,7 +13,7 @@ from .views import (
     mi_perfil,
     upload_foto,
     mis_viajes_finalizados,
-    detalle_de_publicacion_del_viaje
+    agregar_pregunta_conversacion_publica
 )
 
 from .ajax import *
@@ -24,15 +25,16 @@ urlpatterns = [
     path('login', login, name='login'),
     path('signin', signIn, name='signin'),
     path('signinReg', signInRegister, name='signin_register'),
-    path('logout', logout, name='logout'),
+    path('logout', logout_view, name='logout'),
     path('viajesInscriptos', viajes_inscriptos, name='viajes_inscriptos'),
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
     path('miPerfil', mi_perfil, name='miPerfil'),
-    re_path(r'^publicacion/(?P<id>[0-9]+)/viaje/$', detalle_de_publicacion_del_viaje),
+    re_path(r'^viaje/(?P<id>[0-9]+)/(?P<timestamp>[0-9]+)/$', viaje, name='viaje'),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('misViajesFinalizados', mis_viajes_finalizados, name='mis_viajes_finalizados'),
     path('crearViaje', crear_viaje, name='crear_viaje'),
     path('uploadFoto', upload_foto, name='upload_foto'),
+    path('agregarPregPublica', agregar_pregunta_conversacion_publica, name='agregar_pregunta_conversacion_publica'),
 
 
     path('ajax/copilotosEnEspera', lista_de_espera_de_copilotos_para_un_viaje,
@@ -62,7 +64,11 @@ urlpatterns = [
     path('ajax/getListaCalificacionesPendientesPilotos', lista_de_calificaciones_pendientes_a_pilotos, name='calificaciones_pendients_pi'),
     path('ajax/getListaCopilotosConfirmados', lista_de_copilotos_confirmados, name='copilotos_confirmados'),
     path('ajax/getListaCopilotosEnEspera', lista_de_copitolos_en_espera, name='copilotos_en_espera'),
+
     path('ajax/solicitarIrEnViaje', solicitar_ir_en_viaje, name='solicitar_ir_a_viaje'),
+    path('ajax/cancelarIrEnViaje', cancelar_ir_en_viaje, name='cancelar_ir_a_viaje'),
+
+
     path('ajax/confirmarCopiloto', confirmar_copiloto, name='confirmar_copiloto'),
     path('ajax/rechazarCopiloto', rechazar_copiloto, name='rechazar_copiloto'),
     path('ajax/cancelarCopiloto', cancelar_copiloto, name='cancelar_copiloto'),
@@ -74,6 +80,7 @@ urlpatterns = [
     path('ajax/calificarCopiloto', calificar_copiloto,  name='calificar_a_copiloto'),
     path('ajax/calificarPiloto', calificar_piloto,  name='calificar_a_piloto'),
     path('ajax/calificacionCopiloto', ver_calificacion_de_copiloto,  name='ver_calificacion_a_copiloto'),
+    path('ajax/calificacionPiloto', ver_calificacion_de_piloto,  name='ver_calificacion_a_piloto'),
 
 
 

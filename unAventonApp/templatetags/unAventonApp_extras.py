@@ -43,7 +43,12 @@ def getEstado(viajeCopiloto):
 @register.filter(is_safe=True)
 def estadoCopilotoViaje(viajeCopilotoId):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    return viajeCopiloto.get_estado().capitalize()
+    estado = viajeCopiloto.get_estado()
+    if estado == "rechazado":
+        if viajeCopiloto.calificacion_a_copiloto == -1:
+            return "Cancelado"
+
+    return estado.capitalize()
 
 
 @register.filter(is_safe=True)
@@ -70,8 +75,10 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
     estado = viajeCopiloto.get_estado()
-    if estado == "finalizado":
+    if estado == "finalizado" and viajeCopiloto.estaConfirmado and viajeCopiloto.calificacion_a_piloto is None:
         return "<button class='btn btn-default' onclick=calificarPiloto({0})>Calificar</button>".format(viajeCopilotoId)
+    if estado == "finalizado" and viajeCopiloto.estaConfirmado and viajeCopiloto.calificacion_a_piloto is not None:
+        return "<button class='btn btn-default' onclick=verCalificacionDadaAPiloto({0})>Ver calificacion</button>".format(viajeCopilotoId)
     return "<button class='btn btn-default' disabled>Calificar</button>"
 
 
@@ -80,7 +87,8 @@ def copilotoViajeCalificarPiloto(viajeCopilotoId):
 def copilotoCancelarInscripcion(viajeCopilotoId):
     # el estado del viaje tiene que estar finalizado para poder calificar al piloto
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
-    estado =viajeCopiloto.get_estado()
-    if estado == "finalizado":
-        return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"
-    return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(viajeCopilotoId)
+    estado = viajeCopiloto.get_estado()
+    if estado != "finalizado" and viajeCopiloto.estaConfirmado is not False:
+        return "<button class='btn btn-danger' onclick=cancelarInscripcion({0})>Cancelar inscripcion</button>".format(
+            viajeCopilotoId)
+    return "<button class='btn btn-default' disabled>Cancelar inscripcion</button>"

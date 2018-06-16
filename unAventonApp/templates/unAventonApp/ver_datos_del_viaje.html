@@ -1,0 +1,135 @@
+{% extends "unAventonApp/base.html" %}
+
+{% block title %}Viaje - {{ viaje.viaje.origen }} -> {{ viaje.viaje.destino }}{% endblock %}
+{% block content %}
+  {% load unAventonApp_extras %}
+
+  <style>
+    .preguntar textarea {
+      height: 45px;
+      max-height: 45px;
+      width: 100%;
+    }
+
+    .preguntar button {
+      height: 45px;
+      border-radius: 0;
+    }
+
+    .pregunta {
+      margin: 20px 0 0 0;
+      background-color: #f1737645;
+    }
+
+    .sin-pregunta {
+      background-color: rgba(171, 171, 171, 0.27);
+
+    }
+
+    .respuesta {
+      margin: 0 0 0 30px;
+      background-color: #f173761c;
+    }
+
+    .msgText {
+      margin: 0 0 10px 15px;
+      vertical-align: bottom;
+      line-height: 38px;
+    }
+
+    .data {
+      text-align: right;
+      color: #8c8787f1;
+      vertical-align: bottom;
+      line-height: 15px;
+      margin: 10px 0 0 8px;
+    }
+
+  </style>
+
+
+
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <p> {{ viaje }}</p>
+      <div class="form-group">
+        <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+        <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control">
+          {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
+            <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})">
+        Inscribirse
+      </button>
+
+    </div>
+  </div>
+
+
+  <div style="text-align: left">
+    <div class="col-10  preguntar">
+      <form class="form-inline" action="{% url 'agregar_pregunta_conversacion_publica' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
+        <input type="hidden" name="fecha_hora_unix" value="{{ timestamp }}">
+        <div class="form-group col-8 mb-2 ml-3">
+  <textarea rows="3" name="pregunta">
+  </textarea>
+        </div>
+        <button type="submit" class="btn btn-primary mb-2"> Preguntar</button>
+      </form>
+    </div>
+
+
+    {% if conversacion_publica %}
+      {% for conversacion in conversacion_publica %}
+        <div class="col-10 card pregunta">
+          <div class="card-body">
+            <img height="50px" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
+              class="msgText"> {{ conversacion.pregunta }}</span>
+            <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
+          </div>
+        </div>
+        {% if conversacion.respuesta %}
+          <div class="col-10 card respuesta">
+            <div class="card-body">
+              <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}"> <span
+                class="msgText"> {{ conversacion.respuesta }}</span>
+              <span class="data"> {{ conversacion.fechaHoraRespuesta }} </span>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      </div>
+    {% else %}
+
+      <div class="col-10 card pregunta sin-pregunta">
+        <div class="card-body">
+          <p>Este viaje aun no tiene preguntas, se el primero en consultar.</p>
+        </div>
+      </div>
+    {% endif %}
+
+
+  <script>
+      function successCallBack_solicitarIrEnViaje(data) {
+          console.log(data);
+          if (data.error === true) {
+              overlayShow(data.msg);
+          }
+      }
+
+
+      function solicitarIrEnViaje(idViaje, fechaDeViaje) {
+          data = {
+              viaje_id: idViaje,
+              fecha_viaje: fechaDeViaje,
+              tarjeta_id: $("#tarjeta_de_credito_inp").val()
+          };
+          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
+      }
+  </script>
+
+{% endblock %}

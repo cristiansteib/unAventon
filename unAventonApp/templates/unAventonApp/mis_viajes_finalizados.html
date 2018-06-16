@@ -12,50 +12,57 @@
 
     <h3>Mis viajes como conductor finalizados</h3>
 
-          {% for viaje in viajes %}
-            <div class="card card-block" style="margin-top: 25px">
-              <ul>
-                <li>Origen: {{ viaje.origen }}</li>
-                <li> Destino: {{ viaje.destino }}</li>
-                <li> Fecha: {{ viaje.fecha_hora_salida }}</li>
-                <li> Auto utilizado: {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
-                  asientos: {{ viaje.auto.capacidad }}</li>
-                <li> Monto retenido por la aplicacion: ${{ viaje.get_comision_cobrada }}</li>
-                <li> Total depositado en cuenta: <span style="      color: #9eb974;   font-weight: 900;">${{ viaje.get_total_a_reintegrar_al_conductor }}</span></li>
-                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados  }}</li>
-                {% if viaje.tiene_calificacion_pendientes_a_copilotos %}<li> <h5 style="color: red">Este viaje tiene calificacion pendientes a copiltos</h5></li> {% endif %}
-                <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" >Lista de copilotos confirmados           </button>
-
-              </ul>
-            </div>
-          {% endfor %}
+    {% for viaje in viajes %}
+      <div class="card card-block" style="margin-top: 25px">
+        <ul>
+          <li>Origen: {{ viaje.viaje.origen }}</li>
+          <li> Destino: {{ viaje.viaje.destino }}</li>
+          <li> Fecha: {{ viaje.fecha_hora_salida }}</li>
+          <li> Auto utilizado: {{ viaje.viaje.auto.marca }} {{ viaje.viaje.auto.modelo }} {{ viaje.viaje.auto.dominio }}
+            ,
+            asientos: {{ viaje.viaje.auto.capacidad }}</li>
+          <li> Monto retenido por la aplicacion: ${{ viaje.get_comision_cobrada }}</li>
+          <li> Total depositado en cuenta: <span
+              style="      color: #9eb974;   font-weight: 900;">${{ viaje.get_total_a_reintegrar_al_conductor }}</span>
+          </li>
+          <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados }}</li>
+          {% if viaje.tiene_calificacion_pendientes_a_copilotos %}
+            <li><h5 style="color: red">Este viaje tiene calificacion pendientes a copilotos</h5></li> {% endif %}
+          <button type="button" class="btn"
+                  onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.viaje.pk }},{{ viaje.fecha_hora_salida_unix }})">
+            Lista de copilotos confirmados
+          </button>
+        </ul>
+      </div>
+    {% endfor %}
   </div>
   {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
   {% include 'unAventonApp/modals/modificarViaje.html' %}
   {% include 'unAventonApp/modals/calificarUsuario.html' %}
   {% include 'unAventonApp/modals/verCalificacion.html' %}
   <script>
-  var viaje_seleccionado = null;
+      var viaje_seleccionado = null;
+      var viaje_fecha_unix = null;
 
-  function openModalForViajeId(idSelector, idViaje) {
-      $(idSelector).modal('show');
-      viaje_seleccionado = idViaje;
-  }
+      function openModalForViajeId(idSelector, idViaje, fecha_unix) {
+          $(idSelector).modal('show');
+          viaje_seleccionado = idViaje;
+          viaje_fecha_unix = fecha_unix;
+      }
 
-  function reloadPage(){
-      location.reload();
-  }
+      function reloadPage() {
+          location.reload();
+      }
 
-    function calificar_copiloto(idViajeCopiloto) {
-      $("#id_calificar_usuario").modal('show');
-      setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto, loadListaDeCopilotosConfirmados);
-    }
+      function calificar_copiloto(idViajeCopiloto) {
+          $("#id_calificar_usuario").modal('show');
+          setSubmitEventToCalificarUsuario("{% url 'calificar_a_copiloto' %}", idViajeCopiloto, loadListaDeCopilotosConfirmados);
+      }
 
-    function ver_calificacion_copiloto(idViajeCopiloto) {
-        setVerCalificacion("{% url 'ver_calificacion_a_copiloto' %}",idViajeCopiloto);
-        $("#id_modal_ver_calificion_de_usuario").modal('show');
-    }
+      function ver_calificacion_copiloto(idViajeCopiloto) {
+          setVerCalificacion("{% url 'ver_calificacion_a_copiloto' %}", idViajeCopiloto);
+          $("#id_modal_ver_calificion_de_usuario").modal('show');
+      }
 
   </script>
 {% endblock %}

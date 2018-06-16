@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import Usuario, Auto, Viaje, CuentaBancaria, TipoViaje, ViajeCopiloto, Tarjeta
+from .models import Usuario, Auto, Viaje, CuentaBancaria, ViajeCopiloto, Tarjeta
 from django.contrib.auth.models import User
 from django.utils import timezone
 import datetime
