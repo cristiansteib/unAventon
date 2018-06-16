@@ -547,10 +547,9 @@ def lista_de_copitolos_en_espera(request):
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
     viajes_copilotos = viaje.get_copilotos_en_lista_de_espera()
-    print('viajes copilotos s',viajes_copilotos)
     # deja solamanete los copilotos en espera que sean mayor a hoy, el resto no nos interesaria
     # porque el viaje ya paso
-    viajes_copilotos.filter(fecha_del_viaje__gte=timezone.now())
+    viajes_copilotos.filter(fecha_del_viaje__gte=timezone.now(), estaConfirmado=None)
 
     for obj in viajes_copilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
