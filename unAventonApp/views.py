@@ -5,7 +5,7 @@ from .models import Usuario, ViajeCopiloto, Viaje, ConversacionPublica
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.utils import timezone
-
+import datetime
 
 def baseContext():
     return {
@@ -73,7 +73,7 @@ def agregar_pregunta_conversacion_publica(request):
         viaje=Viaje.objects.get(pk=id_viaje),
         usuario=request.user.usuario,
         pregunta=request.POST['pregunta'],
-        fechaHoraPregunta=timezone.now()
+        fechaHoraPregunta=datetime.datetime.now()
     )
     return redirect('viaje', id=id_viaje, timestamp=timestamp)
 
