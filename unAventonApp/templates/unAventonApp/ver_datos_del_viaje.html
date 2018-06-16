@@ -47,6 +47,16 @@
   <div class="container">
     <div class="row" style="margin-top: 10%">
       <p> {{ viaje }}</p>
+        <div class="form-group">
+          <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+          <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control">
+            {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
+              <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
+            {% endfor %}
+        </select>
+      </div>
+      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})">Success</button>
+
     </div>
   </div>
 
