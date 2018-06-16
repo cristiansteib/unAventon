@@ -117,7 +117,6 @@ def mis_viajes_finalizados(request):
     for vc in viajes_copilotos:
         v = (vc.fecha_del_viaje, vc.viaje.pk)
         if v in x:
-            print('se borra')
             viajes_copilotos.remove(vc)
         else:
             x.add(v)
@@ -125,7 +124,7 @@ def mis_viajes_finalizados(request):
     print(viajes_copilotos)
     #agrega los datos de cada viaje encontrado
     for viaje_copiloto in viajes_copilotos:
-        viaje = Viaje.objects.get(pk=viaje_copiloto.viaje.pk)
+        viaje = viaje_copiloto.viaje
         context['viajes'].append(viaje.datos_del_viaje_en_fecha(viaje_copiloto.fecha_del_viaje))
 
     return render(request, 'unAventonApp/mis_viajes_finalizados.html',context)
