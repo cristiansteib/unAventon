@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponseRedirect,Http404,redirect
+from django.shortcuts import render, HttpResponseRedirect, Http404, redirect
 from django.contrib.auth import logout as __logout, login as __login, authenticate
 from django.contrib.auth.models import User
 from .models import Usuario, ViajeCopiloto, Viaje
@@ -28,10 +28,10 @@ def login(request):
             ## se autentico bien
             __login(request, user)
 
-            return HttpResponseRedirect(request.GET.get('next','/'))
+            return HttpResponseRedirect(request.GET.get('next', '/'))
         else:
             ## algun dato esta mal
-            context['error'] = {'message':'E-mail inexistente, o contraseña invalida'}
+            context['error'] = {'message': 'E-mail inexistente, o contraseña invalida'}
 
     return render(request, 'unAventonApp/login.html', context)
 
@@ -45,13 +45,23 @@ def signInRegister(request):
         try:
             r = request.POST
             user = User.objects.create_user(r['email'], r['email'], r['password'])
-            Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'], fechaDeNacimiento=r['birthDay'])
+            Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'],
+                                   fechaDeNacimiento=r['birthDay'])
             return render(request, 'unAventonApp/signin_success.html')
         except IntegrityError:
-            context = {'error':'Ese usuario ya esta registrado'}
-            return render(request,'unAventonApp/signIn.html', context)
+            context = {'error': 'Ese usuario ya esta registrado'}
+            return render(request, 'unAventonApp/signIn.html', context)
 
     return HttpResponseRedirect('signin')
+
+
+def viaje(request, id, timestamp):
+    # renderiza la vista para ver los datos del viaje
+    context = {}
+    viaje = Viaje.objects.get(pk=id)
+    context['viaje'] = viaje.datos_del_viaje_en_fecha(timezone.datetime.fromtimestamp(int(timestamp)))
+
+    return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
 
 
 def logout(request):
@@ -59,13 +69,15 @@ def logout(request):
     print('logout')
     return redirect('index')
 
+
 @login_required
 def viajes_inscriptos(request):
     context = {
-        'viajes' :  ViajeCopiloto.objects.filter(usuario=request.user.usuario)
+        'viajes': ViajeCopiloto.objects.filter(usuario=request.user.usuario)
     }
     print(context)
     return render(request, 'unAventonApp/viajes_inscriptos.html', context)
+
 
 @login_required
 def buscar_viajes(request):
@@ -90,9 +102,10 @@ def mis_viajes(request):
 
     return render(request, 'unAventonApp/mis_viajes.html', context)
 
+
 @login_required
 def mis_viajes_finalizados(request):
-    #TODO: agregar solo los viajes finalizados. @seba
+    # TODO: agregar solo los viajes finalizados. @seba
     # el tema es asi, como tenemos un solo registro para los viajes que se repiten
     # entonce tenemos que generar por cada copilotoViaje que este en estado "finalizado",
     # la data del viaje, lo que recauda la app, lo que se retorna al usuario y mas datos
@@ -107,13 +120,13 @@ def mis_viajes_finalizados(request):
         'viajes': []
     }
 
-    #busca los viajes finalizados con copilotos confirmados
+    # busca los viajes finalizados con copilotos confirmados
     viajes_copilotos = list(ViajeCopiloto.objects.filter(
         fecha_del_viaje__lte=timezone.now(),
         estaConfirmado=True
     ))
 
-    #aplico un DISTINCT caserito porque no functiona con sqlite
+    # aplico un DISTINCT caserito porque no functiona con sqlite
     x = set()
     for vc in viajes_copilotos:
         v = (vc.fecha_del_viaje, vc.viaje.pk)
@@ -123,12 +136,12 @@ def mis_viajes_finalizados(request):
             x.add(v)
 
     print(viajes_copilotos)
-    #agrega los datos de cada viaje encontrado
+    # agrega los datos de cada viaje encontrado
     for viaje_copiloto in viajes_copilotos:
         viaje = viaje_copiloto.viaje
         context['viajes'].append(viaje.datos_del_viaje_en_fecha(viaje_copiloto.fecha_del_viaje))
 
-    return render(request, 'unAventonApp/mis_viajes_finalizados.html',context)
+    return render(request, 'unAventonApp/mis_viajes_finalizados.html', context)
 
 
 @login_required
@@ -142,6 +155,7 @@ def detalle_de_publicacion_del_viaje(request, id):
         pass
 
     return render(request, 'unAventonApp/detalle_de_publicacion_viaje.html')
+
 
 @login_required
 def crear_viaje(request):

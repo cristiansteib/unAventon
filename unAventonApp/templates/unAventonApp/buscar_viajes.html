@@ -74,37 +74,22 @@
           if (data !== null) {
               $("#id_viajes_encontrados").html('');
               for (i = 0; i < v.length; i++) {
-
+                  var unix_time = new Date(v[i].fecha_hora_salida).getTime() / 1000;
                   output = '<div class="card-header"></div>';
-                  output += '<div class="card text-center">' +
-                      ' <h6>Origen:  ' + v[i].origen + '</h6>' +
-                      ' <h6>Destino:  ' + v[i].destino + '</h6>' +
-                      ' <h6>Fecha de salida:  ' + new Date(v[i].fecha_hora_salida).toUTCString() + '</h6>' +
-                      ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>' +
-                      ' <h6>Comentario:  ' + v[i].comentario + '</h6>' +
-                      '<button class="btn btn-success" onclick="solicitarIrEnViaje(' + v[i].id + ',' + new Date(v[i].fecha_hora_salida).getTime() / 1000 + ')"> Enviar Solicitud </button>' +
-                      '</div>';
+                  output += '<div class="card text-center">';
+                  output += ' <h6>Origen:  ' + v[i].origen + '</h6>';
+                  output += ' <h6>Destino:  ' + v[i].destino + '</h6>';
+                  output += ' <h6>Fecha de salida:  ' + new Date(v[i].fecha_hora_salida).toUTCString() + '</h6>';
+                  output += ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>';
+                  output += ' <h6>Comentario:  ' + v[i].comentario + '</h6>';
+                  output += '<a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> verViaje</a>';
+                  output += '</div>';
 
                   $("#id_viajes_encontrados").append(output);
               }
           }
       }
 
-
-      function successCallBack_solicitarIrEnViaje(data) {
-        console.log(data);
-        if (data.error === true) {
-            overlayShow(data.msg);
-        }
-      }
-
-      function solicitarIrEnViaje(idViaje, fechaDeViaje) {
-          data = {
-              viaje_id: idViaje,
-              fecha_viaje: fechaDeViaje
-          };
-          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
-      }
 
   </script>
 

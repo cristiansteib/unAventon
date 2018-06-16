@@ -13,6 +13,7 @@
           <table class="table table-bordered">
             <thead>
             <tr>
+              <th>Fecha  del viaje</th>
               <th>Email</th>
               <th>Nombre</th>
               <th>Apellido</th>
@@ -73,6 +74,7 @@
             var actual = datos['data'][i];
             var row;
             row = '<tr id=' + actual.usuario + '>';
+            row += '<td>' + actual.fecha_del_viaje + '</td>';
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';

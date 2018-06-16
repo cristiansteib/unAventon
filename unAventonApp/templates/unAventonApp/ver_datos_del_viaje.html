@@ -1,0 +1,30 @@
+{% extends "unAventonApp/base.html" %}
+{% block title %}Viaje - {{ viaje.viaje.origen }} -> {{ viaje.viaje.destino }}{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <p> {{ viaje }}</p>
+    </div>
+  </div>
+
+  
+  <script>
+        function successCallBack_solicitarIrEnViaje(data) {
+        console.log(data);
+        if (data.error === true) {
+            overlayShow(data.msg);
+        }
+      }
+
+      function solicitarIrEnViaje(idViaje, fechaDeViaje) {
+          data = {
+              viaje_id: idViaje,
+              fecha_viaje: fechaDeViaje
+          };
+          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
+      }
+</script>
+
+{% endblock %}
