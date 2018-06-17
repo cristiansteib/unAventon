@@ -72,7 +72,8 @@ class Usuario(models.Model):
     def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
         viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().filter(viaje__fecha_hora_salida__gte=fecha_hora_salida).values('viaje_id'))
+            pk__in=self.get_viajes_confirmados_como_copiloto().filter(
+                viaje__fecha_hora_salida__gte=fecha_hora_salida).values('viaje_id'))
         return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
 
     def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
@@ -128,7 +129,12 @@ class Usuario(models.Model):
 
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
-        return 0
+        fecha = datetime.datetime.now() - datetime.timedelta(days=maximo_dias)
+        a = len(ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True, fecha_del_viaje__lte=fecha,
+                                             calificacion_a_piloto=None))
+        b = len(ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True, fecha_del_viaje__lte=fecha,
+                                             calificacion_a_copiloto=None))
+        return a > 0 or b > 0
 
     def tiene_calificicaciones_pendientes(self):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
@@ -142,12 +148,14 @@ class Usuario(models.Model):
         pass
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self).exclude(calificacion_a_piloto=None).exclude(estaConfirmado=None)
+        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self).exclude(
+            calificacion_a_piloto=None).exclude(estaConfirmado=None)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
     def get_puntaje_como_copiloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(usuario=self).exclude(calificacion_a_copiloto=None).exclude(estaConfirmado=None)
+        viajes_realizados = ViajeCopiloto.objects.filter(usuario=self).exclude(calificacion_a_copiloto=None).exclude(
+            estaConfirmado=None)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_copiloto'))['calificacion_a_copiloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
@@ -555,7 +563,7 @@ class Viaje(models.Model):
         if usuario:
             data.update({
                 'esta_incripto': True if len(ViajeCopiloto.objects.filter(usuario=usuario, viaje=self,
-                                                                      fecha_del_viaje=self.fecha_hora_salida)) > 0 else False,
+                                                                          fecha_del_viaje=self.fecha_hora_salida)) > 0 else False,
                 'es_piloto': usuario.pk == self.auto.usuario.pk
             })
         return data
