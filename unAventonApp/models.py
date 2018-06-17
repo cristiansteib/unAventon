@@ -542,7 +542,7 @@ class Viaje(models.Model):
         pass
 
     def get_count_copilotos_en_lista_de_espera(self):
-        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=False))
+        return len(ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None))
 
     def get_count_copilotos_en_lista_de_espera_siguiente_fecha(self):
         pass
