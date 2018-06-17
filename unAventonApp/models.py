@@ -442,7 +442,6 @@ class Viaje(models.Model):
                 # todo: checkear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para la semana que viene, en ese weekday
-                print('calculo la proxima')
                 diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
                 multiplicador_de_semanas = (diferencia_en_dias // 7) + 1
                 proxima_fecha = self.fecha_hora_salida + timezone.timedelta(weeks=multiplicador_de_semanas)
@@ -545,8 +544,8 @@ class Viaje(models.Model):
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fecha_hora_salida,
-            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
+            'fecha_hora_salida': self.proxima_fecha_de_salida(),
+            'fecha_hora_salida_unix': self.proxima_fecha_de_salida().timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'comentario': self.comentario,
