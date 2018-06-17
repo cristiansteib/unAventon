@@ -8,6 +8,8 @@ from django.utils import timezone
 import datetime
 from django.db import IntegrityError
 
+from django.forms.models import model_to_dict
+
 
 def neededParams(method_list, *args):
     for value in args:
@@ -449,12 +451,17 @@ def lista_de_copilotos_confirmados(request):
 def lista_de_copitolos_en_espera(request):
     data = {}
     r = request.POST
-
     id = r['viaje_id']
-
     viaje = Viaje.objects.get(pk=id)
+    viajeCopiloto = viaje.get_copilotos_en_lista_de_espera()
+    print(viajeCopiloto)
 
-    viaje.get_copilotos_en_lista_de_espera()
+    for obj in viajeCopiloto:
+        current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
+        current_data.update(model_to_dict(obj))
+        current_data.update(model_to_dict(obj.usuario.user,fields='username'))
+        data.setdefault('data', []).append(current_data)
+
     return JsonResponse(data)
 
 
@@ -473,6 +480,15 @@ def confirmar_copiloto(request):
     else:
         # no hay lugar
         pass
+    return JsonResponse(data)
+
+def rechazar_copiloto(request):
+    data = {}
+    r = request.POST
+    id_viaje = r['viaje_id']
+    id_copilto = r['copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    viaje_copiloto.rechazarCopiloto()
     return JsonResponse(data)
 
 
@@ -507,7 +523,8 @@ def calificar_copiloto(request):
     viaje = Viaje.objects.get(pk=id_viaje)
     copiloto = Usuario.objects.get(pk=id_copiloto)
 
-    if request.user.usuario.set_calificar_copiloto(viaje=viaje, calificacion=calificacion, copiloto=copiloto, comentario=comentario):
+    if request.user.usuario.set_calificar_copiloto(viaje=viaje, calificacion=calificacion, copiloto=copiloto,
+                                                   comentario=comentario):
         # calif ok
         pass
     else:
