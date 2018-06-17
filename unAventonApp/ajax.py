@@ -570,7 +570,7 @@ def confirmar_copiloto(request):
     id_viaje = r['viaje_id']
     id_viajeCopiloto = r['viaje_copiloto_id']
     id_copilto = r['copiloto_id']
-
+    fecha_viaje = timezone.datetime.fromtimestamp(int(r['fecha_del_viaje_unix']))
     viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
     copiloto = Usuario.objects.get(pk=id_copilto)
 
@@ -578,7 +578,7 @@ def confirmar_copiloto(request):
         if not copiloto.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
 
             if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
-                viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+                viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto, fecha_del_viaje=fecha_viaje)
                 if viaje_copiloto.confirmarCopiloto():
                     print('se confirmo')
                     data['error'] = False
@@ -603,7 +603,8 @@ def rechazar_copiloto(request):
     r = request.POST
     id_viaje = r['viaje_id']
     id_copilto = r['copiloto_id']
-    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    fecha_viaje = timezone.datetime.fromtimestamp(int(r['fecha_del_viaje_unix']))
+    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto, fecha_del_viaje=fecha_viaje)
     viaje_copiloto.rechazarCopiloto()
     return JsonResponse(data)
 
