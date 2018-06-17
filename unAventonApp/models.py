@@ -140,12 +140,15 @@ class Usuario(models.Model):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
-        # todas las calificaciones con sus comentarios como piloto
-        pass
+        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True,
+                                            calificacion_a_piloto__isnull=False).extra(
+            select={'calificacion': 'calificacion_a_piloto', 'mensaje': 'calificacion_a_piloto_mensaje'})
 
     def get_calificacion_como_copiloto(self):
         # todas las calificaciones con sus comentarios como piloto
-        pass
+        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True,
+                                            calificacion_a_copiloto__isnull=False).extra(
+            select={'calificacion': 'calificacion_a_copiloto', 'mensaje': 'calificacion_a_copiloto_mensaje'})
 
     def get_puntaje_como_piloto(self):
         viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self).exclude(

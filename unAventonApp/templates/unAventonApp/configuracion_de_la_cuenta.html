@@ -5,13 +5,14 @@
 {% block content %}
   <style>
 
-  .card-custom {
-    box-shadow: 4px 4px 5px 0px #888888a3;
-    margin: 15px 0 10px 0;
-  }
-  .card-perfil {
-    box-shadow: 3px 3px 9px 3px #888888a3;
-  }
+    .card-custom {
+      box-shadow: 4px 4px 5px 0px #888888a3;
+      margin: 15px 0 10px 0;
+    }
+
+    .card-perfil {
+      box-shadow: 3px 3px 9px 3px #888888a3;
+    }
 
   </style>
   <div class="container">
@@ -27,12 +28,14 @@
             <h6 id="birthday"></h6>
             <h6 id="reputacionPiloto">+3</h6>
             <h6 id="reputacionCoPiloto">-2</h6>
-            <a href="#"> Ver detalle de calificaciones</a>
-            <p> </p>
-            <button type="button" class="btn btn-dark" onclick="trigger_modal_modificar_usuario(datos)"><i class="fas fa-address-card"></i> Editar
+            <a href="{% url 'ver_calificaciones' %}"> Ver detalle de calificaciones</a>
+            <p></p>
+            <button type="button" class="btn btn-dark" onclick="trigger_modal_modificar_usuario(datos)"><i
+                class="fas fa-address-card"></i> Editar
               datos
             </button>
-            <a href="#" class="btn btn-dark" onclick="$('#uploadProfilePicture').click()"><i class="fas fa-camera"></i> Cambiar foto</a>
+            <a href="#" class="btn btn-dark" onclick="$('#uploadProfilePicture').click()"><i class="fas fa-camera"></i>
+              Cambiar foto</a>
           </div>
         </div>
 
@@ -45,35 +48,43 @@
 
       <div class="offset-md-1 md-col-8">
 
-        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#autos')"><i class="fas fa-caret-square-down"></i> Ver autos</button>
-        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_auto')"><i class="fas fa-car"></i> Agregar auto</button>
+        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#autos')"><i
+            class="fas fa-caret-square-down"></i> Ver autos
+        </button>
+        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_auto')"><i
+            class="fas fa-car"></i> Agregar auto
+        </button>
         {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_auto' idSuccess='ok_b_auto' %}
         <hr>
 
         <div id="autos" style="display: none"></div>
 
 
-        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#tarjetas')"><i class="fas fa-caret-square-down"></i> Ver tarjetas</button>
-        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_tarjeta')"><i class="fas fa-credit-card"></i> Agregar tarjeta</button>
+        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#tarjetas')"><i
+            class="fas fa-caret-square-down"></i> Ver tarjetas
+        </button>
+        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_tarjeta')"><i
+            class="fas fa-credit-card"></i> Agregar tarjeta
+        </button>
         <div id="tarjetas" style="display: none"></div>
 
         <hr>
 
-        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#cuentas_bancarias')"><i class="fas fa-caret-square-down"></i> Ver cuentas bancarias
+        <button type="button" class="btn btn-warning fondo-color" onclick="showElement('#cuentas_bancarias')"><i
+            class="fas fa-caret-square-down"></i> Ver cuentas bancarias
         </button>
-        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_cuenta')"><i class="fas fa-university"></i> Agregar cuenta bancaria
+        <button type="button" class="btn btn-dark" onclick="trigger_modal_agregar('#id_agregar_cuenta')"><i
+            class="fas fa-university"></i> Agregar cuenta bancaria
         </button>
         {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_b_cuentabanc' idSuccess='ok_b_cuentabanc' %}
         <div id="cuentas_bancarias" style="display: none"></div>
-
-
 
 
       </div>
 
     </div>
 
-    </div>
+  </div>
 
 
 

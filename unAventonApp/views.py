@@ -66,6 +66,18 @@ def viaje(request, id, timestamp):
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
 
+def ver_calificaciones(request):
+    context = {}
+    usuario = request.user.usuario
+    context['usuario'] = usuario
+    context['calificaciones_como_piloto'] = usuario.get_calificacion_como_piloto()
+    context['calificaciones_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+
+    return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
+
+
+
+
 @login_required
 def agregar_pregunta_conversacion_publica(request):
     id_viaje = request.POST['id_viaje']
