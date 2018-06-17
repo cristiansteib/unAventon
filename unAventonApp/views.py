@@ -62,6 +62,7 @@ def viaje(request, id, timestamp):
     context['viaje'] = viaje.datos_del_viaje_en_fecha(timezone.datetime.fromtimestamp(int(timestamp)))
     context['timestamp'] = timestamp
     context['conversacion_publica'] = viaje.get_conversacion_publica()
+    context['es_piloto'] = viaje.auto.usuario.pk == request.user.usuario.pk
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
 

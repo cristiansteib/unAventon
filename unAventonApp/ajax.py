@@ -580,16 +580,12 @@ def confirmar_copiloto(request):
                     data['msg'] = 'confirmado'
                 else:
                     data['msg'] = 'no se confirmo, no hay lugar'
-                    print('no se confirmo')
             else:
                 data['msg'] = 'El copiloto esta confirmado en otro viaje, al mismo horario'
-                print("se superpone guacho")
         else:
             data['msg'] = 'El copiloto tiene calificaciones pendientes, no se puede confirmar.'
-            print("el copiloto tiene calificacione pendientes")
     else:
         data['msg'] = 'Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo'
-        print("Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo")
     return JsonResponse(data)
 
 

@@ -54,13 +54,15 @@
       <p> {{ viaje }}</p>
       <div class="form-group">
         <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
-        <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control">
+        <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %} disabled {% endif %}>
           {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
             <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
           {% endfor %}
         </select>
       </div>
-      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})">
+      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})" {% if es_piloto %}
+      disabled
+      {% endif %}>
         Inscribirse
       </button>
 
@@ -76,10 +78,10 @@
         <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
         <input type="hidden" name="fecha_hora_unix" value="{{ timestamp }}">
         <div class="form-group col-8 mb-2 ml-3">
-  <textarea rows="3" name="pregunta">
+  <textarea rows="3" name="pregunta"  {% if es_piloto %} disabled {% endif %}>
   </textarea>
         </div>
-        <button type="submit" class="btn btn-primary mb-2"> Preguntar</button>
+        <button type="submit" class="btn btn-primary mb-2" {% if es_piloto %} disabled {% endif %}> Preguntar</button>
       </form>
     </div>
   <div class="row">
