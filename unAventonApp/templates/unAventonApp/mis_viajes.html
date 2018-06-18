@@ -55,10 +55,12 @@
 
   <script>
   var viaje_seleccionado = null;
+  var viaje_fecha_unix = null;
 
-  function openModalForViajeId(idSelector, idViaje) {
+  function openModalForViajeId(idSelector, idViaje, fecha_unix) {
       $(idSelector).modal('show');
       viaje_seleccionado = idViaje;
+      viaje_fecha_unix = fecha_unix;
   }
 
   function deleteViaje(id) {

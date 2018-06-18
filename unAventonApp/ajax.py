@@ -100,7 +100,8 @@ def datos_relacionados_al_usuario(request):
         data['get_cuentas_bancarias'] = [obj.asJson() for obj in cuentas_bancarias] if cuentas_bancarias else None
         autos = usuario.get_autos()
         data['get_vehiculos'] = [obj.asJson() for obj in autos] if autos else None
-
+        data['usuario']['reputacion_como_piloto'] = usuario.get_puntaje_como_piloto()
+        data['usuario']['reputacion_como_copiloto'] = usuario.get_puntaje_como_copiloto()
 
     except Usuario.DoesNotExist:
         data.setdefault('error', []).append('No exisite un perfil para el user {0}'.format(request.user))
@@ -452,6 +453,8 @@ def borrar_cuenta_bancaria(request):
  
  
 """
+
+
 def cancelar_ir_en_viaje(request):
     data = {}
     r = request.POST
@@ -498,7 +501,9 @@ def solicitar_ir_en_viaje(request):
             data['msg'] = 'Hay un viaje que se superpone en la fecha y hora solicitada'
             return JsonResponse(data)
 
-        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,tarjeta=id_tarjeta)
+        tarjeta = Tarjeta.objects.get(pk=id_tarjeta)
+        rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,
+                                                            tarjeta=tarjeta)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)
@@ -522,10 +527,12 @@ def lista_de_copilotos_confirmados(request):
     viaje = Viaje.objects.get(pk=id)
     if fecha_viaje_unix:
         # si se requiere de una fecha en particular, se filtra por esa fecha
-        viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
+        viajeCopilotos = viaje.get_copilotos_confirmados_en_fecha(
+            timezone.datetime.fromtimestamp(int(fecha_viaje_unix)))
     else:
         # sino todas la fechas mayores a hoy. Las fechas anteriores a hoy estan finalizados.
-        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now())
+        viajeCopilotos = ViajeCopiloto.objects.filter(viaje=viaje, fecha_del_viaje__gte=timezone.now(),
+                                                      estaConfirmado=True)
     for obj in viajeCopilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
@@ -543,11 +550,8 @@ def lista_de_copitolos_en_espera(request):
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
-    viajes_copilotos = viaje.get_copilotos_en_lista_de_espera()
-    print('viajes copilotos s',viajes_copilotos)
-    # deja solamanete los copilotos en espera que sean mayor a hoy, el resto no nos interesaria
-    # porque el viaje ya paso
-    viajes_copilotos.filter(fecha_del_viaje__gte=timezone.now())
+    viajes_copilotos = ViajeCopiloto.objects.filter(viaje=viaje, estaConfirmado=None,
+                                                    fecha_del_viaje__gte=timezone.now())
 
     for obj in viajes_copilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
@@ -562,44 +566,35 @@ def lista_de_copitolos_en_espera(request):
 def confirmar_copiloto(request):
     data = {'error': True}
     r = request.POST
-    print(r)
-    id_viaje = r['viaje_id']
     id_viajeCopiloto = r['viaje_copiloto_id']
-    id_copilto = r['copiloto_id']
-
     viajeCopiloto = ViajeCopiloto.objects.get(pk=id_viajeCopiloto)
-    copiloto = Usuario.objects.get(pk=id_copilto)
 
     if viajeCopiloto.usuario != viajeCopiloto.viaje.auto.usuario:
-        if not copiloto.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
+        if not viajeCopiloto.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
 
-            if not copiloto.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
-                viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
-                if viaje_copiloto.confirmarCopiloto():
+            if not viajeCopiloto.usuario.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+
+                if viajeCopiloto.confirmarCopiloto():
                     print('se confirmo')
                     data['error'] = False
                     data['msg'] = 'confirmado'
                 else:
                     data['msg'] = 'no se confirmo, no hay lugar'
-                    print('no se confirmo')
             else:
                 data['msg'] = 'El copiloto esta confirmado en otro viaje, al mismo horario'
-                print("se superpone guacho")
         else:
             data['msg'] = 'El copiloto tiene calificaciones pendientes, no se puede confirmar.'
-            print("el copiloto tiene calificacione pendientes")
     else:
         data['msg'] = 'Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo'
-        print("Es piloto en ese viaje, no puede ser piloto y copiloto al mismo tiempo")
     return JsonResponse(data)
 
 
 def rechazar_copiloto(request):
+    # el copiloto no eta confirmado todavia
     data = {}
     r = request.POST
-    id_viaje = r['viaje_id']
-    id_copilto = r['copiloto_id']
-    viaje_copiloto = ViajeCopiloto.objects.get(viaje=id_viaje, usuario=id_copilto)
+    viaje_copiloto_id = r['viaje_copiloto_id']
+    viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viaje_copiloto.rechazarCopiloto()
     return JsonResponse(data)
 
@@ -634,6 +629,7 @@ def ver_calificacion_de_copiloto(request):
     data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_copiloto_mensaje
     return JsonResponse(data)
 
+
 def ver_calificacion_de_piloto(request):
     data = {}
     r = request.POST
@@ -642,6 +638,7 @@ def ver_calificacion_de_piloto(request):
     data['calificacion'] = viajeCopiloto.calificacion_a_piloto
     data['calificacion_mensaje'] = viajeCopiloto.calificacion_a_piloto_mensaje
     return JsonResponse(data)
+
 
 def calificar_piloto(request):
     # TODO: retornar un json mas amigable :)
@@ -696,7 +693,8 @@ def buscar_viajes_ajax(request):
         f = datetime.datetime.strptime(fecha, '%Y-%m-%d')
 
         for viaje in viajes:
-            fecha = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute, tzinfo=viaje.fecha_hora_salida.tzinfo)
+            fecha = timezone.datetime(f.year, f.month, f.day, viaje.fecha_hora_salida.hour,
+                                      viaje.fecha_hora_salida.minute, tzinfo=viaje.fecha_hora_salida.tzinfo)
             viaje.fecha_hora_salida = fecha
 
     if hora:

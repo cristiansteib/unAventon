@@ -72,7 +72,8 @@ class Usuario(models.Model):
     def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
         viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().values('viaje_id'))
+            pk__in=self.get_viajes_confirmados_como_copiloto().filter(
+                viaje__fecha_hora_salida__gte=fecha_hora_salida).values('viaje_id'))
         return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
 
     def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
@@ -128,27 +129,38 @@ class Usuario(models.Model):
 
     def tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos(self):
         maximo_dias = settings.APP_MAX_DIAS_CALIFICACION_PENDIENTES
-        return 0
+        fecha = datetime.datetime.now() - datetime.timedelta(days=maximo_dias)
+        a = len(ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True, fecha_del_viaje__lte=fecha,
+                                             calificacion_a_piloto=None))
+        b = len(ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True, fecha_del_viaje__lte=fecha,
+                                             calificacion_a_copiloto=None))
+        return a > 0 or b > 0
 
     def tiene_calificicaciones_pendientes(self):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
-        # todas las calificaciones con sus comentarios como piloto
-        pass
+        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True,
+                                            calificacion_a_piloto__isnull=False).extra(
+            select={'calificacion': 'calificacion_a_piloto', 'mensaje': 'calificacion_a_piloto_mensaje'})
 
     def get_calificacion_como_copiloto(self):
         # todas las calificaciones con sus comentarios como piloto
-        pass
+        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True,
+                                            calificacion_a_copiloto__isnull=False).extra(
+            select={'calificacion': 'calificacion_a_copiloto', 'mensaje': 'calificacion_a_copiloto_mensaje'})
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(estaConfirmado=True, viaje__auto__usuario=self)
+        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self).exclude(
+            calificacion_a_piloto=None).exclude(estaConfirmado=None)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
-        print('calif como piloto', puntaje)
-        return puntaje
+        return puntaje if puntaje != None else 'sin calificar'
 
     def get_puntaje_como_copiloto(self):
-        pass
+        viajes_realizados = ViajeCopiloto.objects.filter(usuario=self).exclude(calificacion_a_copiloto=None).exclude(
+            estaConfirmado=None)
+        puntaje = viajes_realizados.aggregate(Sum('calificacion_a_copiloto'))['calificacion_a_copiloto__sum']
+        return puntaje if puntaje != None else 'sin calificar'
 
     def get_calificaciones_pendientes_para_piloto(self):
         pass
@@ -441,7 +453,6 @@ class Viaje(models.Model):
                 # todo: checkear bien, creo que anda
                 # puede ser que sea en este dia, y la hora sea menor
                 # si la hora es mayor, entonces es para la semana que viene, en ese weekday
-                print('calculo la proxima')
                 diferencia_en_dias = (timezone.now() - self.fecha_hora_salida).days
                 multiplicador_de_semanas = (diferencia_en_dias // 7) + 1
                 proxima_fecha = self.fecha_hora_salida + timezone.timedelta(weeks=multiplicador_de_semanas)
@@ -544,8 +555,8 @@ class Viaje(models.Model):
             'id': self.pk,
             'origen': self.origen,
             'destino': self.destino,
-            'fecha_hora_salida': self.fecha_hora_salida,
-            'fecha_hora_salida_unix': self.fecha_hora_salida.timestamp(),
+            'fecha_hora_salida': self.proxima_fecha_de_salida(),
+            'fecha_hora_salida_unix': self.proxima_fecha_de_salida().timestamp(),
             'costo_por_pasajero': self.get_costo_por_pasajero(),
             'duracion': self.duracion,
             'comentario': self.comentario,
@@ -555,7 +566,7 @@ class Viaje(models.Model):
         if usuario:
             data.update({
                 'esta_incripto': True if len(ViajeCopiloto.objects.filter(usuario=usuario, viaje=self,
-                                                                      fecha_del_viaje=self.fecha_hora_salida)) > 0 else False,
+                                                                          fecha_del_viaje=self.fecha_hora_salida)) > 0 else False,
                 'es_piloto': usuario.pk == self.auto.usuario.pk
             })
         return data

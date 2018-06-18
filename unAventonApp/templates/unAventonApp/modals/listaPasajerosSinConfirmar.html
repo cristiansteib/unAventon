@@ -32,7 +32,7 @@
 
 
 
-    function aceptarCopiloto(idCopiloto, idViaje, idViajeCopiloto) {
+    function aceptarCopiloto(idViajeCopiloto) {
         var callbackOnSuccess = function (data){
             if (data.error === true){
                 overlayShow(data.msg);
@@ -40,27 +40,21 @@
             loadListaDePasajerosSinConfirmar();
 
         };
-        console.log('confirmar');
         var data = {
-            viaje_id: idViaje,
-            copiloto_id: idCopiloto,
-            viaje_copiloto_id: idViajeCopiloto
+            viaje_copiloto_id: idViajeCopiloto,
         };
         postJson('{% url 'confirmar_copiloto' %}', data, callbackOnSuccess);
-        //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
-    function rechazarCopiloto(idCopiloto, idViaje) {
+    function rechazarCopiloto(idViajeCopiloto) {
         console.log('rechazar');
         if (!window.confirm("Estas seguro que vas a rechazar al copiloto?")){
             return;
         }
         var data = {
-            viaje_id: idViaje,
-            copiloto_id: idCopiloto
+            viaje_copiloto_id: idViajeCopiloto,
         };
         postJson('{% url 'rechazar_copiloto' %}', data, loadListaDePasajerosSinConfirmar);
-        //TODO: mostrar algun mensaje de acpetacion o error y eliminarlo de la lista
     }
 
     var cargarListaDeCopilotosEnEspera = function (datos) {
@@ -78,7 +72,7 @@
             row += '<td>' + actual.username + '</td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';
-            row += '<td><button type="button" class="btn btn-success" onclick="aceptarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ',' + actual.viajeCopiloto_id + ')">Aceptar</button> <button type="button" class="btn btn-danger"  onclick="rechazarCopiloto(' + actual.usuario + ',' + viaje_seleccionado + ')">Rechazar</button></td>';
+            row += '<td><button type="button" class="btn btn-success" onclick="aceptarCopiloto(' + actual.viajeCopiloto_id +')">Aceptar</button> <button type="button" class="btn btn-danger"  onclick="rechazarCopiloto(' + actual.viajeCopiloto_id +')">Rechazar</button></td>';
             row += '</tr>';
             tableBody.append(row);
         }

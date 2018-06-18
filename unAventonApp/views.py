@@ -5,7 +5,7 @@ from .models import Usuario, ViajeCopiloto, Viaje, ConversacionPublica
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.utils import timezone
-
+import datetime
 
 def baseContext():
     return {
@@ -62,8 +62,31 @@ def viaje(request, id, timestamp):
     context['viaje'] = viaje.datos_del_viaje_en_fecha(timezone.datetime.fromtimestamp(int(timestamp)))
     context['timestamp'] = timestamp
     context['conversacion_publica'] = viaje.get_conversacion_publica()
+    context['es_piloto'] = viaje.auto.usuario.pk == request.user.usuario.pk
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
+
+def context_calificaciones_del_usuario(usuario):
+    context = {}
+    context['usuario'] = usuario
+    context['calificaciones_como_piloto'] = usuario.get_calificacion_como_piloto()
+    context['calificaciones_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+    return context
+
+def ver_calificaciones(request):
+    usuario = request.user.usuario
+    context = context_calificaciones_del_usuario(usuario)
+    return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
+
+def ver_calificaciones_de_usuario(request, id):
+    usuario = Usuario.objects.get(pk=id)
+    context = context_calificaciones_del_usuario(usuario)
+    return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
+
+
+
+
+
 
 @login_required
 def agregar_pregunta_conversacion_publica(request):
@@ -73,7 +96,7 @@ def agregar_pregunta_conversacion_publica(request):
         viaje=Viaje.objects.get(pk=id_viaje),
         usuario=request.user.usuario,
         pregunta=request.POST['pregunta'],
-        fechaHoraPregunta=timezone.now()
+        fechaHoraPregunta=datetime.datetime.now()
     )
     return redirect('viaje', id=id_viaje, timestamp=timestamp)
 
