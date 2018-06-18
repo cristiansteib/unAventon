@@ -21,7 +21,7 @@
     <h4>Calificaciones para {{ usuario }}</h4>
     <div class="row" >
       <div class="col-md-6 fondo-columna-piloto" style="padding: 10px">
-        <h3>Como piloto</h3>
+        <h3>Como piloto: {{ usuario.get_puntaje_como_piloto }}</h3>
         {% if calificaciones_como_piloto %}
           {% for calificacion in calificaciones_como_piloto %}
             <div class="card card-fondo">
@@ -45,7 +45,7 @@
 
 
       <div class="col-md-6 fondo-columna-copiloto" style="padding: 10px">
-        <h3>Como copiloto</h3>
+        <h3>Como copiloto: {{ usuario.get_puntaje_como_copiloto }}</h3>
         {% if calificaciones_como_copiloto %}
           {% for calificacion in calificaciones_como_copiloto %}
             <div class="card card-fondo">
