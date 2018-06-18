@@ -151,14 +151,14 @@ class Usuario(models.Model):
             select={'calificacion': 'calificacion_a_copiloto', 'mensaje': 'calificacion_a_copiloto_mensaje'})
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self).exclude(
-            calificacion_a_piloto=None).exclude(estaConfirmado=None)
+        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self, calificacion_a_piloto__isnull=False,
+                                                         estaConfirmado=True)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
     def get_puntaje_como_copiloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(usuario=self).exclude(calificacion_a_copiloto=None).exclude(
-            estaConfirmado=None)
+        viajes_realizados = ViajeCopiloto.objects.filter(usuario=self, calificacion_a_copiloto__isnull=False,
+                                                         estaConfirmado=True)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_copiloto'))['calificacion_a_copiloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
