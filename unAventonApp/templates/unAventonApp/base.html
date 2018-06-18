@@ -55,7 +55,7 @@
   }
 
   .fondo-color {
-    background-color: #f1737666!important;
+    background-color: #ff6e72!important;
   }
   body {
     padding: 0 0 100px 0;
@@ -94,16 +94,31 @@
     font-size: 2rem;
 }
 
-
+#imgBack{
+    background-image: url("{% static 'unAventonApp/fondo_auto.jpg' %}");
+   /* Full height */
+    height: 100%;
+    width: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #cccccc;
+  background-attachment: fixed;
+  position: fixed;
+  z-index: -99999;
+  opacity: 0.4;
+}
 
 </style>
 
-<body>
+<body id="webWrapper" >
+<div id="imgBack"></div>
 {% include 'unAventonApp/__navbar_top.html' %}
 
-<div class="container-fluid text-center">
+<div class="container-fluid text-center" >
   <div class="col-xs-12">
-    <div id="content">
+    <div id="content" >
       {% block content %}{% endblock %}
     </div>
   </div>
@@ -111,8 +126,7 @@
 
 
 <footer class="container-fluid text-center">
-  <p>Running on branch: <b style="color: #212af9;">{{ branch | currentbranch }}</b></p>
-  <p>{{ lastUpd | lastupdate }}</p>
+  <p>Current branch: <b style="color: #212af9;">{{ branch | currentbranch }}</b>, {{ lastUpd | lastupdate }}</p>
 </footer>
 
 
