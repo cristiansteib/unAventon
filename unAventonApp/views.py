@@ -66,14 +66,24 @@ def viaje(request, id, timestamp):
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
 
-def ver_calificaciones(request):
+def context_calificaciones_del_usuario(usuario):
     context = {}
-    usuario = request.user.usuario
     context['usuario'] = usuario
     context['calificaciones_como_piloto'] = usuario.get_calificacion_como_piloto()
     context['calificaciones_como_copiloto'] = usuario.get_calificacion_como_copiloto()
+    return context
 
+def ver_calificaciones(request):
+    usuario = request.user.usuario
+    context = context_calificaciones_del_usuario(usuario)
     return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
+
+def ver_calificaciones_de_usuario(request, id):
+    usuario = Usuario.objects.get(pk=id)
+    context = context_calificaciones_del_usuario(usuario)
+    return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
+
+
 
 
 

@@ -14,7 +14,8 @@ from .views import (
     upload_foto,
     mis_viajes_finalizados,
     agregar_pregunta_conversacion_publica,
-    ver_calificaciones
+    ver_calificaciones,
+    ver_calificaciones_de_usuario
 )
 
 from .ajax import *
@@ -31,6 +32,7 @@ urlpatterns = [
     path('buscarViajes', buscar_viajes, name='buscar_viajes'),
     path('miPerfil', mi_perfil, name='miPerfil'),
     path('verCalificaciones', ver_calificaciones, name='ver_calificaciones'),
+    re_path(r'^verCalificaciones/(?P<id>[0-9]+)/$', ver_calificaciones_de_usuario, name='ver_calificaciones_de_usuario'),
     re_path(r'^viaje/(?P<id>[0-9]+)/(?P<timestamp>[0-9]+)/$', viaje, name='viaje'),
     path('misViajes', mis_viajes, name='mis_viajes'),
     path('misViajesFinalizados', mis_viajes_finalizados, name='mis_viajes_finalizados'),
