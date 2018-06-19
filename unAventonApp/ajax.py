@@ -734,8 +734,14 @@ def buscar_viajes_ajax(request):
     data['viajes'] = list(map(lambda x: x.asJsonPublicacion(request.user.usuario), viajes))
     return JsonResponse(data)
 
-def preguntas_sin_responder(request):
+def preguntas_sin_responder_conversacion_publica(request):
     data = {}
     preguntas = ConversacionPublica.objects.filter(viaje=request.POST['viaje_id'], respuesta__isnull=True)
     data['preguntas'] = list(map(lambda x: model_to_dict(x), preguntas))
     return JsonResponse(data)
+
+def responder_pregunta_conversacion_publica(request):
+    conversacion = ConversacionPublica.objects.get(viaje=request.POST['id'])
+    conversacion.respuesta = request.POST['respuesta']
+    conversacion.save()
+    return JsonResponse(model_to_dict(conversacion))

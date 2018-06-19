@@ -19,23 +19,35 @@
 <script>
 
     $('#modal_responder_preguntas').on('shown.bs.modal', function (e) {
-        // esta funcion se ejecuta automaticamente al abrir el modal.
         getAndloadPreguntasSinResponder();
     });
 
     function getAndloadPreguntasSinResponder() {
-        data = {
+        var data = {
             viaje_id: viaje_seleccionado
         };
         postJson("{% url 'preguntas_sin_responder' %}", data, loadPreguntasSinResponder, errorCallbackPreguntas);
     }
 
+
     function loadPreguntasSinResponder(response) {
+        //TODO
         console.log(response);
     }
 
     function errorCallbackPreguntas(response) {
+        //TODO
         console.log(response);
+    }
+
+
+    function responderPregunta(idConversacion, respuesta) {
+        //TODO
+        var data = {
+            id: idConversacion,
+            respuesta: respuesta
+        };
+        postJson("{% url 'responder_pregunta_publica' %}", data)
     }
 
 </script>
