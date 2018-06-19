@@ -372,7 +372,6 @@ class Viaje(models.Model):
 
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
-
         fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
         # viaje semanal
         if self.se_repite.count('sem'):
