@@ -49,71 +49,76 @@
 
 
 
-    <div class="container">
-        <div class="row" style="margin-top: 10%">
+    <div class="row">
+        <form class="form-inline">
 
-            <div id="id_detalle_viaje" class="card text-center">
-                <div class="card-header"> Detalle del viaje</div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Vehiculo</strong></li>
-                        <li class="list-group-item">Dominio: {{ viaje.auto.dominio }}</li>
-                        <li class="list-group-item">Marca: {{ viaje.auto.marca }}</li>
-                        <li class="list-group-item">Modelo: {{ viaje.auto.modelo }}</li>
-                        <li class="list-group-item">{% if viaje.hay_lugar %} Lugares disponibles:
-                            {{ viaje.lugares_disponibles }}
-                        {% else %}
-                            No hay mas lugar, se agregara a la lista de espera
-                        {% endif %}
-                        </li>
-                    </ul>
-                    <ul class="list-group list-group-flush">
-
-                        <li class="list-group-item"><strong>Piloto</strong></li>
-                        <li class="list-group-item">Calificacion: {{ viaje.calificacion_como_piloto }} </li>
-                        <li class="list-group-item">
-                            {% if copiloto_confirmado is True %}
-                                Nombre: {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}
-                                Mail: {{ viaje.viaje.auto.usuario.user.email }}
-                            {% else %}
-                                Nombre: {{ viaje.viaje.auto.usuario.nombre }}
-                            {% endif %}
-                        </li>
-                    </ul>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Viaje</strong></li>
-                        <li class="list-group-item"> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </li>
-                        <li class="list-group-item"> El dia {{ viaje.viaje.proxima_fecha_de_salida.date }} a
-                            las {{ viaje.viaje.proxima_fecha_de_salida.timetz }}</li>
-                        <li class="list-group-item">Costo por pasajero: $ {{ viaje.viaje.get_costo_por_pasajero }}</li>
-
-                    </ul>
-                </div>
-                <div class="card-footer tex-muted">
-                    <p><em>{{ viaje.viaje.comentario }}</em></p>
-                </div>
-                </ul>
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+                <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %}
+                        disabled {% endif %}>
+                    {% if not request.user.usuario.get_tarjetas_de_credito %}
+                        <option disabled selected>No tienes tarjetas</option>
+                    {% endif %}
+                    {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
+                        <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
+                    {% endfor %}
+                </select>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
-            <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %}
-                    disabled {% endif %}>
-                {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
-                    <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"
-                {% if es_piloto %}
-                disabled
-                {% endif %}>
-            Inscribirse
-        </button>
+                    <button type="button" class="btn btn-primary mb-2"
+                    onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"
+                    {% if es_piloto %}
+                    disabled
+                    {% endif %}>
+                Inscribirse en este viaje
+            </button>
+        </form>
 
     </div>
+    <div class="row" style="margin-top: 10%">
+
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Vehiculo</strong></li>
+                <li class="list-group-item">Dominio: {{ viaje.auto.dominio }}</li>
+                <li class="list-group-item">Marca: {{ viaje.auto.marca }}</li>
+                <li class="list-group-item">Modelo: {{ viaje.auto.modelo }}</li>
+                <li class="list-group-item">{% if viaje.hay_lugar %} Lugares disponibles:
+                    {{ viaje.lugares_disponibles }}
+                {% else %}
+                    No hay mas lugar, se agregara a la lista de espera
+                {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Piloto</strong></li>
+                <li class="list-group-item">Calificacion: {{ viaje.calificacion_como_piloto }} </li>
+                <li class="list-group-item">
+                    {% if copiloto_confirmado is True %}
+                        Nombre: {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}
+                        Mail: {{ viaje.viaje.auto.usuario.user.email }}
+                    {% else %}
+                        Nombre: {{ viaje.viaje.auto.usuario.nombre }}
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Viaje</strong></li>
+                <li class="list-group-item"> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </li>
+                <li class="list-group-item"> El dia {{ viaje.viaje.proxima_fecha_de_salida.date }} a
+                    las {{ viaje.viaje.proxima_fecha_de_salida.timetz }}</li>
+                <li class="list-group-item">Costo por pasajero: $ {{ viaje.viaje.get_costo_por_pasajero }}</li>
+            </ul>
+        </div>
     </div>
+    <div style="background: #797979; padding: 10px; margin: 20px; border-radius: 6px">
+        <p><h4><em>Comentario: </br> {{ viaje.viaje.comentario }}</em></h4></p>
+    </div>
+
+
 
 
     <div style="text-align: left">
