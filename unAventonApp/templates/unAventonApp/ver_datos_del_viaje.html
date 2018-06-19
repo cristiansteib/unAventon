@@ -52,6 +52,7 @@
   <div class="container">
     <div class="row" style="margin-top: 10%">
       <p> {{ viaje }}</p>
+      <p> esta confirmado ? {{ copiloto_confirmado }} </p>
       <div class="form-group">
         <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
         <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %} disabled {% endif %}>

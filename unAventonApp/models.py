@@ -412,7 +412,11 @@ class Viaje(models.Model):
             'get_comision_cobrada': self.get_comision_cobrada_en_fecha(fecha),
             'get_total_a_reintegrar_al_conductor': self.get_total_a_reintegrar_al_conductor_en_fecha(fecha),
             'get_count_copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
-            'tiene_calificacion_pendientes_a_copilotos': self.tiene_calificacion_pendientes_a_copilotos_en_fecha(fecha)
+            'tiene_calificacion_pendientes_a_copilotos': self.tiene_calificacion_pendientes_a_copilotos_en_fecha(fecha),
+            'hay_lugar':self.hay_lugar_en_fecha(fecha),
+            'lugares_disponibles': self.get_count_copilots_confirmados_en_fecha(fecha),
+            'calificacion_como_piloto': self.auto.usuario.get_puntaje_como_piloto(),
+            'auto': self.auto.asJson()
         }
 
     # ready
