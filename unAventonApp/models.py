@@ -140,25 +140,24 @@ class Usuario(models.Model):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
-        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True,
+        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado__isnull=False,
                                             calificacion_a_piloto__isnull=False).extra(
             select={'calificacion': 'calificacion_a_piloto', 'mensaje': 'calificacion_a_piloto_mensaje'})
 
     def get_calificacion_como_copiloto(self):
         # todas las calificaciones con sus comentarios como piloto
-        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True,
+        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado__isnull=False,
                                             calificacion_a_copiloto__isnull=False).extra(
             select={'calificacion': 'calificacion_a_copiloto', 'mensaje': 'calificacion_a_copiloto_mensaje'})
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self, calificacion_a_piloto__isnull=False,
-                                                         estaConfirmado=True)
+        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self, calificacion_a_piloto__isnull=False)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
     def get_puntaje_como_copiloto(self):
         viajes_realizados = ViajeCopiloto.objects.filter(usuario=self, calificacion_a_copiloto__isnull=False,
-                                                         estaConfirmado=True)
+                                                         estaConfirmado__isnull=False)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_copiloto'))['calificacion_a_copiloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
