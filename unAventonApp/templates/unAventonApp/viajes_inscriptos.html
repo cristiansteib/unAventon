@@ -5,15 +5,15 @@
 {% block title %}Viajes inscriptos{% endblock %}
 
 {% block content %}
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')">Todos</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-warning')">Esperando confirmacion</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-success')">Confirmados</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-info')">Finalizados</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')"><strong>Todos</strong></button>
+  <button type="button" class="btn btn-warning" onclick="mostrar_solo('table-warning')"><strong>Esperando confirmacion</strong></button>
+  <button type="button" class="btn btn-success" onclick="mostrar_solo('table-success')"><strong>Confirmados</strong></button>
+  <button type="button" class="btn btn-info" onclick="mostrar_solo('table-info')"><strong>Finalizados</strong></button>
 
   <div class="table-responsive-sm">
     <table class="table table-striped">
       <thead>
-      <tr>
+      <tr style="    background-color: #9999999e">
         <th>Viaje</th>
         <th>Fecha y Hora de salida</th>
         <th>Precio</th>

@@ -1,10 +1,18 @@
 {% extends "unAventonApp/base.html" %}
 {% block title %}Buscar viaje{% endblock %}
 {% block content %}
+<style>
+#formBuscarViaje{
+background-color: #343a40;
+    padding: 35px;
+    border-radius: 5px;
+  color: #f7efef;
+}
+</style>
 
   <div class="container" style="text-align: left">
     <div class="row">
-      <div class="col-md-4" style="width: 100%">
+      <div class="col-md-5" style="width: 100%">
         <form id="formBuscarViaje">
           <div class="form-row">
             <div class="form-group col-md-6">
@@ -47,7 +55,7 @@
 
       </div>
 
-      <div id="id_viajes_encontrados" class="col-md-8">
+      <div id="id_viajes_encontrados" class="col-md-7">
 
       </div>
     </div>

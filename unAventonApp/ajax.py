@@ -456,6 +456,7 @@ def borrar_cuenta_bancaria(request):
 
 
 def cancelar_ir_en_viaje(request):
+    """ esto lo usa solamente el copiloto"""
     data = {}
     r = request.POST
     id = r['viaje_copiloto_id']
@@ -468,6 +469,7 @@ def cancelar_ir_en_viaje(request):
         viajeC.estaConfirmado = False
         data['msg'] = ' Se desinscribio correctamente'
     viajeC.estaConfirmado = False
+    viajeC.rechazoElPiloto = False
     viajeC.save()
     return JsonResponse(data)
 
@@ -502,14 +504,26 @@ def solicitar_ir_en_viaje(request):
             return JsonResponse(data)
 
         tarjeta = Tarjeta.objects.get(pk=id_tarjeta)
+
         rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,
                                                             tarjeta=tarjeta)
         data['error'] = False
         data['msg'] = str(rta)
         return JsonResponse(data)
     except IntegrityError:
+        import sys
+        print(sys.exc_info())
+        vc = ViajeCopiloto.objects.get(usuario=request.user.usuario, fecha_del_viaje=fecha_solicitada, viaje=viaje)
         data['error'] = True
-        data['msg'] = 'Ya estas incripto en este viaje'
+        if vc.estaConfirmado == None:
+            data['msg'] = 'Ya enviaste solicitud para este viaje.<br> Se paciente =)'
+        if vc.estaConfirmado == True:
+            data['msg'] = 'Ya estas confirmado en este viaje'
+        if vc.estaConfirmado == False and vc.rechazoElPiloto:
+            data['msg'] = 'El piloto te ha rechazado en este viaje'
+        if vc.estaConfirmado == False and not vc.rechazoElPiloto:
+            data['msg'] = 'Has cancelado la solicitud en este viaje'
+
         return JsonResponse(data)
     except:
         import sys
@@ -572,7 +586,8 @@ def confirmar_copiloto(request):
     if viajeCopiloto.usuario != viajeCopiloto.viaje.auto.usuario:
         if not viajeCopiloto.usuario.tiene_calificicaciones_pendientes_desde_mas_del_maximo_de_dias_permitidos():
 
-            if not viajeCopiloto.usuario.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje, viajeCopiloto.viaje.duracion):
+            if not viajeCopiloto.usuario.se_superpone_algun_viaje(viajeCopiloto.fecha_del_viaje,
+                                                                  viajeCopiloto.viaje.duracion):
 
                 if viajeCopiloto.confirmarCopiloto():
                     print('se confirmo')

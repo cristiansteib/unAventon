@@ -684,6 +684,7 @@ class ViajeCopiloto(models.Model):
     calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
     calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
+    rechazoElPiloto = models.NullBooleanField(default=None, null=True)
 
     def calificar_a_copiloto(self, calificacion, comentario):
         self.calificacion_a_copiloto = calificacion
@@ -722,17 +723,20 @@ class ViajeCopiloto(models.Model):
         """ se supone que el copiloto nunca estuvo confirmado, simplemente rechaza
         la solicitud"""
         self.estaConfirmado = False
+        self.rechazoElPiloto = True
         self.save()
 
     def cancelarCopiloto(self):
+        """ solo el piloto puede usar este metodo"""
         """ el copiloto estuvo aceptado, entonces se cancela y se decrementa un punto"""
         self.estaConfirmado = False
+        self.rechazoElPiloto = True
         self.calificacion_a_piloto = -1
         self.calificacion_a_piloto_mensaje = "Penalidad por cancelacion a un copiloto confirmado."
         self.save()
 
     def __str__(self):
-        return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
+        return "Copiloto: {0}, Confirmado: {1} {2} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO", self.fecha_del_viaje)
 
     def asJson(self):
         return {
