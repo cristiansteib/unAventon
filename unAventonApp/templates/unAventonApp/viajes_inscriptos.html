@@ -68,6 +68,9 @@
 
       function cancelarInscripcion(viajeCopilotoId) {
           console.log('cancelar inscriptcion');
+          if(!window.confirm('Estas seguro que deseas cancelar la suscripcion?? si estas confimado se lo calificara negativo!!')){
+              return;
+          }
           var successCallback = function (data) {
               location.reload();
           };
