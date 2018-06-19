@@ -44,9 +44,12 @@ def getEstado(viajeCopiloto):
 def estadoCopilotoViaje(viajeCopilotoId):
     viajeCopiloto = ViajeCopiloto.objects.get(pk=viajeCopilotoId)
     estado = viajeCopiloto.get_estado()
+
     if estado == "rechazado":
-        if viajeCopiloto.calificacion_a_copiloto == -1:
-            return "Cancelado"
+        if viajeCopiloto.rechazoElPiloto:
+            return "Cancelado por piloto"
+        else:
+            return "Cancelado por vos"
 
     return estado.capitalize()
 

@@ -53,9 +53,13 @@
 
         successCallback = function (response) {
             $("#check_update_profile").fadeIn(500).fadeOut(500);
-            window.location.href = "{% url 'miPerfil' %}";
-            console.log("redirect 2");
-            loadUserData();
+            if (response.error) {
+              overlayShow(response.msg);
+            } else {
+              window.location.href = "{% url 'miPerfil' %}";
+              console.log("redirect 2");
+              loadUserData();
+            }
         };
         errorCallback = function (response) {
             console.log(response.error, response.msg);
