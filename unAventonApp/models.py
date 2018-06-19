@@ -140,25 +140,24 @@ class Usuario(models.Model):
         return self.get_calificaciones_pendientes_para_piloto() or self.get_calificaciones_pendientes_para_copilotos()
 
     def get_calificacion_como_piloto(self):
-        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado=True,
+        return ViajeCopiloto.objects.filter(viaje__auto__usuario=self, estaConfirmado__isnull=False,
                                             calificacion_a_piloto__isnull=False).extra(
             select={'calificacion': 'calificacion_a_piloto', 'mensaje': 'calificacion_a_piloto_mensaje'})
 
     def get_calificacion_como_copiloto(self):
         # todas las calificaciones con sus comentarios como piloto
-        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado=True,
+        return ViajeCopiloto.objects.filter(usuario=self, estaConfirmado__isnull=False,
                                             calificacion_a_copiloto__isnull=False).extra(
             select={'calificacion': 'calificacion_a_copiloto', 'mensaje': 'calificacion_a_copiloto_mensaje'})
 
     def get_puntaje_como_piloto(self):
-        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self, calificacion_a_piloto__isnull=False,
-                                                         estaConfirmado=True)
+        viajes_realizados = ViajeCopiloto.objects.filter(viaje__auto__usuario=self, calificacion_a_piloto__isnull=False)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_piloto'))['calificacion_a_piloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
     def get_puntaje_como_copiloto(self):
         viajes_realizados = ViajeCopiloto.objects.filter(usuario=self, calificacion_a_copiloto__isnull=False,
-                                                         estaConfirmado=True)
+                                                         estaConfirmado__isnull=False)
         puntaje = viajes_realizados.aggregate(Sum('calificacion_a_copiloto'))['calificacion_a_copiloto__sum']
         return puntaje if puntaje != None else 'sin calificar'
 
@@ -201,8 +200,11 @@ class Usuario(models.Model):
     def elimiar_auto(self, unAuto):
         """ primero verifico que el usuario no tenga en uso el vehiculo,
         si lo tiene en uso no se podra eliminar"""
-        unAuto.desactivar()
-        return True
+        if not self.tiene_el_auto_en_uso(unAuto):
+            unAuto.desactivar()
+            return True
+        else:
+            return False
 
     def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self, esta_activo=True)
@@ -373,7 +375,6 @@ class Viaje(models.Model):
 
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
-
         fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
         # viaje semanal
         if self.se_repite.count('sem'):
@@ -686,6 +687,7 @@ class ViajeCopiloto(models.Model):
     calificacion_a_piloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
     calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
+    rechazoElPiloto = models.NullBooleanField(default=None, null=True)
 
     def calificar_a_copiloto(self, calificacion, comentario):
         self.calificacion_a_copiloto = calificacion
@@ -724,17 +726,20 @@ class ViajeCopiloto(models.Model):
         """ se supone que el copiloto nunca estuvo confirmado, simplemente rechaza
         la solicitud"""
         self.estaConfirmado = False
+        self.rechazoElPiloto = True
         self.save()
 
     def cancelarCopiloto(self):
+        """ solo el piloto puede usar este metodo"""
         """ el copiloto estuvo aceptado, entonces se cancela y se decrementa un punto"""
         self.estaConfirmado = False
+        self.rechazoElPiloto = True
         self.calificacion_a_piloto = -1
         self.calificacion_a_piloto_mensaje = "Penalidad por cancelacion a un copiloto confirmado."
         self.save()
 
     def __str__(self):
-        return "Copiloto: {0}, Confirmado: {1} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO")
+        return "Copiloto: {0}, Confirmado: {1} {2} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO", self.fecha_del_viaje)
 
     def asJson(self):
         return {

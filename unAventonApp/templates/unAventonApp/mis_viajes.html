@@ -24,7 +24,7 @@
               <ul>
                 <li>Origen: {{ viaje.origen }}</li>
                 <li> Destino: {{ viaje.destino }}</li>
-                <li> Proxima fecha: {{ viaje.proxima_fecha_de_salida }}</li>
+                <li> Proxima fecha el {{ viaje.proxima_fecha_de_salida.date }} a las {{ viaje.proxima_fecha_de_salida.timetz }}</li>
                 <li> Auto : {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
                   asientos: {{ viaje.auto.capacidad }}</li>
                 <li> Costo por pasajero: ${{ viaje.get_costo_por_pasajero }}</li>

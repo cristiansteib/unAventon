@@ -5,21 +5,19 @@
 {% block title %}Viajes inscriptos{% endblock %}
 
 {% block content %}
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')">Todos</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-warning')">Esperando confirmacion</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-success')">Confirmados</button>
-  <button type="button" class="btn btn-light" onclick="mostrar_solo('table-info')">Finalizados</button>
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')"><strong>Todos</strong></button>
+  <button type="button" class="btn btn-warning" onclick="mostrar_solo('table-warning')"><strong>Esperando confirmacion</strong></button>
+  <button type="button" class="btn btn-success" onclick="mostrar_solo('table-success')"><strong>Confirmados</strong></button>
+  <button type="button" class="btn btn-info" onclick="mostrar_solo('table-info')"><strong>Finalizados</strong></button>
 
   <div class="table-responsive-sm">
     <table class="table table-striped">
       <thead>
-      <tr>
-        <th>Origen</th>
-        <th>Destino</th>
+      <tr style="    background-color: #9999999e">
+        <th>Viaje</th>
         <th>Fecha y Hora de salida</th>
         <th>Precio</th>
         <th>Conductor</th>
-        <th>Calificaci&oacute;n del piloto</th>
         <th>Estado</th>
         <th>Calificar piloto</th>
         <th>Cancelar</th>
@@ -29,12 +27,10 @@
 
       {% for viaje in viajes %}
         <tr class="{{ viaje.id | estadoCopilotoViajeClass }}">
-          <td>{{ viaje.viaje.origen }}</td>
-          <td>{{ viaje.viaje.destino }}</td>
-          <td>{{ viaje.fecha_del_viaje }}</td>
-          <td>{{ viaje.viaje.get_costo_por_pasajero }}</td>
-          <td>{{ viaje.viaje.auto.usuario }}</td>
-          <td>{{ viaje.viaje.auto.usuario.get_calificacion_como_piloto }}</td>
+          <td> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </td>
+          <td>{{ viaje.fecha_del_viaje.date }} a las {{ viaje.fecha_del_viaje.timetz }}</td>
+          <td>$ {{ viaje.viaje.get_costo_por_pasajero }}</td>
+          <td>{{ viaje.viaje.auto.usuario.nombre }}</td>
           <td>{{ viaje.id | estadoCopilotoViaje}}</td>
           <td>{{ viaje.id | copilotoViajeCalificarPiloto | safe}}</td>
           <td>{{ viaje.id | copilotoCancelarInscripcion | safe }}</td>
@@ -72,6 +68,9 @@
 
       function cancelarInscripcion(viajeCopilotoId) {
           console.log('cancelar inscriptcion');
+          if(!window.confirm('Estas seguro que deseas cancelar la suscripcion?? si estas confimado se lo calificara negativo!!')){
+              return;
+          }
           var successCallback = function (data) {
               location.reload();
           };
