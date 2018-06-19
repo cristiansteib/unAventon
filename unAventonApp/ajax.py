@@ -508,7 +508,7 @@ def solicitar_ir_en_viaje(request):
         rta = viaje.set_agregar_copiloto_en_lista_de_espera(usuario=request.user.usuario, fecha=fecha_solicitada,
                                                             tarjeta=tarjeta)
         data['error'] = False
-        data['msg'] = str(rta)
+        data['msg'] = "Solicitud enviada correctamente"
         return JsonResponse(data)
     except IntegrityError:
         import sys
