@@ -200,8 +200,11 @@ class Usuario(models.Model):
     def elimiar_auto(self, unAuto):
         """ primero verifico que el usuario no tenga en uso el vehiculo,
         si lo tiene en uso no se podra eliminar"""
-        unAuto.desactivar()
-        return True
+        if not self.tiene_el_auto_en_uso(unAuto):
+            unAuto.desactivar()
+            return True
+        else:
+            return False
 
     def get_cuentas_bancarias(self):
         return CuentaBancaria.objects.filter(usuario=self, esta_activo=True)

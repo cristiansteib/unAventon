@@ -391,13 +391,16 @@ def borrar_auto(request):
     try:
         r = request.POST
         auto = Auto.objects.get(pk=r['id'])
-        request.user.usuario.elimiar_auto(auto)
-        response['data'] = True
-        response['error'] = False
+        if request.user.usuario.elimiar_auto(auto):
+            response['error'] = False
+            response['msg'] = 'eliminado'
+        else:
+            response['error'] = True
+            response['msg'] = 'El auto esta en uso! '
         return JsonResponse(response)
     except:
         response['error'] = True
-        response['msg'] = 'No se pudo borrar'
+        response['msg'] = 'No se pudo eliminar'
         return JsonResponse(response)
 
 
