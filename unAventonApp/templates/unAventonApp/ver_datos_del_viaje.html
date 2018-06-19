@@ -119,10 +119,14 @@
   <script>
       function successCallBack_solicitarIrEnViaje(data) {
           console.log(data);
-          if (data.error === true) {
-              overlayShow(data.msg);
-          }
+          overlayShow(data.msg);
       }
+
+      function errorCallBack_solicitarIrEnViaje(data) {
+          console.log(data);
+          overlayShow("Upps, ha ocurrido un error. <br>" + data);
+      }
+
 
 
       function solicitarIrEnViaje(idViaje, fechaDeViaje) {
@@ -131,7 +135,7 @@
               fecha_viaje: fechaDeViaje,
               tarjeta_id: $("#tarjeta_de_credito_inp").val()
           };
-          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje)
+          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje, errorCallBack_solicitarIrEnViaje)
       }
   </script>
 
