@@ -339,7 +339,14 @@ def actualizar_datos_perfil(request):
         response['data'] = usuario.asJson()
         response['error'] = False
         return JsonResponse(response)
+    except IntegrityError:
+        response['error'] = True
+        response['msg'] = 'El mail ya esta en uso.'
+        return JsonResponse(response)
+
     except:
+        import sys
+        print(sys.exc_info())
         response['error'] = True
         response['msg'] = 'no se pudo actualizar el perfil'
         return JsonResponse(response)
