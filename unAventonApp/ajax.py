@@ -1,5 +1,5 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto, ConversacionPublica
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
@@ -732,4 +732,10 @@ def buscar_viajes_ajax(request):
         viajes = list(filter(lambda x: x.get_costo_por_pasajero() <= precio_maximo, viajes))
 
     data['viajes'] = list(map(lambda x: x.asJsonPublicacion(request.user.usuario), viajes))
+    return JsonResponse(data)
+
+def preguntas_sin_responder(request):
+    data = {}
+    preguntas = ConversacionPublica.objects.filter(viaje=request.POST['viaje_id'], respuesta__isnull=True)
+    data['preguntas'] = list(map(lambda x: model_to_dict(x), preguntas))
     return JsonResponse(data)
