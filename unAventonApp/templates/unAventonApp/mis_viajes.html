@@ -12,6 +12,7 @@
     <h3>Mis viajes como conductor</h3>
 
     {% for tipo, viajes in viajes.items %}
+       {% if viajes %}
       <div class="card card-block" style="margin-top: 25px; padding: 20px">
         <h5>Viaje tipo: {{ tipo }}</h5>
         {% if not viajes %}
@@ -59,6 +60,7 @@
           {% endfor %}
         {% endif %}
       </div>
+      {% endif %}
     {% endfor %}
 
   </div>

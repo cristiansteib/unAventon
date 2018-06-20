@@ -11,7 +11,7 @@
             width: 100%;
         }
 
-        .preguntar button {
+         button {
             height: 45px;
             border-radius: 0;
         }
@@ -48,12 +48,11 @@
     </style>
 
 
-
-    <div class="row">
+   <div class="row">
         <form class="form-inline">
 
             <div class="form-group mx-sm-3 mb-2">
-                <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+              <label for="tarjeta_de_credito_inp"><strong>Elija su tarjeta: </strong></label>
                 <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %}
                         disabled {% endif %}>
                     {% if not request.user.usuario.get_tarjetas_de_credito %}
@@ -64,7 +63,7 @@
                     {% endfor %}
                 </select>
             </div>
-                    <button type="button" class="btn btn-primary mb-2"
+                    <button type="button" class="btn btn-success mb-2"
                     onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"
                     {% if es_piloto %}
                     disabled
@@ -74,8 +73,7 @@
         </form>
 
     </div>
-    <div class="row" style="margin-top: 10%">
-
+    <div class="row" style="margin-top: 20px; background-color: #e8cbcbd1;padding: 15px">
         <div class="col-md">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><strong>Vehiculo</strong></li>
@@ -85,7 +83,7 @@
                 <li class="list-group-item">{% if viaje.hay_lugar %} Lugares disponibles:
                     {{ viaje.lugares_disponibles }}
                 {% else %}
-                    No hay mas lugar, se agregara a la lista de espera
+                    No hay mas lugar, pero puede agregarse a la lista de espera
                 {% endif %}
                 </li>
             </ul>
@@ -114,16 +112,23 @@
             </ul>
         </div>
     </div>
-    <div style="background: #797979; padding: 10px; margin: 20px; border-radius: 6px">
-        <p><h4><em>Comentario: </br> {{ viaje.viaje.comentario }}</em></h4></p>
+  <div class="row">
+<div class="offset-md-3 col-6">
+     <div style="background: #e8cbcbd1; padding: 20px; margin:30px 0 30px 0; border-radius: 6px">
+        <h5 style="text-align: left">Descripcion del piloto:</h5>
+        <h4><em>{{ viaje.viaje.comentario }}</em></h4>
     </div>
+  </div>
+  </div>
+
 
 
 
 
     <div style="text-align: left">
-        <div class="col-md-8">
+        <div class="col-md-8" style="background-color: #e8cbcbd1;padding: 15px;min-height: 400px">
             <div class="col-10  preguntar">
+              <h4>Si tiene dudas puede consultar al piloto por este medio:</h4>
                 <form class="form-inline" action="{% url 'agregar_pregunta_conversacion_publica' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
@@ -138,6 +143,7 @@
                 </form>
             </div>
             <div class="row">
+              <div class="col-md-12">
                 {% if conversacion_publica %}
                     {% for conversacion in conversacion_publica %}
                         <div class="col-10 card pregunta">
@@ -169,7 +175,7 @@
                         </div>
                     </div>
                 {% endif %}
-
+              </div>
     </div>
     <script>
         function successCallBack_solicitarIrEnViaje(data) {
