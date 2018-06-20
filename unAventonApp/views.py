@@ -15,7 +15,6 @@ def baseContext():
 
 
 def index(request):
-    mailer.send_email('cristiansteib@gmail.com','hola', 'elmensaje')
     context = baseContext()
     return render(request, 'unAventonApp/index.html', context)
 
