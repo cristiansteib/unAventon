@@ -10,6 +10,7 @@ from django.core.files.storage import FileSystemStorage
 from . import utils
 import datetime
 from . import mailer
+
 fotoStorage = FileSystemStorage(location='media/')
 
 
@@ -414,8 +415,9 @@ class Viaje(models.Model):
             'get_total_a_reintegrar_al_conductor': self.get_total_a_reintegrar_al_conductor_en_fecha(fecha),
             'get_count_copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
             'tiene_calificacion_pendientes_a_copilotos': self.tiene_calificacion_pendientes_a_copilotos_en_fecha(fecha),
-            'hay_lugar':self.hay_lugar_en_fecha(fecha),
-            'lugares_disponibles': self.get_count_copilots_confirmados_en_fecha(fecha),
+            'hay_lugar': self.hay_lugar_en_fecha(fecha),
+            'copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
+            'lugares_disponibles': self.get_asientos_disponibles_en_fecha(fecha),
             'calificacion_como_piloto': self.auto.usuario.get_puntaje_como_piloto(),
             'auto': self.auto.asJson()
         }
@@ -440,7 +442,8 @@ class Viaje(models.Model):
 
         # ahora vamos a rechazar a todos los copilotos a futuro para este viaje
 
-        viajeCopilotos_sin_confirmar = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None, fecha_del_viaje__gte=timezone.now())
+        viajeCopilotos_sin_confirmar = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None,
+                                                                    fecha_del_viaje__gte=timezone.now())
         for viaje_copiloto in viajeCopilotos_sin_confirmar:
             mails.add(viaje_copiloto.usuario.user.email)
             viaje_copiloto.rechazarCopiloto()
@@ -755,7 +758,8 @@ class ViajeCopiloto(models.Model):
         self.save()
 
     def __str__(self):
-        return "Copiloto: {0}, Confirmado: {1} {2} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO", self.fecha_del_viaje)
+        return "Copiloto: {0}, Confirmado: {1} {2} ".format(str(self.usuario), "SI" if self.estaConfirmado else "NO",
+                                                            self.fecha_del_viaje)
 
     def asJson(self):
         return {
