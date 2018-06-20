@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.utils import timezone
 import datetime
+from . import mailer
 
 def baseContext():
     return {
@@ -14,6 +15,7 @@ def baseContext():
 
 
 def index(request):
+    mailer.send_email('cristiansteib@gmail.com','hola', 'elmensaje')
     context = baseContext()
     return render(request, 'unAventonApp/index.html', context)
 
@@ -47,6 +49,11 @@ def signInRegister(request):
             user = User.objects.create_user(r['email'], r['email'], r['password'])
             Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'],
                                    fechaDeNacimiento=r['birthDay'])
+            mailer.send_email(user.email,
+                              subject='Bienvenido {0} {1}'.format(Usuario.nombre, Usuario.apellido),
+                              message='Muchas gracias por ser parte de nuestra comunidad.\n En unAventon te ayudaremos'
+                                      'a encontrar viajes seguros y confiables en cuestion de segundos')
+
             return render(request, 'unAventonApp/signin_success.html')
         except IntegrityError:
             context = {'error': 'Ese usuario ya esta registrado'}
@@ -59,12 +66,20 @@ def viaje(request, id, timestamp):
     # renderiza la vista para ver los datos del viaje
     context = {}
     viaje = Viaje.objects.get(pk=id)
-    context['viaje'] = viaje.datos_del_viaje_en_fecha(timezone.datetime.fromtimestamp(int(timestamp)))
+    fecha = timezone.datetime.fromtimestamp(int(timestamp))
+    context['viaje'] = viaje.datos_del_viaje_en_fecha(fecha)
+    try:
+        vc = ViajeCopiloto.objects.get(usuario=request.user.usuario, viaje=viaje, fecha_del_viaje=fecha)
+        context['copiloto_confirmado'] = vc.estaConfirmado
+    except:
+        context['copiloto_confirmado'] = -1 #todavia no mando solicitud
+
     context['timestamp'] = timestamp
     context['conversacion_publica'] = viaje.get_conversacion_publica()
     context['es_piloto'] = viaje.auto.usuario.pk == request.user.usuario.pk
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
+
 
 def context_calificaciones_del_usuario(usuario):
     context = {}
@@ -73,19 +88,17 @@ def context_calificaciones_del_usuario(usuario):
     context['calificaciones_como_copiloto'] = usuario.get_calificacion_como_copiloto()
     return context
 
+
 def ver_calificaciones(request):
     usuario = request.user.usuario
     context = context_calificaciones_del_usuario(usuario)
     return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
 
+
 def ver_calificaciones_de_usuario(request, id):
     usuario = Usuario.objects.get(pk=id)
     context = context_calificaciones_del_usuario(usuario)
     return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
-
-
-
-
 
 
 @login_required
@@ -184,14 +197,6 @@ def mis_viajes_finalizados(request):
 @login_required
 def mi_perfil(request):
     return render(request, 'unAventonApp/configuracion_de_la_cuenta.html')
-
-
-@login_required
-def detalle_de_publicacion_del_viaje(request, id):
-    if request.method == 'POST':
-        pass
-
-    return render(request, 'unAventonApp/detalle_de_publicacion_viaje.html')
 
 
 @login_required

@@ -2,141 +2,196 @@
 
 {% block title %}Viaje - {{ viaje.viaje.origen }} -> {{ viaje.viaje.destino }}{% endblock %}
 {% block content %}
-  {% load unAventonApp_extras %}
+    {% load unAventonApp_extras %}
 
-  <style>
-    .preguntar textarea {
-      height: 45px;
-      max-height: 45px;
-      width: 100%;
-    }
+    <style>
+        .preguntar textarea {
+            height: 45px;
+            max-height: 45px;
+            width: 100%;
+        }
 
-    .preguntar button {
-      height: 45px;
-      border-radius: 0;
-    }
+        .preguntar button {
+            height: 45px;
+            border-radius: 0;
+        }
 
-    .pregunta {
-      margin: 20px 0 0 0;
-      background-color: rgb(243, 187, 189);
-    }
+        .pregunta {
+            margin: 20px 0 0 0;
+            background-color: rgb(243, 187, 189);
+        }
 
-    .sin-pregunta {
-      background-color: rgba(171, 171, 171, 0.93);
+        .sin-pregunta {
+            background-color: rgba(171, 171, 171, 0.93);
 
-    }
+        }
 
-    .respuesta {
-      margin: 0 0 0 30px;
-      background-color: rgb(255, 227, 225);
-    }
+        .respuesta {
+            margin: 0 0 0 30px;
+            background-color: rgb(255, 227, 225);
+        }
 
-    .msgText {
-      margin: 0 0 10px 15px;
-      vertical-align: bottom;
-      line-height: 38px;
-    }
+        .msgText {
+            margin: 0 0 10px 15px;
+            vertical-align: bottom;
+            line-height: 38px;
+        }
 
-    .data {
-      text-align: right;
-      color: #8c8787f1;
-      vertical-align: bottom;
-      line-height: 15px;
-      margin: 10px 0 0 8px;
-    }
+        .data {
+            text-align: right;
+            color: #8c8787f1;
+            vertical-align: bottom;
+            line-height: 15px;
+            margin: 10px 0 0 8px;
+        }
 
-  </style>
+    </style>
 
 
 
-  <div class="container">
-    <div class="row" style="margin-top: 10%">
-      <p> {{ viaje }}</p>
-      <div class="form-group">
-        <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
-        <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %} disabled {% endif %}>
-          {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
-            <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
-          {% endfor %}
-        </select>
-      </div>
-      <button type="button" class="btn btn-success" onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})" {% if es_piloto %}
-      disabled
-      {% endif %}>
-        Inscribirse
-      </button>
+    <div class="row">
+        <form class="form-inline">
+
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="tarjeta_de_credito_inp">Elija su tarjeta:</label>
+                <select id="tarjeta_de_credito_inp" name="tarjeta_credito" class="form-control"  {% if es_piloto %}
+                        disabled {% endif %}>
+                    {% if not request.user.usuario.get_tarjetas_de_credito %}
+                        <option disabled selected>No tienes tarjetas</option>
+                    {% endif %}
+                    {% for tarjeta in request.user.usuario.get_tarjetas_de_credito %}
+                        <option value="{{ tarjeta.pk }}">{{ tarjeta.numero }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+                    <button type="button" class="btn btn-primary mb-2"
+                    onclick="solicitarIrEnViaje({{ viaje.viaje.pk }},{{ timestamp }})"
+                    {% if es_piloto %}
+                    disabled
+                    {% endif %}>
+                Inscribirse en este viaje
+            </button>
+        </form>
 
     </div>
-  </div>
+    <div class="row" style="margin-top: 10%">
+
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Vehiculo</strong></li>
+                <li class="list-group-item">Dominio: {{ viaje.auto.dominio }}</li>
+                <li class="list-group-item">Marca: {{ viaje.auto.marca }}</li>
+                <li class="list-group-item">Modelo: {{ viaje.auto.modelo }}</li>
+                <li class="list-group-item">{% if viaje.hay_lugar %} Lugares disponibles:
+                    {{ viaje.lugares_disponibles }}
+                {% else %}
+                    No hay mas lugar, se agregara a la lista de espera
+                {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Piloto</strong></li>
+                <li class="list-group-item">Calificacion: {{ viaje.calificacion_como_piloto }} </li>
+                <li class="list-group-item">
+                    {% if copiloto_confirmado is True %}
+                        Nombre: {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}
+                        Mail: {{ viaje.viaje.auto.usuario.user.email }}
+                    {% else %}
+                        Nombre: {{ viaje.viaje.auto.usuario.nombre }}
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="col-md">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Viaje</strong></li>
+                <li class="list-group-item"> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </li>
+                <li class="list-group-item"> El dia {{ viaje.viaje.proxima_fecha_de_salida.date }} a
+                    las {{ viaje.viaje.proxima_fecha_de_salida.timetz }}</li>
+                <li class="list-group-item">Costo por pasajero: $ {{ viaje.viaje.get_costo_por_pasajero }}</li>
+            </ul>
+        </div>
+    </div>
+    <div style="background: #797979; padding: 10px; margin: 20px; border-radius: 6px">
+        <p><h4><em>Comentario: </br> {{ viaje.viaje.comentario }}</em></h4></p>
+    </div>
 
 
-  <div style="text-align: left">
-  <div class="col-md-8">
-    <div class="col-10  preguntar">
-      <form class="form-inline" action="{% url 'agregar_pregunta_conversacion_publica' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
-        <input type="hidden" name="fecha_hora_unix" value="{{ timestamp }}">
-        <div class="form-group col-8 mb-2 ml-3">
+
+
+    <div style="text-align: left">
+        <div class="col-md-8">
+            <div class="col-10  preguntar">
+                <form class="form-inline" action="{% url 'agregar_pregunta_conversacion_publica' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
+                    <input type="hidden" name="fecha_hora_unix" value="{{ timestamp }}">
+                    <div class="form-group col-8 mb-2 ml-3">
   <textarea rows="3" name="pregunta"  {% if es_piloto %} disabled {% endif %}>
   </textarea>
-        </div>
-        <button type="submit" class="btn btn-primary mb-2" {% if es_piloto %} disabled {% endif %}> Preguntar</button>
-      </form>
-    </div>
-  <div class="row">
-    {% if conversacion_publica %}
-      {% for conversacion in conversacion_publica %}
-        <div class="col-10 card pregunta">
-          <div class="card-body">
-            <img height="50px" class="rounded" style="border-radius: 100%!important;" src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
-              class="msgText"> {{ conversacion.pregunta }}</span>
-            <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
-          </div>
-        </div>
-        {% if conversacion.respuesta %}
-          <div class="col-10 card respuesta">
-            <div class="card-body">
-              <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}"> <span
-                class="msgText"> {{ conversacion.respuesta }}</span>
-              <span class="data"> {{ conversacion }} </span>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2" {% if es_piloto %} disabled {% endif %}>
+                        Preguntar
+                    </button>
+                </form>
             </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-      </div>
+            <div class="row">
+                {% if conversacion_publica %}
+                    {% for conversacion in conversacion_publica %}
+                        <div class="col-10 card pregunta">
+                            <div class="card-body">
+                                <img height="50px" class="rounded" style="border-radius: 100%!important;"
+                                     src="{{ conversacion.usuario.foto_de_perfil.url }}"> <span
+                                    class="msgText"> {{ conversacion.pregunta }}</span>
+                                <span class="data"> {{ conversacion.fechaHoraPregunta }} </span>
+                            </div>
+                        </div>
+                        {% if conversacion.respuesta %}
+                            <div class="col-10 card respuesta">
+                                <div class="card-body">
+                                    <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}">
+                                    <span
+                                            class="msgText"> {{ conversacion.respuesta }}</span>
+                                    <span class="data"> {{ conversacion }} </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
 
-    {% else %}
-</div>
-      <div class="col-10 card pregunta sin-pregunta">
-        <div class="card-body">
-          <p>Este viaje aun no tiene preguntas, se el primero en consultar.</p>
-        </div>
-      </div>
-    {% endif %}
+                {% else %}
+                    </div>
+                    <div class="col-10 card pregunta sin-pregunta">
+                        <div class="card-body">
+                            <p>Este viaje aun no tiene preguntas, se el primero en consultar.</p>
+                        </div>
+                    </div>
+                {% endif %}
 
-</div>
-  <script>
-      function successCallBack_solicitarIrEnViaje(data) {
-          console.log(data);
-          overlayShow(data.msg);
-      }
+    </div>
+    <script>
+        function successCallBack_solicitarIrEnViaje(data) {
+            console.log(data);
+            overlayShow(data.msg);
+        }
 
-      function errorCallBack_solicitarIrEnViaje(data) {
-          console.log(data);
-          overlayShow("Upps, ha ocurrido un error. <br>" + data);
-      }
+        function errorCallBack_solicitarIrEnViaje(data) {
+            console.log(data);
+            overlayShow("Upps, ha ocurrido un error. <br>" + data);
+        }
 
 
+        function solicitarIrEnViaje(idViaje, fechaDeViaje) {
+            data = {
+                viaje_id: idViaje,
+                fecha_viaje: fechaDeViaje,
+                tarjeta_id: $("#tarjeta_de_credito_inp").val()
+            };
+            postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje, errorCallBack_solicitarIrEnViaje)
+        }
 
-      function solicitarIrEnViaje(idViaje, fechaDeViaje) {
-          data = {
-              viaje_id: idViaje,
-              fecha_viaje: fechaDeViaje,
-              tarjeta_id: $("#tarjeta_de_credito_inp").val()
-          };
-          postJson("{% url 'solicitar_ir_a_viaje' %}", data, successCallBack_solicitarIrEnViaje, errorCallBack_solicitarIrEnViaje)
-      }
-  </script>
+    </script>
 
 {% endblock %}

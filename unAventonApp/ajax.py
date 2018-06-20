@@ -1,5 +1,5 @@
 """ Call ajax in this module """
-from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto
+from .models import Usuario, Viaje, Tarjeta, CuentaBancaria, Auto, ViajeCopiloto, ConversacionPublica
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
@@ -9,9 +9,8 @@ from django.utils import timezone
 import datetime
 from django.db import IntegrityError
 from django.contrib.auth import logout
-
 from django.forms.models import model_to_dict
-
+from . import mailer
 
 def neededParams(method_list, *args):
     for value in args:
@@ -485,6 +484,7 @@ def cancelar_ir_en_viaje(request):
 
 
 def solicitar_ir_en_viaje(request):
+
     data = {}
     r = request.POST
     id = r['viaje_id']
@@ -603,6 +603,11 @@ def confirmar_copiloto(request):
                     print('se confirmo')
                     data['error'] = False
                     data['msg'] = 'confirmado'
+
+                    mailer.send_email(viajeCopiloto.usuario.user.email,
+                                      subject="El piloto a confirmado su viaje",
+                                      message="Usted a sido confirmado en el viaje URL"
+                                      )
                 else:
                     data['msg'] = 'no se confirmo, no hay lugar'
             else:
@@ -630,6 +635,11 @@ def cancelar_copiloto(request):
     viaje_copiloto_id = r['viaje_copiloto_id']
     viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viaje_copiloto.cancelarCopiloto()
+
+    mailer.send_email(viaje_copiloto.usuario.user.email,
+                      subject="El piloto a cancelado su solicitud",
+                      message="El piloto ha decidido quitar la confirmacion al viaje X"
+                      )
     return JsonResponse(data)
 
 
@@ -733,3 +743,15 @@ def buscar_viajes_ajax(request):
 
     data['viajes'] = list(map(lambda x: x.asJsonPublicacion(request.user.usuario), viajes))
     return JsonResponse(data)
+
+def preguntas_sin_responder_conversacion_publica(request):
+    data = {}
+    preguntas = ConversacionPublica.objects.filter(viaje=request.POST['viaje_id'], respuesta__isnull=True)
+    data['preguntas'] = list(map(lambda x: model_to_dict(x), preguntas))
+    return JsonResponse(data)
+
+def responder_pregunta_conversacion_publica(request):
+    conversacion = ConversacionPublica.objects.get(viaje=request.POST['id'])
+    conversacion.respuesta = request.POST['respuesta']
+    conversacion.save()
+    return JsonResponse(model_to_dict(conversacion))

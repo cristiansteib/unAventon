@@ -24,23 +24,36 @@
               <ul>
                 <li>Origen: {{ viaje.origen }}</li>
                 <li> Destino: {{ viaje.destino }}</li>
-                <li> Proxima fecha el {{ viaje.proxima_fecha_de_salida.date }} a las {{ viaje.proxima_fecha_de_salida.timetz }}</li>
+                <li> Proxima fecha el {{ viaje.proxima_fecha_de_salida.date }} a
+                  las {{ viaje.proxima_fecha_de_salida.timetz }}</li>
                 <li> Auto : {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
                   asientos: {{ viaje.auto.capacidad }}</li>
                 <li> Costo por pasajero: ${{ viaje.get_costo_por_pasajero }}</li>
                 <li> Gasto total: ${{ viaje.gasto_total }}</li>
                 <li> Monto a retener por la aplicacion: ${{ viaje.get_comision_a_cobrar }}</li>
                 <li> Total depositado en cuenta: ${{ viaje.get_total_a_reintegrar_al_conductor }}</li>
-                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados  }}</li>
+                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados }}</li>
                 <li> Copilotos en espera: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
                 <li> Lugares disponibles: {{ viaje.get_asientos_disponibles }}</li>
                 <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})">Lista de solicitudes pendientes          </button>
+                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})">Lista de
+                  solicitudes pendientes
+                </button>
+
                 <button type="button" class="btn"
-                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})" >Lista de copilotos    confirmados           </button>
-                <button type="button"  class="btn" onclick="{% if viaje.get_count_copilotos_confirmados or viaje.get_count_copilotos_en_lista_de_espera %}viajeNoEditable(){% else %}openModalForViajeId('#modal_editarViaje',{{ viaje.pk }}){% endif %}">Editar viaje</button>
-                             <button type="button" class="btn btn-danger"
-                        onclick="deleteViaje({{ viaje.pk }})">Eliminar viaje </button>
+                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})">Lista de copilotos
+                  confirmados
+                </button>
+                  <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_responder_preguntas',{{ viaje.pk }})">Responder preguntas
+                </button>
+                <button type="button" class="btn"
+                        onclick="{% if viaje.get_count_copilotos_confirmados or viaje.get_count_copilotos_en_lista_de_espera %}viajeNoEditable(){% else %}openModalForViajeId('#modal_editarViaje',{{ viaje.pk }}){% endif %}">
+                  Editar viaje
+                </button>
+                <button type="button" class="btn btn-danger"
+                        onclick="deleteViaje({{ viaje.pk }})">Eliminar viaje
+                </button>
               </ul>
             </div>
           {% endfor %}
@@ -52,36 +65,36 @@
   {% include 'unAventonApp/modals/listaPasajerosSinConfirmar.html' %}
   {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
   {% include 'unAventonApp/modals/modificarViaje.html' %}
-
+  {% include 'unAventonApp/modals/responderPreguntas.html' %}
   <script>
-  var viaje_seleccionado = null;
-  var viaje_fecha_unix = null;
+      var viaje_seleccionado = null;
+      var viaje_fecha_unix = null;
 
-  function openModalForViajeId(idSelector, idViaje, fecha_unix) {
-      $(idSelector).modal('show');
-      viaje_seleccionado = idViaje;
-      viaje_fecha_unix = fecha_unix;
-  }
-
-  function deleteViaje(id) {
-      if (!window.confirm("Estas seguro que deseas eliminar el viaje? (se calificara negativamente por cada fecha que tenga un copiloto confirmado")){
-          return;
+      function openModalForViajeId(idSelector, idViaje, fecha_unix) {
+          $(idSelector).modal('show');
+          viaje_seleccionado = idViaje;
+          viaje_fecha_unix = fecha_unix;
       }
 
-      data = {
-          viaje_id:id
-      };
+      function deleteViaje(id) {
+          if (!window.confirm("Estas seguro que deseas eliminar el viaje? (se calificara negativamente por cada fecha que tenga un copiloto confirmado")) {
+              return;
+          }
 
-      postJson("{% url 'eliminar_viaje' %}",data, reloadPage);
-  }
+          data = {
+              viaje_id: id
+          };
 
-  function reloadPage(){
-      location.reload();
-  }
+          postJson("{% url 'eliminar_viaje' %}", data, reloadPage);
+      }
 
-  function viajeNoEditable() {
-      alert("El viaje no puede ser editado, tiene solicitud de copilotos, o copilotos confirmados");
-  }
+      function reloadPage() {
+          location.reload();
+      }
+
+      function viajeNoEditable() {
+          alert("El viaje no puede ser editado, tiene solicitud de copilotos, o copilotos confirmados");
+      }
 
   </script>
 {% endblock %}
