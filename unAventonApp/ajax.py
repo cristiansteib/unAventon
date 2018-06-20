@@ -576,18 +576,20 @@ def lista_de_copilotos_confirmados(request):
 
 
 def lista_de_copitolos_en_espera(request):
+    ## esta el vista que llama el ajax cuando carga el modal
     data = {'data': []}
     r = request.POST
     id = r['viaje_id']
     viaje = Viaje.objects.get(pk=id)
     viajes_copilotos = ViajeCopiloto.objects.filter(viaje=viaje, estaConfirmado=None,
-                                                    fecha_del_viaje__gte=timezone.now())
+                                                    fecha_del_viaje__gte=timezone.now()).order_by('fecha_del_viaje')
 
     for obj in viajes_copilotos:
         current_data = model_to_dict(obj.usuario, exclude=('foto_de_perfil'))
         current_data.update(model_to_dict(obj))
         current_data.update(model_to_dict(obj.usuario.user, fields='username'))
         current_data.update({'viajeCopiloto_id': obj.pk})
+        current_data.update({'es_para_proxima_fecha': obj.fecha_del_viaje == obj.viaje.proxima_fecha_de_salida()})
         data['data'].append(current_data)
 
     return JsonResponse(data)
