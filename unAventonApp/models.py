@@ -9,7 +9,7 @@ from collections import namedtuple
 from django.core.files.storage import FileSystemStorage
 from . import utils
 import datetime
-
+from . import mailer
 fotoStorage = FileSystemStorage(location='media/')
 
 
@@ -427,16 +427,28 @@ class Viaje(models.Model):
     def eliminar(self):
         self.activo = False
         conjunto = set()
+        mails = set()
 
         viajeCopilotos = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=True)
         for viajCop in viajeCopilotos:
+            mails.add(viajCop.usuario.user.email)
             if viajCop.fecha_del_viaje not in conjunto:
                 viajCop.cancelarCopiloto()
             else:
                 viajCop.rechazarCopiloto()
             conjunto.add(viajCop.fecha_del_viaje)
 
+        # ahora vamos a rechazar a todos los copilotos a futuro para este viaje
+
+        viajeCopilotos_sin_confirmar = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None, fecha_del_viaje__gte=timezone.now())
+        for viaje_copiloto in viajeCopilotos_sin_confirmar:
+            mails.add(viaje_copiloto.usuario.user.email)
+            viaje_copiloto.rechazarCopiloto()
         self.save()
+
+        mailer.send_email(None, subject="Viaje eliminado",
+                          message="El piloto ha decidido eliminar el viaje, por lo tanto su solicitud fue cancelada.",
+                          list_of_mails=list(mails))
 
     def proxima_fecha_de_salida(self):
         import ast
