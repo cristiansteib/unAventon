@@ -15,7 +15,6 @@ def baseContext():
 
 
 def index(request):
-    mailer.send_email('cristiansteib@gmail.com','hola', 'elmensaje')
     context = baseContext()
     return render(request, 'unAventonApp/index.html', context)
 
@@ -47,10 +46,10 @@ def signInRegister(request):
         try:
             r = request.POST
             user = User.objects.create_user(r['email'], r['email'], r['password'])
-            Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'],
+            usuario = Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'],
                                    fechaDeNacimiento=r['birthDay'])
             mailer.send_email(user.email,
-                              subject='Bienvenido {0} {1}'.format(Usuario.nombre, Usuario.apellido),
+                              subject='Bienvenido {0} {1} =) '.format(usuario.nombre, usuario.apellido),
                               message='Muchas gracias por ser parte de nuestra comunidad.\n En unAventon te ayudaremos'
                                       'a encontrar viajes seguros y confiables en cuestion de segundos')
 
