@@ -1,14 +1,15 @@
 todos clave unaventon
 
-admin@admin.com -> Auto cap 5
-	Viaje 1 diario  { 16/06 todos los dias, 08:00 duracion 1 hs, la plata > tandil }
-	Viaje 2 semanal { 16/06 todos los sabados, 09:00 duracion 1 hs, la plata > tandil }
-	Viaje 3 unico { 16/06/2018 , 11:00 duracion 1 hs, la plata > tandil }
-	Viaje 4 unico { 25/12/2018 , 14:00 duracion 1 hs, la plata > tandil }
+mario@unaventon.com
+marcos@unaventon.com
+daniel@unaventon.com
+jose@unaventon.com
+cristiansteib@gmail.com
 
 
-mario@gmail.com
-	1 tarjeta
-	registrado en viaje 2 para la fecha 23/06/2018 9am
 
-daniel@gmail.com
+
+
+./manage.py dumpdata --exclude auth.permission --exclude contenttypes > db.json
+./manage.py loaddata db.json
+
