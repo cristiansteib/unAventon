@@ -12,12 +12,19 @@ from django.contrib.auth import logout
 from django.forms.models import model_to_dict
 from . import mailer
 
+
 def neededParams(method_list, *args):
     for value in args:
         if value not in method_list:
             return False
     return True
 
+
+def get_root_url(request):
+    return str(request.META['HTTP_HOST']) + "/"
+
+def get_viaje_url(request, viaje_copiloto_instance):
+    get_root_url(request) + 'viaje/' + str(viaje_copiloto_instance.viaje.id) + '/' + str(viaje_copiloto_instance.fecha_del_viaje.timestamp()).split(".")[0]
 
 @login_required
 def viajes_activos(request):
@@ -484,7 +491,6 @@ def cancelar_ir_en_viaje(request):
 
 
 def solicitar_ir_en_viaje(request):
-
     data = {}
     r = request.POST
     id = r['viaje_id']
@@ -603,10 +609,11 @@ def confirmar_copiloto(request):
                     print('se confirmo')
                     data['error'] = False
                     data['msg'] = 'confirmado'
-
+                    url = get_viaje_url(request, viajeCopiloto)
                     mailer.send_email(viajeCopiloto.usuario.user.email,
                                       subject="El piloto a confirmado su viaje",
-                                      message="Usted a sido confirmado en el viaje URL"
+                                      message="Usted a sido confirmado en el viaje.\n Para ver los detalles ingrese a: "
+                                              "{0}".format(url)
                                       )
                 else:
                     data['msg'] = 'no se confirmo, no hay lugar'
@@ -744,11 +751,13 @@ def buscar_viajes_ajax(request):
     data['viajes'] = list(map(lambda x: x.asJsonPublicacion(request.user.usuario), viajes))
     return JsonResponse(data)
 
+
 def preguntas_sin_responder_conversacion_publica(request):
     data = {}
     preguntas = ConversacionPublica.objects.filter(viaje=request.POST['viaje_id'], respuesta__isnull=True)
     data['preguntas'] = list(map(lambda x: model_to_dict(x), preguntas))
     return JsonResponse(data)
+
 
 def responder_pregunta_conversacion_publica(request):
     conversacion = ConversacionPublica.objects.get(viaje=request.POST['id'])
