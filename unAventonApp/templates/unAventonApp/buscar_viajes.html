@@ -1,14 +1,28 @@
 {% extends "unAventonApp/base.html" %}
 {% block title %}Buscar viaje{% endblock %}
 {% block content %}
-<style>
-#formBuscarViaje{
-background-color: #343a40;
-    padding: 35px;
-    border-radius: 5px;
-  color: #f7efef;
-}
-</style>
+  <style>
+    #formBuscarViaje {
+      background-color: #343a40;
+      padding: 35px;
+      border-radius: 5px;
+      color: #f7efef;
+    }
+
+    .itembusqueda {
+      background-color: #fff1f1;
+      margin-bottom: 15px;
+
+    }
+    .itembusqueda .card-body{
+      padding: 0.7rem;
+    }
+
+    .itembusqueda-right {
+      text-align: right;
+    }
+
+  </style>
 
   <div class="container" style="text-align: left">
     <div class="row">
@@ -57,6 +71,16 @@ background-color: #343a40;
 
       <div id="id_viajes_encontrados" class="col-md-7">
 
+        <div class="card text-center itembusqueda" style="display: none">
+          <div class="card-body ">
+            <h4 class="precio"> Precio $160</h4>
+            <h5><strong>La Plata</strong> a <strong>tandil</strong></h5>
+            <h5>Fri, 10 Aug 2018 22:58:00 GMT</h5>
+            <h6 style="color:red;">Sos piloto de este viaje</h6>
+            <div class="itembusqueda-right "><a class="btn btn-success" href="/viaje/2/1533941880"> Ver detalle</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -83,22 +107,21 @@ background-color: #343a40;
               $("#id_viajes_encontrados").html('');
               for (i = 0; i < v.length; i++) {
                   var unix_time = new Date(v[i].fecha_hora_salida).getTime() / 1000;
-                  output = '<div class="card-header"></div>';
-                  output += '<div class="card text-center">';
-                  output += ' <h6>Origen:  ' + v[i].origen + '</h6>';
-                  output += ' <h6>Destino:  ' + v[i].destino + '</h6>';
-                  output += ' <h6>Fecha de salida:  ' + new Date(v[i].fecha_hora_salida).toUTCString() + '</h6>';
-                  output += ' <h6>Costo por pasajero:  ' + v[i].costo_por_pasajero + '</h6>';
-                  output += ' <h6>Comentario:  ' + v[i].comentario + '</h6>';
+                  output = '<div class="card text-center itembusqueda">';
+                  output += '<div class="card-body ">';
+                  output += '<h4 class="precio"> Precio $' + v[i].costo_por_pasajero + ' </h4>';
+                  output += '<h5><strong> ' + v[i].origen + '</strong> a <strong>' + v[i].destino + '</strong></h5>';
+                  output += '<h5>' + new Date(v[i].fecha_hora_salida).toUTCString() + '</h5>';
                   if (v[i].esta_incripto) {
-                    output += ' <h6>Estas inscripto en este viaje</h6>';
+                      output += ' <h6 style="color:green;">>Estas inscripto en este viaje</h6>';
                   }
                   if (v[i].es_piloto) {
-                    output += ' <h6>Sos piloto en este viaje</h6>';
-
+                      output += ' <h6 style="color:red;">Sos piloto de este viaje</h6>';
                   }
-                  output += '<a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> Ver viaje</a>';
+                  output += '<div class="itembusqueda-right "><a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> Ver detalle</a></div>';
                   output += '</div>';
+                  output += '</div>';
+
 
                   $("#id_viajes_encontrados").append(output);
               }
