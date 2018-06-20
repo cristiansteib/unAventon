@@ -51,7 +51,7 @@ def signInRegister(request):
             mailer.send_email(user.email,
                               subject='Bienvenido {0} {1} =) '.format(usuario.nombre, usuario.apellido),
                               message='Muchas gracias por ser parte de nuestra comunidad.\n En unAventon te ayudaremos'
-                                      'a encontrar viajes seguros y confiables en cuestion de segundos')
+                                      ' a encontrar viajes seguros y confiables en cuestion de segundos')
 
             return render(request, 'unAventonApp/signin_success.html')
         except IntegrityError:
