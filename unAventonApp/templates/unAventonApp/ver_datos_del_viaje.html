@@ -91,8 +91,7 @@
         <div class="col-md">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><strong>Piloto</strong></li>
-                <li class="list-group-item">Calificacion: {{ viaje.calificacion_como_piloto }} </li>
-                <li class="list-group-item">
+              <li class="list-group-item">
                     {% if copiloto_confirmado is True %}
                         Nombre: {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}
                         Mail: {{ viaje.viaje.auto.usuario.user.email }}
@@ -100,14 +99,21 @@
                         Nombre: {{ viaje.viaje.auto.usuario.nombre }}
                     {% endif %}
                 </li>
+              <li class="list-group-item">
+                Calificacion: {{ viaje.calificacion_como_piloto }}
+                {% if copiloto_confirmado is False %}
+                  <a href="{{ viaje.viaje.auto.usuario.get_url_calificion_detalle }}">Ver detalles</a>
+                {% endif %}
+              </li>
+
             </ul>
         </div>
         <div class="col-md">
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><strong>Viaje</strong></li>
                 <li class="list-group-item"> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </li>
-                <li class="list-group-item"> El dia {{ viaje.viaje.proxima_fecha_de_salida.date }} a
-                    las {{ viaje.viaje.proxima_fecha_de_salida.timetz }}</li>
+                <li class="list-group-item"> El dia {{ viaje.fecha_hora_salida.date }} a
+                    las {{ viaje.fecha_hora_salida.timetz }}</li>
                 <li class="list-group-item">Costo por pasajero: $ {{ viaje.viaje.get_costo_por_pasajero }}</li>
             </ul>
         </div>
@@ -160,7 +166,7 @@
                                     <img height="50px" src="{{ conversacion.viaje.auto.usuario.foto_de_perfil.url }}">
                                     <span
                                             class="msgText"> {{ conversacion.respuesta }}</span>
-                                    <span class="data"> {{ conversacion }} </span>
+                                    <span class="data"> {{ conversacion.fechaHoraRespuesta }} </span>
                                 </div>
                             </div>
                         {% endif %}

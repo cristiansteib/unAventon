@@ -23,6 +23,9 @@ class Usuario(models.Model):
     dni = models.CharField(max_length=15, default=None, null=True)
     foto_de_perfil = models.ImageField(storage=fotoStorage, default='assets/default-user.png')
 
+    def get_url_calificion_detalle(self):
+        return reverse('ver_calificaciones_de_usuario', kwargs={'id': self.pk})
+
     def asJsonMinified(self):
         return {
             'id': self.pk,
