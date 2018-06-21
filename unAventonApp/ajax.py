@@ -21,7 +21,12 @@ def neededParams(method_list, *args):
 
 
 def get_root_url(request):
-    return str(request.META['HTTP_HOST']) + "/"
+    scheme = request.is_secure() and "https" or "http"
+    return scheme + '://' + str(request.META['HTTP_HOST'])
+
+
+def get_url_viaje_copiloto(request,viaje_copiloto):
+    return get_root_url(request) + viaje_copiloto.get_absolute_url()
 
 @login_required
 def viajes_activos(request):
@@ -608,7 +613,7 @@ def confirmar_copiloto(request):
                     print('se confirmo')
                     data['error'] = False
                     data['msg'] = 'confirmado'
-                    url = get_root_url(request) + viajeCopiloto.get_absolute_url()
+                    url = get_url_viaje_copiloto(request, viajeCopiloto)
                     mailer.send_email(viajeCopiloto.usuario.user.email,
                                       subject="El piloto a confirmado su viaje",
                                       message="Usted a sido confirmado en el viaje.\n Para ver los detalles ingrese a: "
@@ -636,7 +641,7 @@ def rechazar_copiloto(request):
     mailer.send_email(viaje_copiloto.usuario.user.email,
                       subject="El piloto a rechazado su solicitud",
                       message="El piloto ha decidido rechazar la solicitud al viaje {0}".format(
-                          get_root_url(request) + viaje_copiloto.get_absolute_url())
+                          get_url_viaje_copiloto(request, viaje_copiloto))
                       )
 
     return JsonResponse(data)
@@ -652,7 +657,7 @@ def cancelar_copiloto(request):
     mailer.send_email(viaje_copiloto.usuario.user.email,
                       subject="El piloto a cancelado su solicitud",
                       message="El piloto ha decidido quitar la confirmacion al viaje {0}".format(
-                          get_root_url(request) + viaje_copiloto.get_absolute_url())
+                          get_url_viaje_copiloto(request, viaje_copiloto))
                       )
     return JsonResponse(data)
 
