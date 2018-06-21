@@ -416,7 +416,7 @@ class Viaje(models.Model):
     def datos_del_viaje_en_fecha(self, fecha):
         """ retorna un json con los datos asoc al
         viaje segun la fecha"""
-
+        fecha = timezone.datetime.utcfromtimestamp(fecha.timestamp())
         return {
             'viaje': self,
             'fecha_hora_salida': fecha,
