@@ -9,7 +9,6 @@
         </button>
       </div>
       <div class="modal-body" id="body-preguntas-sin-responder">
-        <h5>No tenes preguntas por responder para este viaje.</h5>
       </div>
     </div>
   </div>
@@ -45,12 +44,13 @@
         }
         var preguntas = response.preguntas;
         if (preguntas.length <= 0){
+            elem.html('<h5>No tenes preguntas por responder para este viaje.</h5>');
             return false;
         }
         var output = '';
         for (var i = 0; i < preguntas.length; i++) {
             var a = preguntas[i];
-            output += '<form class="form-responder-pregunta"><div class="form-group"> <h5 style="text-align:left">' + a.pregunta + '</h5>';
+            output += '<form onsubmit="return false;" class="form-responder-pregunta"><div class="form-group"> <h5 style="text-align:left">' + a.pregunta + '</h5>';
             output += '<textarea id="text-in-'+ i +'"class="form-control" rows="2"></textarea>';
             output += '<button  style="margin-top: 10px;" class="form-control btn btn-info" onclick="responderPregunta('+ a.id +',\'text-in-'+i +'\')">Enviar</button></div></form>';
         }
@@ -60,7 +60,7 @@
 
     function errorCallbackPreguntas(response) {
         //TODO
-        console.log(response);
+        console.log("ERROR AL RESPONDER PREGUNTA!!!: ", response);
     }
 
 
@@ -70,7 +70,10 @@
             id: idConversacion,
             respuesta: respuesta
         };
-        postJson("{% url 'responder_pregunta_publica' %}", data)
+        postJson("{% url 'responder_pregunta_publica' %}", data, successCallbackOnSendRespuesta, errorCallbackPreguntas)
     }
 
+      function successCallbackOnSendRespuesta() {
+          getAndloadPreguntasSinResponder();
+      }
 </script>
