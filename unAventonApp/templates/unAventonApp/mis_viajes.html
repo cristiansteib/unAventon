@@ -23,11 +23,10 @@
           {% for viaje in viajes %}
             <div class="card card-block" style="margin-top: 25px">
               <ul>
-                <li>Origen: {{ viaje.origen }}</li>
-                <li> Destino: {{ viaje.destino }}</li>
+                <li>De <strong>{{ viaje.origen }}</strong> a <strong> {{ viaje.destino }} </strong>, <a href="{{ viaje.get_absolute_url }}">Link a publicacion para la proxima fecha</a> </li>
                 <li> Proxima fecha el {{ viaje.proxima_fecha_de_salida.date }} a
-                  las {{ viaje.proxima_fecha_de_salida.timetz }}</li>
-                <li> Auto : {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
+                  las {{ viaje.proxima_fecha_de_salida.timetz }}  </li>
+                <li> Auto seleccionado {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
                   asientos: {{ viaje.auto.capacidad }}</li>
                 <li> Costo por pasajero: ${{ viaje.get_costo_por_pasajero }}</li>
                 <li> Gasto total: ${{ viaje.gasto_total }}</li>
