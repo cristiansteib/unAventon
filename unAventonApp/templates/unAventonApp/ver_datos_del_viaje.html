@@ -113,7 +113,7 @@
                 <li class="list-group-item"><strong>Viaje</strong></li>
                 <li class="list-group-item"> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </li>
                 <li class="list-group-item"> El dia {{ viaje.fecha_hora_salida.date }} a
-                    las {{ viaje.fecha_hora_salida.timetz }}</li>
+                    las {{ viaje.fecha_hora_salida.time }}</li>
                 <li class="list-group-item">Costo por pasajero: $ {{ viaje.viaje.get_costo_por_pasajero }}</li>
             </ul>
         </div>
