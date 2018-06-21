@@ -14,6 +14,7 @@
     <table class="table table-striped">
       <thead>
       <tr style="    background-color: #9999999e">
+        <th>Links</th>
         <th>Viaje</th>
         <th>Fecha y Hora de salida</th>
         <th>Precio</th>
@@ -27,7 +28,8 @@
 
       {% for viaje in viajes %}
         <tr class="{{ viaje.id | estadoCopilotoViajeClass }}">
-          <td> De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }} </td>
+          <td><a href="{{ viaje.get_absolute_url }}"> <i class="fa fa-chain" style="font-size:1.3rem;"></i> Ver viaje </a></td>
+          <td>  De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }}      </td>
           <td>{{ viaje.fecha_del_viaje.date }} a las {{ viaje.fecha_del_viaje.timetz }}</td>
           <td>$ {{ viaje.viaje.get_costo_por_pasajero }}</td>
           <td>{{ viaje.viaje.auto.usuario.nombre }}</td>
