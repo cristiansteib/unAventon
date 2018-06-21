@@ -101,7 +101,7 @@
                 </li>
               <li class="list-group-item">
                 Calificacion: {{ viaje.calificacion_como_piloto }}
-                {% if copiloto_confirmado %}
+                {% if copiloto_confirmado is True %}
                   <a href="{{ viaje.viaje.auto.usuario.get_url_calificion_detalle }}">Ver detalles</a>
                 {% endif %}
               </li>
