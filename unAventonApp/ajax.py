@@ -23,9 +23,6 @@ def neededParams(method_list, *args):
 def get_root_url(request):
     return str(request.META['HTTP_HOST']) + "/"
 
-def get_viaje_url(request, viaje_copiloto_instance):
-    get_root_url(request) + 'viaje/' + str(viaje_copiloto_instance.viaje.id) + '/' + str(viaje_copiloto_instance.fecha_del_viaje.timestamp()).split(".")[0]
-
 @login_required
 def viajes_activos(request):
     """ retorna todos los viajes activos
@@ -611,7 +608,7 @@ def confirmar_copiloto(request):
                     print('se confirmo')
                     data['error'] = False
                     data['msg'] = 'confirmado'
-                    url = get_viaje_url(request, viajeCopiloto)
+                    url = get_root_url(request) + viajeCopiloto.get_absolute_url()
                     mailer.send_email(viajeCopiloto.usuario.user.email,
                                       subject="El piloto a confirmado su viaje",
                                       message="Usted a sido confirmado en el viaje.\n Para ver los detalles ingrese a: "
@@ -635,6 +632,13 @@ def rechazar_copiloto(request):
     viaje_copiloto_id = r['viaje_copiloto_id']
     viaje_copiloto = ViajeCopiloto.objects.get(pk=viaje_copiloto_id)
     viaje_copiloto.rechazarCopiloto()
+
+    mailer.send_email(viaje_copiloto.usuario.user.email,
+                      subject="El piloto a rechazado su solicitud",
+                      message="El piloto ha decidido rechazar la solicitud al viaje {0}".format(
+                          get_root_url(request) + viaje_copiloto.get_absolute_url())
+                      )
+
     return JsonResponse(data)
 
 
@@ -647,7 +651,8 @@ def cancelar_copiloto(request):
 
     mailer.send_email(viaje_copiloto.usuario.user.email,
                       subject="El piloto a cancelado su solicitud",
-                      message="El piloto ha decidido quitar la confirmacion al viaje X"
+                      message="El piloto ha decidido quitar la confirmacion al viaje {0}".format(
+                          get_root_url(request) + viaje_copiloto.get_absolute_url())
                       )
     return JsonResponse(data)
 

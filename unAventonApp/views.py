@@ -124,7 +124,6 @@ def viajes_inscriptos(request):
     context = {
         'viajes': ViajeCopiloto.objects.filter(usuario=request.user.usuario)
     }
-    print(context)
     return render(request, 'unAventonApp/viajes_inscriptos.html', context)
 
 

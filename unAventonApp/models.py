@@ -10,6 +10,7 @@ from django.core.files.storage import FileSystemStorage
 from . import utils
 import datetime
 from . import mailer
+from django.urls import reverse
 
 fotoStorage = FileSystemStorage(location='media/')
 
@@ -374,6 +375,12 @@ class Viaje(models.Model):
         return "id={0} {1} , de {2} a {3}, fecha {4}".format(self.pk, self.auto.usuario, self.origen, self.destino,
                                                              self.fecha_hora_salida)
 
+    def get_absolute_url(self):
+        return self.get_absolute_url_en_fecha(self.proxima_fecha_de_salida())
+
+    def get_absolute_url_en_fecha(self, fecha):
+        return reverse('viaje', kwargs={'id': str(self.id), 'timestamp': str(fecha.timestamp()).split('.')[0]})
+
     def caeEnLaFecha(self, unaFecha):
         # retorna un booleano, si el viaje cae en la fecha unaFecha, no chequea por hora
         fecha = datetime.datetime.strptime(unaFecha, '%Y-%m-%d')
@@ -419,6 +426,7 @@ class Viaje(models.Model):
             'copilotos_confirmados': self.get_count_copilots_confirmados_en_fecha(fecha),
             'lugares_disponibles': self.get_asientos_disponibles_en_fecha(fecha),
             'calificacion_como_piloto': self.auto.usuario.get_puntaje_como_piloto(),
+            'url': self.get_absolute_url_en_fecha(fecha),
             'auto': self.auto.asJson()
         }
 
@@ -450,7 +458,9 @@ class Viaje(models.Model):
         self.save()
 
         mailer.send_email(None, subject="Viaje eliminado",
-                          message="El piloto ha decidido eliminar el viaje, por lo tanto su solicitud fue cancelada.",
+                          message="El piloto ha decidido eliminar el viaje origen {0}, destino {1}, por lo tanto su solicitud fue cancelada.".format(
+                              self.origen, self.destino
+                          ),
                           list_of_mails=list(mails))
 
     def proxima_fecha_de_salida(self):
@@ -707,6 +717,9 @@ class ViajeCopiloto(models.Model):
     calificacion_a_copiloto = models.IntegerField(default=None, null=True, blank=True)
     calificacion_a_copiloto_mensaje = models.CharField(max_length=150, default=None, null=True, blank=True)
     rechazoElPiloto = models.NullBooleanField(default=None, null=True)
+
+    def get_absolute_url(self):
+        return self.viaje.get_absolute_url_en_fecha(self.fecha_del_viaje)
 
     def calificar_a_copiloto(self, calificacion, comentario):
         self.calificacion_a_copiloto = calificacion
