@@ -93,15 +93,15 @@
                 <li class="list-group-item"><strong>Piloto</strong></li>
               <li class="list-group-item">
                     {% if copiloto_confirmado is True %}
-                        Nombre: {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}
-                        Mail: {{ viaje.viaje.auto.usuario.user.email }}
+                      <p> {{ viaje.viaje.auto.usuario.nombre }} {{ viaje.viaje.auto.usuario.apellido }}</p>
+                      <p>Mail: {{ viaje.viaje.auto.usuario.user.email }}</p>
                     {% else %}
-                        Nombre: {{ viaje.viaje.auto.usuario.nombre }}
+                      <p>{{ viaje.viaje.auto.usuario.nombre }}</p>
                     {% endif %}
                 </li>
               <li class="list-group-item">
                 Calificacion: {{ viaje.calificacion_como_piloto }}
-                {% if copiloto_confirmado is False %}
+                {% if copiloto_confirmado %}
                   <a href="{{ viaje.viaje.auto.usuario.get_url_calificion_detalle }}">Ver detalles</a>
                 {% endif %}
               </li>
