@@ -775,7 +775,8 @@ def preguntas_sin_responder_conversacion_publica(request):
 
 
 def responder_pregunta_conversacion_publica(request):
-    conversacion = ConversacionPublica.objects.get(viaje=request.POST['id'])
+    conversacion = ConversacionPublica.objects.get(pk=request.POST['id'])
     conversacion.respuesta = request.POST['respuesta']
     conversacion.save()
+    print(conversacion)
     return JsonResponse(model_to_dict(conversacion))
