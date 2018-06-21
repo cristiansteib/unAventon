@@ -25,8 +25,9 @@ def get_root_url(request):
     return scheme + '://' + str(request.META['HTTP_HOST'])
 
 
-def get_url_viaje_copiloto(request,viaje_copiloto):
+def get_url_viaje_copiloto(request, viaje_copiloto):
     return get_root_url(request) + viaje_copiloto.get_absolute_url()
+
 
 @login_required
 def viajes_activos(request):
@@ -43,6 +44,7 @@ def viajes_activos(request):
 
 @login_required
 def lista_de_espera_de_copilotos_para_un_viaje(request):
+    #TODO: chequear si la UI usa esto
     """ retorna todos los copilotos que estan en la lista de espera
     para un viaje del usuario logueado """
     data = {}
@@ -572,6 +574,7 @@ def lista_de_copilotos_confirmados(request):
         current_data.update({'viajeCopiloto_id': obj.pk})
         current_data.update({'estado': obj.get_estado()})
         current_data.update({'esta_calificado': obj.esta_el_copiloto_calificado()})
+        current_data.update({'es_para_proxima_fecha': obj.fecha_del_viaje == obj.viaje.proxima_fecha_de_salida()})
         data['data'].append(current_data)
 
     return JsonResponse(data)
