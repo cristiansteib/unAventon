@@ -171,7 +171,8 @@ def mis_viajes_finalizados(request):
     # busca los viajes finalizados con copilotos confirmados
     viajes_copilotos = list(ViajeCopiloto.objects.filter(
         fecha_del_viaje__lte=timezone.now(),
-        estaConfirmado=True
+        estaConfirmado=True,
+        viaje__auto__usuario=request.user.usuario
     ))
 
     # aplico un DISTINCT caserito porque no functiona con sqlite
