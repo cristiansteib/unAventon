@@ -187,7 +187,15 @@ class Usuario(models.Model):
 
     def get_viajes_creados_activos(self):
         """ Todos los viajes que creados por el usuario, no finalizados"""
-        return self.get_viajes_creados().filter(activo=True)
+        viajes_activos = self.get_viajes_creados().filter(activo=True)
+        flag = False
+        for viaje in viajes_activos:
+            if viaje.proxima_fecha_de_salida() < timezone.now():
+                viaje.desactivar()
+        if flag:
+            viajes_activos = self.get_viajes_creados().filter(activo=True)
+
+        return viajes_activos
 
     def get_viajes_finalizados(self):
         """ Todos los viajes que creados por el usuario, finalizados"""

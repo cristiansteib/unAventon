@@ -21,6 +21,7 @@
           <li> Auto utilizado: {{ viaje.viaje.auto.marca }} {{ viaje.viaje.auto.modelo }} {{ viaje.viaje.auto.dominio }}
             ,
             asientos: {{ viaje.viaje.auto.capacidad }}</li>
+          <li> Monto total declarado por piloto: ${{ viaje.viaje.gasto_total }}</li>
           <li> Monto retenido por la aplicacion: ${{ viaje.get_comision_cobrada }}</li>
           <li> Total depositado en cuenta: <span
               style="      color: #9eb974;   font-weight: 900;">${{ viaje.get_total_a_reintegrar_al_conductor }}</span>
