@@ -778,7 +778,7 @@ class ViajeCopiloto(models.Model):
 
     def confirmarCopiloto(self):
         # todo: chequear que no este en otro viaje
-        if self.viaje.hay_lugar_en_fecha(self.fecha_hora_salida):
+        if self.viaje.hay_lugar_en_fecha(self.fecha_del_viaje):
             self.estaConfirmado = True
             self.save()
             return True
