@@ -140,7 +140,7 @@
                     <input type="hidden" name="id_viaje" value="{{ viaje.viaje.pk }}">
                     <input type="hidden" name="fecha_hora_unix" value="{{ timestamp }}">
                     <div class="form-group col-8 mb-2 ml-3">
-  <textarea rows="3" name="pregunta"  {% if es_piloto %} disabled {% endif %}>
+  <textarea rows="3" name="pregunta"  {% if es_piloto %} disabled {% endif %} required>
   </textarea>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2" {% if es_piloto %} disabled {% endif %}>
