@@ -661,8 +661,8 @@ def cancelar_copiloto(request):
 
     mailer.send_email(viaje_copiloto.usuario.user.email,
                       subject="El piloto a cancelado su solicitud",
-                      message="El piloto ha decidido quitar la confirmacion al viaje {0}".format(
-                          get_url_viaje_copiloto(request, viaje_copiloto))
+                      message="El piloto ha decidido quitar la confirmacion al viaje {0},\nY se reintegrara el total cobrado por cada viaje. (El costo por cada viaje fue de={1}) ".format(
+                          get_url_viaje_copiloto(request, viaje_copiloto),viaje_copiloto.viaje.get_costo_por_pasajero())
                       )
     return JsonResponse(data)
 
