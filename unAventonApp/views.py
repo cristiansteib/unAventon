@@ -66,7 +66,8 @@ def viaje(request, id, timestamp):
     # renderiza la vista para ver los datos del viaje
     context = {}
     viaje = Viaje.objects.get(pk=id)
-    fecha = timezone.datetime.fromtimestamp(int(timestamp))
+    fecha = datetime.datetime.fromtimestamp(int(timestamp))
+    print(fecha)
     context['viaje'] = viaje.datos_del_viaje_en_fecha(fecha)
     try:
         vc = ViajeCopiloto.objects.get(usuario=request.user.usuario, viaje=viaje, fecha_del_viaje=fecha)
@@ -103,6 +104,7 @@ def ver_calificaciones_de_usuario(request, id):
 
 @login_required
 def agregar_pregunta_conversacion_publica(request):
+    import pytz
     id_viaje = request.POST['id_viaje']
     timestamp = request.POST['fecha_hora_unix']
     pregunta = request.POST['pregunta'].strip()

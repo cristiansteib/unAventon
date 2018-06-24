@@ -56,7 +56,6 @@ class AppTest(TestCase):
         self.assertEqual(self.viaje['creado'], True, 'No se pudo crear el viaje')
 
     def test_Si_usuario_puede_crear_viaje_teniendo_viaje_semanal_sin_tener_en_el_mismo_dia(self):
-
         fecha_y_hora_de_salida = datetime.datetime.now() + datetime.timedelta(days=5)
 
         datos_viaje = {
@@ -74,9 +73,8 @@ class AppTest(TestCase):
         self.viaje = Viaje.objects.create_viaje(self.usuario, **datos_viaje)
         self.assertEqual(self.viaje['creado'], True, 'No se pudo crear el viaje semanal')
 
-
-    def test_Si_usuario_puede_crear_viaje_una_semana_antes_teniendo_viaje_semanal_en_el_mismo_dia_de_semana_que_ya_tiene_al_mismo_horario(self):
-
+    def test_Si_usuario_puede_crear_viaje_una_semana_antes_teniendo_viaje_semanal_en_el_mismo_dia_de_semana_que_ya_tiene_al_mismo_horario(
+            self):
         fecha_y_hora_de_salida = datetime.datetime.now() + datetime.timedelta(days=5)
 
         datos_viaje = {
@@ -94,16 +92,15 @@ class AppTest(TestCase):
         viaje = Viaje.objects.create_viaje(self.usuario, **datos_viaje)
         self.assertEqual(viaje['creado'], True, 'No se pudo crear el viaje semanal')
 
-
-        #ahora cambio la fecha para el mismo dia de la semana
+        # ahora cambio la fecha para el mismo dia de la semana
         datos_viaje['fecha_hora_salida'] = fecha_y_hora_de_salida + datetime.timedelta(days=7)
         viaje = Viaje.objects.create_viaje(self.usuario, **datos_viaje)
         self.assertEqual(viaje['creado'], False, 'Se pudo crear el viaje semanal y no deberia, '
-                                                      'ya tiene uno para el mismo dia de la semana,'
-                                                      ' una semana atras. ' + str(viaje))
+                                                 'ya tiene uno para el mismo dia de la semana,'
+                                                 ' una semana atras. ' + str(viaje))
 
-    def test_Si_usuario_NO_puede_crear_viaje_teniendo_viaje_semanal_en_el_mismo_dia_de_semana_que_ya_tiene_al_mismo_horario(self):
-
+    def test_Si_usuario_NO_puede_crear_viaje_teniendo_viaje_semanal_en_el_mismo_dia_de_semana_que_ya_tiene_al_mismo_horario(
+            self):
         fecha_y_hora_de_salida = datetime.datetime.now() + datetime.timedelta(days=30)
 
         datos_viaje = {
@@ -121,8 +118,7 @@ class AppTest(TestCase):
         viaje = Viaje.objects.create_viaje(self.usuario, **datos_viaje)
         self.assertEqual(viaje['creado'], True, 'No se pudo crear el viaje semanal')
 
-
-        #ahora cambio la fecha para el mismo dia de la semana
+        # ahora cambio la fecha para el mismo dia de la semana
         datos_viaje['fecha_hora_salida'] = fecha_y_hora_de_salida + datetime.timedelta(days=-7)
         viaje = Viaje.objects.create_viaje(self.usuario, **datos_viaje)
-        self.assertEqual(viaje['creado'], True, 'NO Se pudo crear el viaje semanal deberia'  + str(viaje))
+        self.assertEqual(viaje['creado'], True, 'NO Se pudo crear el viaje semanal deberia' + str(viaje))
