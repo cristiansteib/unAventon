@@ -26,6 +26,13 @@ class Usuario(models.Model):
     def get_url_calificion_detalle(self):
         return reverse('ver_calificaciones_de_usuario', kwargs={'id': self.pk})
 
+    def count_preguntas_sin_responder(self):
+        conversacion = ConversacionPublica.objects.filter(viaje__auto__usuario=self, respuesta__isnull=True)
+        return len(list(filter(lambda x: x.viaje.esta_activo(), conversacion)))
+
+    def tiene_preguntas_para_responder(self):
+        return self.count_preguntas_sin_responder() > 0
+
     def asJsonMinified(self):
         return {
             'id': self.pk,
@@ -162,6 +169,7 @@ class Usuario(models.Model):
             return puntaje if puntaje > 0 else 0
         else:
             return 0
+
     def get_puntaje_como_copiloto(self):
         viajes_realizados = ViajeCopiloto.objects.filter(usuario=self, calificacion_a_copiloto__isnull=False,
                                                          estaConfirmado__isnull=False)
@@ -170,6 +178,7 @@ class Usuario(models.Model):
             return puntaje if puntaje > 0 else 0
         else:
             return 0
+
     def get_calificaciones_pendientes_para_piloto(self):
         pass
 
