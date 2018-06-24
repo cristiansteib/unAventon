@@ -83,9 +83,12 @@ class Usuario(models.Model):
 
     def se_superpone_algun_viaje_como_copiloto(self, fecha_hora_salida, duracion):
         ##check que no este en uso en otro viaje en el mismo rango horario como copiloto
-        viajes_como_copiloto = Viaje.objects.filter(
-            pk__in=self.get_viajes_confirmados_como_copiloto().filter(
-                viaje__fecha_hora_salida__gte=fecha_hora_salida).values('viaje_id'))
+        viajes_como_copiloto = self.get_viajes_confirmados_como_copiloto().filter(
+            fecha_del_viaje__year=fecha_hora_salida.year,
+            fecha_del_viaje__month=fecha_hora_salida.month,
+            fecha_del_viaje__day=fecha_hora_salida.day)
+
+        print(viajes_como_copiloto)
         return self.__se_superpone_rango_horario(fecha_hora_salida, duracion, viajes_como_copiloto)
 
     def se_superpone_algun_viaje_como_piloto(self, fecha_hora_salida, duracion):
@@ -119,10 +122,14 @@ class Usuario(models.Model):
         slow_value = datetime.timedelta(0, 0)
 
         for viaje in viajesCollection:
-            viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.fecha_hora_salida.hour,
-                                                     viaje.fecha_hora_salida.minute)
-            viaje_datetime_end = utils.sumar_horas(viaje.fecha_hora_salida.hour, viaje.fecha_hora_salida.minute,
-                                                   viaje.duracion, 0)
+            fecha_hora_getter = 'fecha_del_viaje' if type(viaje) == ViajeCopiloto else 'fecha_hora_salida'
+            duracion_viaje = viaje.viaje.duracion if type(viaje) == ViajeCopiloto else viaje.duracion
+
+            viaje_datetime_start = datetime.datetime(1, 1, 1, viaje.__getattribute__(fecha_hora_getter).hour,
+                                                     viaje.__getattribute__(fecha_hora_getter).minute)
+            viaje_datetime_end = utils.sumar_horas(viaje.__getattribute__(fecha_hora_getter).hour,
+                                                   viaje.__getattribute__(fecha_hora_getter).minute,
+                                                   duracion_viaje, 0)
 
             overlap = utils.get_overlap(slow_value, viaje_datetime_start, viaje_datetime_end, fecha_hora_salida_start,
                                         fecha_hora_salida_end)
@@ -771,7 +778,7 @@ class ViajeCopiloto(models.Model):
 
     def confirmarCopiloto(self):
         # todo: chequear que no este en otro viaje
-        if self.viaje.hay_lugar_en_fecha(self.fecha_del_viaje):
+        if self.viaje.hay_lugar_en_fecha(self.fecha_hora_salida):
             self.estaConfirmado = True
             self.save()
             return True
