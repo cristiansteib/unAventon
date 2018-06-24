@@ -61,7 +61,7 @@ def signInRegister(request):
 
     return HttpResponseRedirect('signin')
 
-
+@login_required
 def viaje(request, id, timestamp):
     # renderiza la vista para ver los datos del viaje
     context = {}
@@ -81,7 +81,7 @@ def viaje(request, id, timestamp):
 
     return render(request, 'unAventonApp/ver_datos_del_viaje.html', context)
 
-
+@login_required
 def context_calificaciones_del_usuario(usuario):
     context = {}
     context['usuario'] = usuario
@@ -89,13 +89,13 @@ def context_calificaciones_del_usuario(usuario):
     context['calificaciones_como_copiloto'] = usuario.get_calificacion_como_copiloto()
     return context
 
-
+@login_required
 def ver_calificaciones(request):
     usuario = request.user.usuario
     context = context_calificaciones_del_usuario(usuario)
     return render(request, 'unAventonApp/detalle_de_calificacion.html', context)
 
-
+@login_required
 def ver_calificaciones_de_usuario(request, id):
     usuario = Usuario.objects.get(pk=id)
     context = context_calificaciones_del_usuario(usuario)
