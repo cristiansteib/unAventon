@@ -8,6 +8,7 @@ from django.utils import timezone
 import datetime
 from . import mailer
 
+
 def baseContext():
     return {
         'footer': {}
@@ -47,7 +48,7 @@ def signInRegister(request):
             r = request.POST
             user = User.objects.create_user(r['email'], r['email'], r['password'])
             usuario = Usuario.objects.create(user=user, nombre=r['firstName'], apellido=r['lastName'], dni=r['dni'],
-                                   fechaDeNacimiento=r['birthDay'])
+                                             fechaDeNacimiento=r['birthDay'])
             mailer.send_email(user.email,
                               subject='Bienvenido {0} {1} =) '.format(usuario.nombre, usuario.apellido),
                               message='Muchas gracias por ser parte de nuestra comunidad.\n En unAventon te ayudaremos'
@@ -71,7 +72,7 @@ def viaje(request, id, timestamp):
         vc = ViajeCopiloto.objects.get(usuario=request.user.usuario, viaje=viaje, fecha_del_viaje=fecha)
         context['copiloto_confirmado'] = vc.estaConfirmado
     except:
-        context['copiloto_confirmado'] = -1 #todavia no mando solicitud
+        context['copiloto_confirmado'] = -1  # todavia no mando solicitud
 
     context['timestamp'] = timestamp
     context['conversacion_publica'] = viaje.get_conversacion_publica()
@@ -104,12 +105,14 @@ def ver_calificaciones_de_usuario(request, id):
 def agregar_pregunta_conversacion_publica(request):
     id_viaje = request.POST['id_viaje']
     timestamp = request.POST['fecha_hora_unix']
-    ConversacionPublica.objects.create(
-        viaje=Viaje.objects.get(pk=id_viaje),
-        usuario=request.user.usuario,
-        pregunta=request.POST['pregunta'],
-        fechaHoraPregunta=datetime.datetime.now()
-    )
+    pregunta = request.POST['pregunta'].strip()
+    if len(pregunta) > 0:
+        ConversacionPublica.objects.create(
+            viaje=Viaje.objects.get(pk=id_viaje),
+            usuario=request.user.usuario,
+            pregunta=request.POST['pregunta'],
+            fechaHoraPregunta=datetime.datetime.now()
+        )
     return redirect('viaje', id=id_viaje, timestamp=timestamp)
 
 
