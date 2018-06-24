@@ -37,11 +37,13 @@
                 overlayShow(data.msg);
             }
             loadListaDePasajerosSinConfirmar();
-
         };
         var data = {
             viaje_copiloto_id: idViajeCopiloto,
         };
+        if (!window.confirm('Estas seguro que quiere confirmar al copiloto?\nRecuerde que si lo cancela será penalizado.')){
+            return false;
+        }
         postJson('{% url 'confirmar_copiloto' %}', data, callbackOnSuccess);
     }
 

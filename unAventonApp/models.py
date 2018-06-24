@@ -482,15 +482,15 @@ class Viaje(models.Model):
         # ahora vamos a rechazar a todos los copilotos a futuro para este viaje
 
         viajeCopilotos_sin_confirmar = ViajeCopiloto.objects.filter(viaje=self, estaConfirmado=None,
-                                                                    fecha_del_viaje__gte=timezone.now())
+                                                                    fecha_del_viaje__gte=datetime.datetime.now())
         for viaje_copiloto in viajeCopilotos_sin_confirmar:
             mails.add(viaje_copiloto.usuario.user.email)
             viaje_copiloto.rechazarCopiloto()
         self.save()
 
         mailer.send_email(None, subject="Viaje eliminado",
-                          message="El piloto ha decidido eliminar el viaje origen {0}, destino {1}, por lo tanto su solicitud fue cancelada.".format(
-                              self.origen, self.destino
+                          message="El piloto ha decidido eliminar el viaje origen {0}, destino {1}, por lo tanto su solicitud fue cancelada.\nY se reintegrara el total cobrado por cada viaje. (El costo por cada viaje fue de={2}) ".format(
+                              self.origen, self.destino, self.get_costo_por_pasajero()
                           ),
                           list_of_mails=list(mails))
 
