@@ -623,7 +623,7 @@ def confirmar_copiloto(request):
                 else:
                     data['msg'] = 'no se confirmo, no hay lugar'
             else:
-                data['msg'] = 'El copiloto esta confirmado en otro viaje, al mismo horario'
+                data['msg'] = 'El copiloto esta confirmado en otro viaje, dentro del mismo horario'
         else:
             data['msg'] = 'El copiloto tiene calificaciones pendientes, no se puede confirmar.'
     else:
