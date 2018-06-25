@@ -156,14 +156,14 @@
         function wrap(n){
             return (n)<10? "0"+n:n;
         }
-        return String(dateInstancia.getUTCFullYear() +'-' + wrap(dateInstancia.getUTCMonth()+1) + '-' + wrap(dateInstancia.getUTCDate()));
+        return String(dateInstancia.getFullYear() +'-' + wrap(dateInstancia.getMonth()+1) + '-' + wrap(dateInstancia.getDate()));
     }
 
     function transformarFechaAFormatoDeInputHora(dateInstancia){
         function wrap(n){
             return (n)<10? "0"+n:n;
         }
-        return String(wrap(dateInstancia.getUTCHours()) +':' + wrap(dateInstancia.getUTCMinutes())) ;
+        return String(wrap(dateInstancia.getHours()) +':' + wrap(dateInstancia.getMinutes())) ;
     }
 
     function cargarDatosEnElForm(viajeData){
