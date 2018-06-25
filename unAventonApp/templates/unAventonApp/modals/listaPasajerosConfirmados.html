@@ -15,6 +15,7 @@
           <tr>
             <th>Fecha  del viaje</th>
             <th>Email</th>
+            <th>Calificaciones</th>
             <th>Nombre</th>
             <th>Apellido</th>
             <th></th>
@@ -55,8 +56,9 @@
             var actual = datos['data'][i];
             var row;
             row = '<tr id=confirm_' + actual.usuario + i +'>';
-            row += '<td>' + new Date(actual.fecha_del_viaje).toUTCString() + '</td>';
+            row += '<td>' + new Date(actual.fecha_del_viaje).toLocaleDateString() + ' ' + new Date(actual.fecha_del_viaje).toLocaleTimeString()  + '</td>';
             row += '<td>' + actual.username + '</td>';
+            row += '<td><a href="'+actual.url_calificacion+'"> <i class="fa fa-eye" style="font-size:1.3rem;"></i> Ver </a></td>';
             row += '<td>' + actual.nombre + '</td>';
             row += '<td>' + actual.apellido + '</td>';
             if (actual.estado === 'finalizado' && actual.esta_calificado === false) {
