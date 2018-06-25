@@ -211,6 +211,7 @@ class Usuario(models.Model):
         flag = False
         for viaje in viajes_activos:
             if viaje.proxima_fecha_de_salida() < timezone.now():
+                flag = True
                 viaje.desactivar()
         if flag:
             viajes_activos = self.get_viajes_creados().filter(activo=True)
