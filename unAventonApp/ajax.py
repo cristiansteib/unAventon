@@ -431,7 +431,7 @@ def borrar_tarjeta(request):
         tarjeta = Tarjeta.objects.get(pk=r['id_tarjeta'], usuario=request.user.usuario)
         if request.user.usuario.elimiar_tarjeta(tarjeta):
             raise PermissionError
-        tarjeta.usuario.remove(request.user.usuario)
+        tarjeta.desactivar()
         response['error'] = False
         response['msg'] = 'Tarjeta borrada'
         return JsonResponse(response)
@@ -443,7 +443,7 @@ def borrar_tarjeta(request):
         import sys
         print(sys.exc_info())
         response['error'] = True
-        response['msg'] = 'No se pudo borrar la tarjeta'
+        response['msg'] = 'No se pudo borrar la tarjeta, informe el error al administrador: '+str(sys.exc_info())
         return JsonResponse(response)
 
 
