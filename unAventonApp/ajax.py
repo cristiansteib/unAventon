@@ -577,8 +577,8 @@ def lista_de_copilotos_confirmados(request):
         current_data.update({'estado': obj.get_estado()})
         current_data.update({'esta_calificado': obj.esta_el_copiloto_calificado()})
         current_data.update({'es_para_proxima_fecha': obj.fecha_del_viaje == obj.viaje.proxima_fecha_de_salida()})
+        current_data.update({'url_calificacion': obj.usuario.get_url_calificion_detalle()})
         data['data'].append(current_data)
-
     return JsonResponse(data)
 
 

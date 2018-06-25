@@ -127,7 +127,7 @@ def logout(request):
 @login_required
 def viajes_inscriptos(request):
     context = {
-        'viajes': ViajeCopiloto.objects.filter(usuario=request.user.usuario)
+        'viajes': ViajeCopiloto.objects.filter(usuario=request.user.usuario).order_by('-fecha_del_viaje')
     }
     return render(request, 'unAventonApp/viajes_inscriptos.html', context)
 
