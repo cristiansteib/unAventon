@@ -36,8 +36,11 @@ echo "yourPassword" > ~/.gmail-password
 ```
 
 
-### Contributing
+Contribution 
+--------------------------------------
 
+In the spirit of open source software development, unAventon always encourages community code contribution.
+  
 #### Credits
 * Muiña, Sebastian Gabriel
 * Steib, Cristian
