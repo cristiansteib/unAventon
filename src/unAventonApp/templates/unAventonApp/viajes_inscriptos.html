@@ -1,0 +1,88 @@
+<!-- lista de los viajes en el que el usuario esta inscripto -->
+{% extends "unAventonApp/base.html" %}
+{% load unAventonApp_extras %}
+
+{% block title %}Viajes inscriptos{% endblock %}
+
+{% block content %}
+  <button type="button" class="btn btn-light" onclick="mostrar_solo('tr')"><strong>Todos</strong></button>
+  <button type="button" class="btn btn-warning" onclick="mostrar_solo('table-warning')"><strong>Esperando confirmacion</strong></button>
+  <button type="button" class="btn btn-success" onclick="mostrar_solo('table-success')"><strong>Confirmados</strong></button>
+  <button type="button" class="btn btn-info" onclick="mostrar_solo('table-info')"><strong>Finalizados</strong></button>
+
+  <div class="table-responsive-sm">
+    <table class="table table-striped">
+      <thead>
+      <tr style="    background-color: #9999999e">
+        <th>Links</th>
+        <th>Viaje</th>
+        <th>Fecha y Hora de salida</th>
+        <th>Precio</th>
+        <th>Conductor</th>
+        <th>Estado</th>
+        <th>Calificar piloto</th>
+        <th>Cancelar</th>
+      </tr>
+      </thead>
+      <tbody>
+
+      {% for viaje in viajes %}
+        <tr class="{{ viaje.id | estadoCopilotoViajeClass }}">
+          <td><a href="{{ viaje.get_absolute_url }}"> <i class="fa fa-chain" style="font-size:1.3rem;"></i> Ver viaje </a></td>
+          <td>  De {{ viaje.viaje.origen }} a {{ viaje.viaje.destino }}      </td>
+          <td>{{ viaje.fecha_del_viaje.date }} a las {{ viaje.fecha_del_viaje.timetz }}</td>
+          <td>$ {{ viaje.viaje.get_costo_por_pasajero }}</td>
+          <td>{{ viaje.viaje.auto.usuario.nombre }}</td>
+          <td>{{ viaje.id | estadoCopilotoViaje}}</td>
+          <td>{{ viaje.id | copilotoViajeCalificarPiloto | safe}}</td>
+          <td>{{ viaje.id | copilotoCancelarInscripcion | safe }}</td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+{% include 'unAventonApp/modals/calificarUsuario.html' %}
+{% include 'unAventonApp/modals/verCalificacion.html' %}
+  <script>
+      function mostrar_solo(clase) {
+          $("tbody tr").hide();
+          if (clase == 'tr') {
+              $("tr").show();
+          } else {
+              $("." + clase).show();
+          }
+      }
+
+      function calificarPiloto(viajeCopilotoId) {
+          var callbackReload = function(){
+              location.reload();
+          };
+        $("#id_calificar_usuario").modal('show');
+        setSubmitEventToCalificarUsuario("{% url 'calificar_a_piloto' %}", viajeCopilotoId, callbackReload);
+      }
+
+
+    function verCalificacionDadaAPiloto(idViajeCopiloto) {
+        setVerCalificacion("{% url 'ver_calificacion_a_piloto' %}",idViajeCopiloto);
+        $("#id_modal_ver_calificion_de_usuario").modal('show');
+    }
+
+      function cancelarInscripcion(viajeCopilotoId) {
+          console.log('cancelar inscriptcion');
+          if(!window.confirm('Estas seguro que deseas cancelar la suscripcion?? si estas confimado se lo calificara negativo!!')){
+              return;
+          }
+          var successCallback = function (data) {
+              location.reload();
+          };
+
+          data = {
+              viaje_copiloto_id:viajeCopilotoId
+          };
+        postJson("{% url 'cancelar_ir_a_viaje' %}", data,successCallback)
+      }
+
+  </script>
+
+{% endblock %}

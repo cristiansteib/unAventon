@@ -1,0 +1,101 @@
+<!-- lista de los viajes en el que el usuario esta inscripto -->
+{% extends "unAventonApp/base.html" %}
+{% block title %}Viajes creados{% endblock %}
+
+{% block content %}
+  <style>
+    ul {
+      text-align: initial;
+    }
+  </style>
+  <div class="container">
+    <h3>Mis viajes como conductor</h3>
+
+    {% for tipo, viajes in viajes.items %}
+       {% if viajes %}
+      <div class="card card-block" style="margin-top: 25px; padding: 20px">
+        <h5>Viaje tipo: {{ tipo }}</h5>
+        {% if not viajes %}
+          <div class="card card-block " style="margin: 20px 0 20px 0; padding: 100px">
+            <h5>No hay viajes de este tipo</h5>
+          </div>
+        {% else %}
+          {% for viaje in viajes %}
+            <div class="card card-block" style="margin-top: 25px">
+              <ul>
+                <li>De <strong>{{ viaje.origen }}</strong> a <strong> {{ viaje.destino }} </strong>, <a href="{{ viaje.get_absolute_url }}">Link a publicacion para la proxima fecha</a> </li>
+                <li> Proxima fecha el {{ viaje.proxima_fecha_de_salida.date }} a
+                  las {{ viaje.proxima_fecha_de_salida.timetz }}  </li>
+                <li> Auto seleccionado {{ viaje.auto.marca }} {{ viaje.auto.modelo }} {{ viaje.auto.dominio }} ,
+                  asientos: {{ viaje.auto.capacidad }}</li>
+                <li> Costo por pasajero: ${{ viaje.get_costo_por_pasajero }}</li>
+                <li> Gasto total: ${{ viaje.gasto_total }}</li>
+                <li> Monto a retener por la aplicacion: ${{ viaje.get_comision_a_cobrar }}</li>
+                <li> Total depositado en cuenta: ${{ viaje.get_total_a_reintegrar_al_conductor }}</li>
+                <li> Copilotos confirmados: {{ viaje.get_count_copilotos_confirmados }}</li>
+                <li> Copilotos en espera: {{ viaje.get_count_copilotos_en_lista_de_espera }}</li>
+                <li> Lugares disponibles: {{ viaje.get_asientos_disponibles }}</li>
+                <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_solicitudesDeCopilotos',{{ viaje.pk }})">Lista de
+                  solicitudes pendientes
+                </button>
+
+                <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_CopilotosConfirmados',{{ viaje.pk }})">Lista de copilotos
+                  confirmados
+                </button>
+                  <button type="button" class="btn"
+                        onclick="openModalForViajeId('#modal_responder_preguntas',{{ viaje.pk }})">Responder preguntas
+                </button>
+                <button type="button" class="btn"
+                        onclick="{% if viaje.get_count_copilotos_confirmados or viaje.get_count_copilotos_en_lista_de_espera %}viajeNoEditable(){% else %}openModalForViajeId('#modal_editarViaje',{{ viaje.pk }}){% endif %}">
+                  Editar viaje
+                </button>
+                <button type="button" class="btn btn-danger"
+                        onclick="deleteViaje({{ viaje.pk }})">Eliminar viaje
+                </button>
+              </ul>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+  {% include 'unAventonApp/modals/listaPasajerosSinConfirmar.html' %}
+  {% include 'unAventonApp/modals/listaPasajerosConfirmados.html' %}
+  {% include 'unAventonApp/modals/modificarViaje.html' %}
+  {% include 'unAventonApp/modals/responderPreguntas.html' %}
+  <script>
+      var viaje_seleccionado = null;
+      var viaje_fecha_unix = null;
+
+      function openModalForViajeId(idSelector, idViaje, fecha_unix) {
+          $(idSelector).modal('show');
+          viaje_seleccionado = idViaje;
+          viaje_fecha_unix = fecha_unix;
+      }
+
+      function deleteViaje(id) {
+          if (!window.confirm("Estas seguro que deseas eliminar el viaje? (se calificara negativamente por cada fecha que tenga un copiloto confirmado")) {
+              return;
+          }
+
+          data = {
+              viaje_id: id
+          };
+
+          postJson("{% url 'eliminar_viaje' %}", data, reloadPage);
+      }
+
+      function reloadPage() {
+          location.reload();
+      }
+
+      function viajeNoEditable() {
+          alert("El viaje no puede ser editado, tiene solicitud de copilotos, o copilotos confirmados");
+      }
+
+  </script>
+{% endblock %}

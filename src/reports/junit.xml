@@ -1,0 +1,5 @@
+<testsuite errors="0" failures="1" name="Django Project Tests" skips="0" tests="5" time="2.939"><testcase classname="unAventonApp.tests.TestMetodosDeModels" name="test_copiloto_confirmado_tiene_calificaciones_pendientes_para_el_piloto" time="0.758994" /><testcase classname="unAventonApp.tests.TestMetodosDeModels" name="test_copiloto_no_confirmado_no_tiene_calificaciones_pendientes_para_el_piloto" time="0.700975" /><testcase classname="unAventonApp.tests.TestMetodosDeModels" name="test_copiloto_sin_viajes_no_tiene_calificaciones_pendientes_para_el_piloto" time="0.685848" /><testcase classname="unAventonApp.tests.TestMetodosDeModels" name="test_viajesEnEsperaComoCopiloto" time="0.701077"><failure message="False != True" type="builtins.AssertionError">Traceback (most recent call last):
+  File "/home/cristian/Escritorio/GIthub/unAventon/unAventonApp/tests.py", line 204, in test_viajesEnEsperaComoCopiloto
+    self.assertEqual(self.copiloto_1.viajesEnEsperaComoCopiloto().count() == 2, True)
+AssertionError: False != True
+</failure></testcase><testcase classname="unAventonApp.tests.unAventonTest" name="test_usuarioPuedeDarDeAltaUnViaje" time="0.090209" /></testsuite>

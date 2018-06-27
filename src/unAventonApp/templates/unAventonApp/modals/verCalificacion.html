@@ -1,0 +1,55 @@
+<div class="modal fade" id="id_modal_ver_calificion_de_usuario" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Calificacion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align: left">
+        <div id="calificacion_verCalificacion"></div>
+        <div id="comentario_verCalificacion"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+    var successCallbackVerCalificacion = function (data) {
+        console.log(data);
+        var calificacion = '<p> Calificacion: <strong>';
+        if (data.calificacion === 1) {
+            calificacion += '<span style="color:green">Positiva</span>';
+        } else if (data.calificacion === 0 ) {
+            calificacion += '<span style="color:grey">Neutral</span>';
+        } else if (data.calificacion === -1 ) {
+            calificacion += '<span style="color:red">Negativa</span>';
+        } else {
+            calificacion += data.calificacion + '? Unknown ? ';
+        }
+        calificacion += '</strong></p>';
+        var comentario = '<p> Comentario: '+ data.calificacion_mensaje +'</p>';
+        $("#calificacion_verCalificacion").html(calificacion);
+        $("#comentario_verCalificacion").html(comentario);
+    };
+
+    function setVerCalificacion(url, viajeCopilotoId) {
+
+        var callback = function (data) {
+            successCallbackVerCalificacion(data);
+        };
+
+        $('#id_modal_ver_calificion_de_usuario').on('shown.bs.modal', function (e) {
+            data = {
+                'viaje_copiloto_id': viajeCopilotoId,
+            };
+            postJson(url, data, callback)
+        });
+    }
+
+</script>
