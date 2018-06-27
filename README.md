@@ -23,14 +23,16 @@ Run the server
 ```
 python3 manage.py runserver 0.0.0.0:8000
 ```
-
-Configure the email sender
-```
-echo "yourmail@gmail.com" > '~/.gmail-user'
-echo "yourPassword" > '~/.gmail-password'
-```
-
 Now go to [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+
+Configure the email sender,   
+by default is configured to use gmail servers, if you want to change feel free to modidfy the setting.py
+```
+echo "yourmail@gmail.com" > ~/.gmail-user
+echo "yourPassword" > ~/.gmail-password
+```
+
 
 ### Contributing
 
