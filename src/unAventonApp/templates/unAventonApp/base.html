@@ -30,7 +30,7 @@
   <title>{% block title %}Un aventon{% endblock %}</title>
   <script src="{% static "unAventonApp/main.js" %}"></script>
 </head>
-{{ value | analyticGoogle }}
+{{ value | analyticGoogle | safe }}
 <style>
 
   /* Remove the navbar's default margin-bottom and rounded borders */
