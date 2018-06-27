@@ -1,25 +1,50 @@
-# "Un Aventon"
-Demo online [WebSite](https://unaventon.debuguear.com/)  
-Demo is running on branch stable.
-# Installation  
-Install the dependencies
-```bash
-$ sudo apt-get install virtualenv
-$ pip install virtualenv
-```
-Installing the project
-```bash
-$ mkdir projectUnAventon
-$ cd projectUnAventonproject
-$ git clone 
-$ cd unAventon
-$ bash hardUpdate.sh 
-$ python manage.py runserver 0.0.0.0:8000
-```
-Now go to [127.0.0.1:8000](127.0.0.1:8000)
 
-### Contributing
+# Project "Un Aventon"
+Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) , is synchronized in real time over the branch stable
 
+
+How to install your own instance server
+---------------------------------------
+Clone the repository
+```bash
+git clone git://github.com/arNTC/unAventon.git
+```
+
+move to folder src/
+  
+Install the requirements for python3
+```bash
+pip3 install -r requirements.txt
+```
+
+Build the databases
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+Run the server
+```
+python3 manage.py runserver 0.0.0.0:8000
+```
+Now go to [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+
+Configure the email sender,   
+by default is configured to use gmail servers, if you want to change feel free to modidfy the setting.py
+```
+echo "yourmail@gmail.com" > ~/.gmail-user
+echo "yourPassword" > ~/.gmail-password
+```
+
+
+Contribution 
+--------------------------------------
+
+In the spirit of open source software development, unAventon always encourages community code contribution.
+  
 #### Credits
 * Muiña, Sebastian Gabriel
 * Steib, Cristian
+  
+# Powered by
+[![IMAGE ALT TEXT HERE](https://www.djangoproject.com/s/img/logos/django-logo-positive.svg)](https://www.djangoproject.com/s/img/logos/django-logo-positive.svg)

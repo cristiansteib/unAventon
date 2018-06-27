@@ -1,0 +1,70 @@
+
+<div class="modal fade" id="id_modal_modificar_auto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modificar Vehiculo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+           <form id="id_form_update_car" method="POST" >{% csrf_token %}
+              <input hidden name="id_auto" id="modal_id_auto">
+               <fieldset>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_marca" class="form-control" placeholder="Marca" type="text" name="marca" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_modelo" class="form-control" placeholder="Modelo" type="text" name="modelo" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_capacidad" class="form-control" placeholder="Capacidad" type="text" name="capacidad" required readonly>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_dominio" class="form-control" placeholder="Dominio" type="text" name="dominio" required>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                <button id="btn_agregar_aut" type="button" class="btn btn-warning fondo-color" onclick="modificar_auto()">
+                  <i id="check_create_add_car" class="fa fa-check" style="display: none"></i>
+                  <i id="error_create_add_car" class="fa fa-times" style="display: none"></i>
+                  Guardar cambios
+                </button>
+                   {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_m_auto' idSuccess='ok_m_auto' %}
+
+              </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function modificar_auto() {
+        const data = getFormData($("#id_form_update_car"));
+        console.log(data);
+        const url = " {% url 'actualizar_auto' %}";
+        successCallback = function (response) {
+            loadUserData();
+            if (!response.error) {
+                $("#check_create_add_car").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto('ok_m_auto','Vehiculo modificado correctamente');
+            }else {
+                $("#error_create_add_car").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('error_m_auto',[response.msg]);
+            }
+        };
+
+        errorCallback = function (response) {
+            mostrarMensajeDeErrores('Error interno: ',[response.status]);
+        };
+
+        postJson(url,data,successCallback,errorCallback);
+
+  }
+
+    </script>

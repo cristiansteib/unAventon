@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  {% load unAventonApp_extras %}
+  {% load static %}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'unAventonApp/icono2.ico' %}">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+        integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"
+          integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
+          crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
+          integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
+          crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+        integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <title>{% block title %}Un aventon{% endblock %}</title>
+  <script src="{% static "unAventonApp/main.js" %}"></script>
+</head>
+{{ value | analyticGoogle }}
+<style>
+
+  /* Remove the navbar's default margin-bottom and rounded borders */
+  .navbar {
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  /* Set black background color, white text and some padding */
+  footer {
+    background-color: #f8ddbc;
+    color: black;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+  }
+
+  footer p{
+    margin-bottom: 0.1rem;
+  }
+
+  .fondo {
+    background-color: #f1737633;
+    margin-top: -15px;
+    text-align: left;
+  }
+
+  .fondo-color {
+    background-color: #ff6e72!important;
+  }
+  body {
+    padding: 0 0 100px 0;
+  }
+
+  #content {
+    margin-top: 15px;
+  }
+
+  #overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999999;
+    cursor: pointer;
+}
+
+
+  #overlay .text{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: white;
+    transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    background-color: #555555;
+    min-width: 25%;
+    min-height: 15%;
+    padding: 20px;
+    font-size: 2rem;
+}
+
+#imgBack{
+    background-image: url("{% static 'unAventonApp/fondo_auto.jpg' %}");
+   /* Full height */
+    height: 100%;
+    width: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #cccccc;
+  background-attachment: fixed;
+  position: fixed;
+  z-index: -99999;
+  opacity: 0.5;
+}
+
+</style>
+
+<body id="webWrapper" >
+<div id="imgBack"></div>
+{% include 'unAventonApp/__navbar_top.html' %}
+
+<div class="container-fluid text-center" >
+  <div class="col-xs-12">
+    <div id="content" >
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+
+<footer class="container-fluid text-center">
+  <p>Current branch: <b style="color: #212af9;">{{ branch | currentbranch }}</b>, {{ lastUpd | lastupdate }}</p>
+</footer>
+
+
+<script>
+function overlayShow(mensaje) {
+    document.getElementById("overlay").style.display = "block";
+    $("#overlay .text").html(mensaje)
+}
+
+function overlayHide() {
+    document.getElementById("overlay").style.display = "none";
+}
+
+    function mostrarMesajeCorrecto(id, mensaje) {
+        $('#' + id + 'mensaje_ok').html(mensaje);
+        $('#' + id + 'alert').fadeIn(1000).delay(3000).fadeOut(1000);
+    }
+
+    function mostrarMensajeDeErrores(id, mensajesArray) {
+        out = "";
+        for (i = 0; i < mensajesArray.length; i++) {
+            out += '<li class="list-group-item">' + mensajesArray[i] + '</li>';
+        }
+        $('#' + id + 'mensaje_error').html(out);
+        $('#' + id + 'alert').fadeIn(1000).delay(3000).fadeOut(1000);
+    }
+
+    function mostrarMensajeDeErroresAnidados(id, mensajesArray) {
+        arrayDeMensajes = [];
+        for (i = 0; i < mensajesArray.length; i++) {
+            var p = mensajesArray[i];
+            for (var key in p) {
+                if (p.hasOwnProperty(key)) {
+                    arrayDeMensajes.push(p[key]);
+                }
+            }
+        }
+        mostrarMensajeDeErrores(id, arrayDeMensajes);
+    }
+
+</script>
+
+<div id="overlay" onclick="overlayHide()">
+
+  <div class="text">
+<p>dfsgsdfgds</p>
+  </div>
+</div>
+
+</body>
+</html>

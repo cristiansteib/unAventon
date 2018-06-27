@@ -1,0 +1,70 @@
+
+<div class="modal fade" id="id_agregar_tarjeta" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Agregar tarjeta</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+           <form id="id_form_add_card" method="POST"onsubmit="return agregar_tarjeta()">{% csrf_token %}
+              <fieldset>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_numero_tarjeta" class="form-control" placeholder="Numero de tarjeta" type="text" name="cardNumber" pattern="[0-9]{16}" maxlength="16" title="El numero de tarjeta tiene que ser de 16 digitos" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_fecha_creacion_tarjeta" class="form-control" placeholder="Fecha de creacion" type="text" name="fechaCreacion" pattern="[0-9]{4}" maxlength="4" title="Solo ingrese numeros DDMM" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_fecha_vto_tarjeta" class="form-control" placeholder="Fecha de vencimiento" type="text" name="fechaVto" pattern="[0-9]{4}" maxlength="4" title="Solo ingrese numeros DDMM" required>
+                  </div>
+                    <div class="form-group col-md-6">
+                    <input id="modal_ccv_tarjeta" class="form-control" placeholder="CVV" type="text" name="ccv" pattern="[0-9]{3-4}" maxlength="4" minlength="3" title="Solo ingrese numeros, minimo 3 numeros" required>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-warning fondo-color">
+                  <i id="check_create_credit_card" class="fa fa-check" style="display: none"></i>
+                  <i id="error_create_credit_card" class="fa fa-times" style="display: none"></i>
+                  Agregar
+                </button>
+                {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='msgErrorAddTarjeta' idSuccess='msgSuccAddTarjeta' %}
+
+              </fieldset>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+    function agregar_tarjeta() {
+        var data = getFormData($("#id_form_add_card"));
+        console.log(data);
+        var url = " {% url 'crear_tarjeta' %}";
+        successCallback = function (response) {
+            if (!response.error) {
+                loadUserData();
+                $("#check_create_credit_card").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto('msgSuccAddTarjeta', response.msg);
+            }else {
+                $("#error_create_credit_card").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('msgErrorAddTarjeta',[response.msg]);
+            }
+        };
+
+        errorCallback = function (response) {
+            console.log('ohoh tarjeta  ',response.error,response.msg,response.data);
+            $("#error_create_credit_card").fadeIn(500).fadeOut(500);
+            mostrarMensajeDeErrores('msgErrorAddTarjeta',['Error interno: ' + response.status]);
+
+        };
+        postJson(url,data,successCallback,errorCallback);
+        return false;
+    }
+
+</script>

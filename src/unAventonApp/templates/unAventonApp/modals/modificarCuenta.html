@@ -1,0 +1,62 @@
+<div class="modal fade" id="id_modal_modificar_cuenta" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modificar Cuenta</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="id_form_modificar_cuenta" method="POST" onsubmit="return modificar_cuenta();">{% csrf_token %}
+            <input hidden name="id_cuenta" id="modal_id_cuenta">
+            <fieldset>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <input id="modal_codigo_cbu" class="form-control" placeholder="CBU" type="text" name="cbu"  pattern="[0-9]{22}" maxlength="22" title="El cbu tiene que ser de 22 digitos" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input id="modal_entidad" class="form-control" placeholder="Entidad" type="text" name="entity" pattern="[a-zA-Z\s]+"  title="Solo se aceptan letras y espacios"  required>
+                  </div>
+                </div>
+              </fieldset>
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                <button id="btn_update_bank_account" type="submit" class="btn btn-warning fondo-color">
+                    <i id="check_update_bank_account" class="fa fa-check" style="display: none"></i>
+                    <i id="error_update_bank_account" class="fa fa-times" style="display: none"></i>
+                    Guardar cambios
+                </button>
+            {% include 'unAventonApp/alerts/alertsGenericos.html' with idError='error_m_cuenta' idSuccess='ok_m_cuenta' %}
+
+              </fieldset>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+    function modificar_cuenta() {
+        var data = getFormData($("#id_form_modificar_cuenta"));
+        var url = " {% url 'actualizar_cuenta_bancaria' %}";
+        successCallback = function (response) {
+            loadUserData();
+            if (!response.error) {
+                $("#check_update_bank_account").fadeIn(500).fadeOut(500);
+                mostrarMesajeCorrecto('ok_m_cuenta','Cuenta bancaria modificada correctamente');
+            }else {
+                $("#error_update_bank_account").fadeIn(500).fadeOut(500);
+                mostrarMensajeDeErrores('error_m_cuenta',[response.msg]);
+            }
+            console.log('success cuenta bancaria',response.data, response.error, response.msg);
+        };
+        errorCallback = function (response) {
+            console.log('error cuenta bcancaria', response.msg, response.error);
+        };
+        postJson(url,data,successCallback,errorCallback);
+        return false;
+    }
+</script>

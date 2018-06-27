@@ -1,0 +1,74 @@
+<!-- lista de los viajes en el que el usuario esta inscripto -->
+{% extends "unAventonApp/base.html" %}
+{% block title %}Calificaciones {% endblock %}
+{% block content %}
+  <style>
+    .card-fondo {
+      background: #f7efef
+    }
+
+    .fondo-columna-piloto {
+      background: #f7f1f2;
+
+    }
+
+    .fondo-columna-copiloto {
+      background: #a2a8d0;
+    }
+
+  </style>
+  <div class="container">
+    <h4>Calificaciones para {{ usuario }}</h4>
+    <div class="row" >
+      <div class="col-md-6 fondo-columna-piloto" style="padding: 10px">
+        <h3>Como piloto: {{ usuario.get_puntaje_como_piloto }}</h3>
+        {% if calificaciones_como_piloto %}
+          {% for calificacion in calificaciones_como_piloto %}
+            <div class="card card-fondo">
+              <div class="card-body">
+                <h5 class="card-title">{{ calificacion.calificacion }} punto</h5>
+                <p class="card-text">{{ calificacion.mensaje }}</p>
+              </div>
+              <h6 class="card-subtitle mb-2 text-muted">{{ calificacion.usuario }}
+                el {{ calificacion.fecha_del_viaje }}</h6>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="card card-fondo">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p class="card-text">Aun no tiene calificaciones como piloto.</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+
+      <div class="col-md-6 fondo-columna-copiloto" style="padding: 10px">
+        <h3>Como copiloto: {{ usuario.get_puntaje_como_copiloto }}</h3>
+        {% if calificaciones_como_copiloto %}
+          {% for calificacion in calificaciones_como_copiloto %}
+            <div class="card card-fondo">
+              <div class="card-body">
+                <h5 class="card-title">{{ calificacion.calificacion }} punto</h5>
+                <p class="card-text">{{ calificacion.mensaje }}</p>
+              </div>
+              <h6 class="card-subtitle mb-2 text-muted">{{ calificacion.viaje.auto.usuario }}
+                el {{ calificacion.fecha_del_viaje }}</h6>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="card card-fondo">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p class="card-text">Aun no tiene calificaciones como copiloto.</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+
+    </div>
+  </div>
+
+{% endblock %}

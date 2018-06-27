@@ -1,0 +1,136 @@
+{% extends "unAventonApp/base.html" %}
+{% block title %}Buscar viaje{% endblock %}
+{% block content %}
+  <style>
+    #formBuscarViaje {
+      background-color: #343a40;
+      padding: 35px;
+      border-radius: 5px;
+      color: #f7efef;
+    }
+
+    .itembusqueda {
+      background-color: #fff1f1;
+      margin-bottom: 15px;
+
+    }
+    .itembusqueda .card-body{
+      padding: 0.7rem;
+    }
+
+    .itembusqueda-right {
+      text-align: right;
+    }
+
+  </style>
+
+  <div class="container" style="text-align: left">
+    <div class="row">
+      <div class="col-md-5" style="width: 100%">
+        <form id="formBuscarViaje">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="origenInput" name="origen" placeholder="Origen"
+                     required>
+            </div>
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="destinoInput" name="destino"
+                     placeholder="Destino"
+                     required>
+            </div>
+          </div>
+
+
+          <h6>Fecha y hora de salida</h6>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="date" class="form-control" id="precioMaxInput" name="fecha" placeholder="">
+            </div>
+            <div class="form-group col-md-6">
+              <input type="time" class="form-control" id="precioMinInput" name="hora" placeholder="">
+            </div>
+
+          </div>
+
+          <h6>Precio</h6>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="precioMaxInput" name="precio_min"
+                     placeholder="Minimo">
+            </div>
+            <div class="form-group col-md-6">
+              <input type="text" class="form-control" id="precioMinInput" name="precio_max"
+                     placeholder="Maximo">
+            </div>
+
+          </div>
+          <button type="button" onclick="buscarViaje()" class="btn btn-primary">Buscar</button>
+        </form>
+
+      </div>
+
+      <div id="id_viajes_encontrados" class="col-md-7">
+
+        <div class="card text-center itembusqueda" style="display: none">
+          <div class="card-body ">
+            <h4 class="precio"> Precio $160</h4>
+            <h5><strong>La Plata</strong> a <strong>tandil</strong></h5>
+            <h5>Fri, 10 Aug 2018 22:58:00 GMT</h5>
+            <h6 style="color:red;">Sos piloto de este viaje</h6>
+            <div class="itembusqueda-right "><a class="btn btn-success" href="/viaje/2/1533941880"> Ver detalle</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+      function successSearch(data) {
+          mostrarViajesEncontrados(data);
+          console.log(data);
+      }
+
+      function errorSearch(response) {
+          console.log('error en post form');
+
+      }
+
+      function buscarViaje() {
+          data = getFormData($("#formBuscarViaje"));
+          postJson("{% url 'buscar_viaje_ajax' %}", data, successSearch, errorSearch);
+      }
+
+      function mostrarViajesEncontrados(data) {
+          console.log('viajes', data.viajes[0]);
+          var v = data.viajes;
+          if (data !== null) {
+              $("#id_viajes_encontrados").html('');
+              for (i = 0; i < v.length; i++) {
+                  var unix_time = v[i].fecha_hora_salida_unix;
+                  output = '<div class="card text-center itembusqueda">';
+                  output += '<div class="card-body ">';
+                  output += '<h4 class="precio"> Precio $' + v[i].costo_por_pasajero + ' </h4>';
+                  output += '<h5><strong> ' + v[i].origen + '</strong> a <strong>' + v[i].destino + '</strong></h5>';
+                  output += '<h5>' + new Date(v[i].fecha_hora_salida).toLocaleDateString()  +' ' + new Date(v[i].fecha_hora_salida).toLocaleTimeString()  + '</h5>';
+                  if (v[i].esta_incripto) {
+                      output += ' <h6 style="color:green;">Estas inscripto en este viaje</h6>';
+                  }
+                  if (v[i].es_piloto) {
+                      output += ' <h6 style="color:red;">Sos piloto de este viaje</h6>';
+                  }
+                  output += '<div class="itembusqueda-right "><a class="btn btn-success" href="/viaje/' + v[i].id + '/' + unix_time + '"> Ver detalle</a></div>';
+                  output += '</div>';
+                  output += '</div>';
+
+
+                  $("#id_viajes_encontrados").append(output);
+              }
+          }
+      }
+
+
+  </script>
+
+
+
+{% endblock %}
