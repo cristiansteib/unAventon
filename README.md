@@ -9,6 +9,8 @@ Clone the repository
 git clone git://github.com/arNTC/unAventon.git
 ```
 
+move to folder src/
+  
 Install the requirements for python3
 ```bash
 pip3 install -r requirements.txt
