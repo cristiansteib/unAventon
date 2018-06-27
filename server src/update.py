@@ -43,8 +43,8 @@ git = Git('src/')
 logInfoExec(git.fetch())
 logInfoExec(git.checkout(GIT_BRANCH))
 x = git.pull(GIT_BRANCH)
-#if str(x.stdout.decode()).count('up-to-date'):
-#    exit(0)
+if str(x.stdout.decode()).count('up-to-date'):
+    exit(0)
 logInfoExec(git.resetHard(GIT_BRANCH))
 cmd.execute('killall', 'uwsgi')
 os.chdir('src/')
