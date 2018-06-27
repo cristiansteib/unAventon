@@ -7,6 +7,10 @@ register = template.Library()
 
 
 @register.filter(is_safe=True)
+def analyticGoogle(value):
+    return settings.ANALYTIC_GOOGLE_SCRIPT
+
+@register.filter(is_safe=True)
 def currentbranch(value):
     return (Git(settings.BASE_DIR).getActuallBranch())
 

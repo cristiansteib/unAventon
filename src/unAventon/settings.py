@@ -138,6 +138,12 @@ except:
     print("No se enviaran los mails, Crear los archivos en tu home, revisa las settings")
     a = None
     b = None
+
+try:
+    ANALYTIC_GOOGLE_SCRIPT = open(os.path.expanduser('~/.analyticsGoogle')).read().strip()
+except:
+    ANALYTIC_GOOGLE_SCRIPT = ''
+
 EMAIL_HOST_USER = a
 EMAIL_HOST_PASSWORD = b
 EMAIL_USE_TLS = True
