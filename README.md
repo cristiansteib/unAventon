@@ -1,5 +1,5 @@
 # Project "Un Aventon"
-Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) ,is synchronized in real time over the branch stable
+Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) , is synchronized in real time over the branch stable
 
 
 How to install your own instance server
@@ -23,7 +23,14 @@ Run the server
 ```
 python3 manage.py runserver 0.0.0.0:8000
 ```
-Now go to [127.0.0.1:8000](127.0.0.1:8000)
+
+Configure the email sender
+```
+echo "yourmail@gmail.com" > '~/.gmail-user'
+echo "yourPassword" > '~/.gmail-password'
+```
+
+Now go to [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ### Contributing
 
