@@ -1,3 +1,4 @@
+
 # Project "Un Aventon"
 Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) , is synchronized in real time over the branch stable
 
@@ -44,3 +45,6 @@ In the spirit of open source software development, unAventon always encourages c
 #### Credits
 * Muiña, Sebastian Gabriel
 * Steib, Cristian
+  
+# Powered by
+[![IMAGE ALT TEXT HERE](https://www.djangoproject.com/s/img/logos/django-logo-positive.svg)](https://www.djangoproject.com/s/img/logos/django-logo-positive.svg)
