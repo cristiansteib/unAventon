@@ -1,20 +1,27 @@
-# "Un Aventon"
-Demo online [WebSite](https://unaventon.debuguear.com/)  
-Demo is running on branch stable.
-# Installation  
-Install the dependencies
+# Project "Un Aventon"
+Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) ,is synchronized in real time over the branch stable
+
+
+How to install your own instance server
+---------------------------------------
+Clone the repository
 ```bash
-$ sudo apt-get install virtualenv
-$ pip install virtualenv
+git clone git://github.com/arNTC/unAventon.git
 ```
-Installing the project
+
+Install the requirements for python3
 ```bash
-$ mkdir projectUnAventon
-$ cd projectUnAventonproject
-$ git clone 
-$ cd unAventon
-$ bash hardUpdate.sh 
-$ python manage.py runserver 0.0.0.0:8000
+pip3 install -r requirements.txt
+```
+
+Build the databases
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+Run the server
+```
+python3 manage.py runserver 0.0.0.0:8000
 ```
 Now go to [127.0.0.1:8000](127.0.0.1:8000)
 
