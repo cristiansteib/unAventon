@@ -1,0 +1,8 @@
+#!/bin/bash
+while true; do
+        bash /root/unAventon/server.sh ifdown & >> /var/log/uwsgi_unaventon.log
+        sleep 20
+        python3 /root/unAventon/updater.py >> /var/log/updater.log
+        sleep 5
+done
+
