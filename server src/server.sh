@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 pid=()
 proceso="uwsgi"
 run="uwsgi /root/unAventon/uwsgi.ini"
@@ -105,3 +104,4 @@ case "$1" in
           echo "* Usage: (start|stop|ifdown|restart|status)"
 esac
 exit 0
+
