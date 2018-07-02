@@ -15,7 +15,6 @@ Install the requirements for python3
 pip3 install -r requirements.txt
 ```
 
-
 Build the databases
 ```bash
 python3 manage.py makemigrations
