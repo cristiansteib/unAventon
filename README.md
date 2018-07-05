@@ -1,5 +1,5 @@
 
-# ---Project "Un Aventon"---
+# ---Project "Un Aventon"--- 
 Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) , is synchronized in real time over the branch stable
 
 
@@ -15,7 +15,6 @@ Install the requirements for python3
 ```bash
 pip3 install -r requirements.txt
 ```
-
 
 Build the databases
 ```bash
