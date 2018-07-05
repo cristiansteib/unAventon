@@ -3,12 +3,6 @@
 Server: [https://unaventon.debuguear.com/](https://unaventon.debuguear.com/) , is synchronized in real time over the branch stable
 
 
-
-
-
-
-
-
 How to install your own instance server
 ---------------------------------------
 Clone the repository
